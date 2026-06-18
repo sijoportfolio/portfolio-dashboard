@@ -55,7 +55,7 @@ document.write('<link rel="manifest" href="' + manifestURL + '">');
      so users see the update notification banner.
 ═══════════════════════════════════════════════ -->
 <script>
-const DASHBOARD_VERSION = '1.5.0';
+const DASHBOARD_VERSION = '2.1.0';
 const DASHBOARD_DATE    = '2026-06-18';
 </script>
 
@@ -317,7 +317,12 @@ tbody tr:last-child td{border-bottom:none}
     <div class="brand-sub" id="mastheadSub">Sijo Tom · Global Consolidated · USD Base · Loading…</div>
     <div id="lastUpdated">⏳ Fetching live data from Google Sheets…</div>
   </div>
-  <div class="live-pill"><span class="pulse"></span><span id="livePillText">Syncing…</span></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+    <div class="live-pill"><span class="pulse"></span><span id="livePillText">Syncing…</span></div>
+    <button id="refreshBtn" onclick="refreshDashboard()" style="background:#0a1a0f;border:1px solid #1a3a24;border-radius:6px;padding:5px 12px;font-size:8px;color:var(--green);cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;transition:all .2s" onmouseover="this.style.background='#0f2a14'" onmouseout="this.style.background='#0a1a0f'">
+      ↻ REFRESH
+    </button>
+  </div>
 </div>
 
 <div id="loadingBanner">
@@ -329,7 +334,7 @@ tbody tr:last-child td{border-bottom:none}
 <div class="nav-tabs">
   <button class="tab-btn active" onclick="showTab('snapshot',this)">L1 · Portfolio Snapshot</button>
   <button class="tab-btn" onclick="showTab('health',this)">L2 · Position Health</button>
-  <button class="tab-btn" onclick="showTab('scanner',this)">L3 · Opportunity Scanner</button>
+  <button class="tab-btn" onclick="showTab('scanner',this)">L3 · Watchlist</button>
 </div>
 
 <!-- L1 -->
@@ -506,16 +511,34 @@ tbody tr:last-child td{border-bottom:none}
 <div class="footer" id="footer"></div>
 </div><!-- /L1 -->
 
-<!-- L2 HEALTH -->
+<!-- L2 POSITION HEALTH — live from sheet -->
 <div id="tab-health" class="tab-content">
-  <div class="sh"><div class="stripe" style="background:var(--gold)"></div><div class="sname">Position Health Board</div><div class="sr">Last review: <span id="lastReviewDate">—</span></div></div>
-  <div class="hb-grid" id="healthGrid"></div>
+  <div class="sh">
+    <div class="stripe" style="background:var(--gold)"></div>
+    <div class="sname">Position Health — Live</div>
+    <div class="sr">vs 18% CAGR pro-rata · analyst targets from Transactions</div>
+  </div>
+  <div id="healthLiveGrid" class="hb-grid"></div>
 </div>
 
-<!-- L3 SCANNER -->
+<!-- L3 WATCHLIST — live from Watchlist sheet + Claude API -->
 <div id="tab-scanner" class="tab-content">
-  <div class="sh"><div class="stripe" style="background:var(--purple)"></div><div class="sname" style="color:var(--purple)">Opportunity Scanner</div><div class="sr">Pabrai Framework · Heads-I-Win</div></div>
-  <div id="scannerGrid"></div>
+  <div class="sh">
+    <div class="stripe" style="background:var(--purple)"></div>
+    <div class="sname" style="color:var(--purple)">Watchlist — Live Research</div>
+    <div class="sr">Add tickers to Watchlist tab in Google Sheets · auto-refreshes</div>
+  </div>
+  <div id="alertBanner" style="display:none;background:linear-gradient(135deg,#1a0a00,#2a1400);border:1px solid var(--orange);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:8.5px;color:var(--orange)">
+    <div style="font-size:11px;font-weight:700;margin-bottom:6px">🔔 BUY ZONE ALERT</div>
+    <div id="alertList"></div>
+  </div>
+  <div class="note" style="margin-bottom:14px">
+    <strong>How to add to watchlist:</strong> Open Google Sheets → Watchlist tab → add ticker in col A, entry low in col B, entry high in col C. Dashboard auto-fills everything else. Max 20 tickers.
+  </div>
+  <div id="watchlistGrid"></div>
+  <div id="watchlistEmpty" style="display:none;text-align:center;padding:40px;font-size:9px;color:var(--muted)">
+    No tickers in Watchlist sheet yet. Add tickers in col A of the Watchlist tab in Google Sheets.
+  </div>
 </div>
 
 </div><!-- /wrap -->
@@ -534,6 +557,9 @@ const SHEETS = {
   dashboard:  `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=2012162756&single=true&output=csv`,
   settings:   `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=202595598&single=true&output=csv`,
   taxOpt:     `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1536752207&single=true&output=csv`,
+  // Add your Watchlist sheet GID below after creating the tab
+  // Go to the Watchlist tab → check URL for gid=XXXXXXX → replace 0 below
+  watchlist:  `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1099209047&single=true&output=csv`,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -604,73 +630,11 @@ const FALLBACK = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATIC DATA (not in sheets — kept here for health & scanner)
 // ─────────────────────────────────────────────────────────────────────────────
-const healthData=[
-  {name:'NVIDIA (NVDA)',bucket:'AI Core · 34 shares · Avg $211.30',ltp:'$207.41',pct:'-1.8%',pos:false,
-   dims:[{l:'Theme',s:5,c:'#2ecc8a'},{l:'Fundamentals',s:5,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:4,c:'#2ecc8a'},{l:'Fit',s:5,c:'#2ecc8a'}],
-   total:23,note:'Q1 FY27 EPS beat 6.5%. Revenue +85% YoY. 61 Buy. PT $165. Computex Jun 2026 upcoming catalyst. <strong>13 pending at $208 — fills soon.</strong>',
-   reviewed:'15 Jun 2026',next:'Aug 26 2026 (Q2)',sc:'s-green'},
-  {name:'Microsoft (MSFT)',bucket:'AI Core · 21 shares · Avg $416.92',ltp:'$393.83',pct:'-5.5%',pos:false,
-   dims:[{l:'Theme',s:5,c:'#2ecc8a'},{l:'Fundamentals',s:5,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:5,c:'#2ecc8a'},{l:'Fit',s:5,c:'#2ecc8a'}],
-   total:24,note:'Q3 Revenue $82.9B +18.3%. Azure AI strong. PT $480. Ackman buying. <strong>Long-term hold — thesis intact.</strong>',
-   reviewed:'15 Jun 2026',next:'Jul 2026 (Q4)',sc:'s-green'},
-  {name:'MercadoLibre (MELI)',bucket:'Diversification · 5 shares · Avg $1,637',ltp:'$1,674',pct:'+2.2%',pos:true,
-   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:3,c:'#f59e0b'},{l:'Macro/Geo',s:3,c:'#f59e0b'},{l:'Price/Thesis',s:4,c:'#2ecc8a'},{l:'Fit',s:4,c:'#2ecc8a'}],
-   total:18,note:'Revenue +49% YoY. EPS missed 11%. <strong>Insider buy May 26.</strong> PT $2,200. Thesis intact.',
-   reviewed:'15 Jun 2026',next:'Aug 2026 (Q2)',sc:'s-blue'},
-  {name:'Meta Platforms (META)',bucket:'AI Core · 13.45 shares · Avg $647.60',ltp:'$600.21',pct:'-7.3%',pos:false,
-   dims:[{l:'Theme',s:5,c:'#2ecc8a'},{l:'Fundamentals',s:5,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:3,c:'#f59e0b'},{l:'Fit',s:4,c:'#2ecc8a'}],
-   total:21,note:'$145B capex 2026. Nvidia confirmed 3.5x ad clicks from AI. <strong>-7.3% vs pro-rata target.</strong> Watch Q2 Jul.',
-   reviewed:'15 Jun 2026',next:'Jul 2026 (Q2)',sc:'s-green'},
-  {name:'Newmont Corp (NEM)',bucket:'Gold Hedge · 51 shares · Avg $115.23',ltp:'$108.44',pct:'-5.9%',pos:false,
-   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:4,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:3,c:'#f59e0b'},{l:'Fit',s:5,c:'#2ecc8a'}],
-   total:20,note:'Q1 EPS beat 33%. $6B buyback. 18 Buy PT $143. <strong>Hedge — not vs 18% CAGR.</strong>',
-   reviewed:'15 Jun 2026',next:'Jul 29 2026 (Q2)',sc:'s-blue'},
-  {name:'ADNOC Drilling',bucket:'UAE GCC · 4,298 shares · Avg AED 5.36',ltp:'AED 6.09',pct:'+13.5%',pos:true,
-   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:4,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:4,c:'#2ecc8a'},{l:'Fit',s:4,c:'#2ecc8a'}],
-   total:20,note:'XIRR 21.54%. GCC capex intact. No CGT. +13.5% vs 14.6% pro-rata — on track.',
-   reviewed:'15 Jun 2026',next:'Next ADNOC earnings',sc:'s-green'},
-  {name:'KPIT Technologies',bucket:'India IT · Exit plan',ltp:'₹757.65',pct:'-53.1%',pos:false,
-   dims:[{l:'Theme',s:2,c:'#e05555'},{l:'Fundamentals',s:2,c:'#e05555'},{l:'Macro/Geo',s:2,c:'#e05555'},{l:'Price/Thesis',s:1,c:'#e05555'},{l:'Fit',s:1,c:'#e05555'}],
-   total:8,note:'Auto software thesis broken. <strong>Exit ₹900–950 → harvest -₹73.7K → redeploy US.</strong>',
-   reviewed:'15 Jun 2026',next:'Monitor ₹900 trigger',sc:'s-red'},
-  {name:'Adobe Inc (ADBE)',bucket:'Software · NEW · 38 shares · Avg $210',ltp:'$207.32',pct:'-1.3%',pos:false,
-   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:4,c:'#2ecc8a'},{l:'Macro/Geo',s:3,c:'#f59e0b'},{l:'Price/Thesis',s:3,c:'#f59e0b'},{l:'Fit',s:4,c:'#2ecc8a'}],
-   total:18,note:'2d old. Firefly AI expanding. PT $252. <strong>Full health score Sep 2026.</strong>',
-   reviewed:'15 Jun 2026',next:'Sep 2026 (90-day review)',sc:'s-blue'},
-];
-
-const scanData=[
-  {name:'Credo Technology (CRDO)',sector:'AI Interconnect · Data Centre · Under-the-radar',urgency:'HOT',uc:'urg-hot',
-   current:'$225',entry:'$215–225 now',upside:'3–5x in 3–4yr',size:'$3,500–4,000',
-   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:true},{l:'Simple biz',y:true},{l:'Mgmt skin',y:true},{l:'Mispriced',y:true}],
-   thesis:'Active electrical cables and AI data centre interconnects. Revenue +278% YoY. <strong>Zero portfolio overlap.</strong> Less crowded than NVDA/AMD. AI interconnect cycle not fully priced. Best Pabrai score of all picks.',
-   risk:'Hyperscaler customer concentration. Small cap volatility. In-house build risk.'},
-  {name:'Taiwan Semiconductor (TSM)',sector:'AI Foundry · Picks and Shovels · Global',urgency:'HOT',uc:'urg-hot',
-   current:'$423',entry:'$415–425 now',upside:'50–70% in 3yr',size:'$4,000–5,000',
-   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:false},{l:'Simple biz',y:true},{l:'Mgmt skin',y:true},{l:'Mispriced',y:true}],
-   thesis:'Every AI chip — NVDA, AMD, Apple, Google, ARM — manufactured at TSMC. <strong>2026 revenue growth raised to 30%+.</strong> Classic Pabrai toll road — simple moat, mispriced via Taiwan geopolitical discount.',
-   risk:'Taiwan geopolitical risk. 18x forward earnings — cheaper than US peers but not distressed.'},
-  {name:'ARM Holdings (ARM)',sector:'AI Architecture · Royalty Model · Wait for dip',urgency:'WATCH',uc:'urg-watch',
-   current:'$341 — do not chase',entry:'$290–310 limit',upside:'2–3x in 3–4yr',size:'$3,000 on dip',
-   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:false},{l:'Simple biz',y:true},{l:'Mgmt skin',y:false},{l:'Mispriced',y:false}],
-   thesis:'Every custom AI chip pays ARM royalty. Royalty base compounds as AI moves to edge. <strong>Set limit $290–310 — do not chase $341.</strong>',
-   risk:'Current $341 embeds significant AI optionality. SoftBank overhang. Patience required.'},
-  {name:'Intel (INTC)',sector:'Contrarian Deep Value · Foundry Pivot',urgency:'WATCH',uc:'urg-watch',
-   current:'$120.79',entry:'$110–120 now',upside:'3–5x in 5yr if foundry works',size:'$1,500 max',
-   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:true},{l:'Simple biz',y:true},{l:'Mgmt skin',y:true},{l:'Mispriced',y:true}],
-   thesis:'CEO Lip-Bu Tan executing foundry pivot. CHIPS Act tailwind. <strong>At $120 downside largely priced.</strong> Heads-I-win Pabrai setup.',
-   risk:'Execution risk very real. 5-year bet not 1-year trade. Size at $1,500 max.'},
-  {name:'Cerebras Systems (CBRS)',sector:'AI Inference · Wafer-Scale · Post-IPO dip',urgency:'PATIENT',uc:'urg-patient',
-   current:'~$256',entry:'$210–230 on dip',upside:'3–4x in 3yr',size:'$1,500–2,000',
-   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:true},{l:'Simple biz',y:false},{l:'Mgmt skin',y:true},{l:'Mispriced',y:false}],
-   thesis:'IPO May 14 opened $385 → <strong>now $256, -33% from open.</strong> OpenAI $20B+. UAE MBZUAI 62% revenue. Q1 $510M +76% YoY. Wait for $210–230.',
-   risk:'62% customer concentration. $55B at 7.5x sales. Do not buy at $256.'},
-];
-
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
-let LIVE = null; // populated from Google Sheets or fallback
+let LIVE = null;
+let WATCHLIST = [];
 let currentPeriod = 'total';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -735,8 +699,27 @@ async function loadFromSheets() {
 
   // Parse Live Engine holdings (header row index ~6)
   let holdingStart = -1;
+  let hIdx = {qty:5,costLocal:6,avgCost:7,ltp:8,valueUsd:9,pnlUsd:10,pnlPct:11,holdingSince:14,days:15};
   for (let i=0;i<leRows.length;i++) {
-    if (leRows[i][0]==='Ticker' && leRows[i][1]==='Asset Type') { holdingStart=i+1; break; }
+    const r = leRows[i];
+    if (r[0]==='Ticker' || r[0]==='ticker') {
+      holdingStart = i+1;
+      // Build column index map from headers
+      r.forEach((h,idx) => {
+        const hl = (h||'').toLowerCase().trim();
+        if (hl.includes('qty') || hl.includes('quantity')) hIdx.qty = idx;
+        else if (hl.includes('total cost') || hl.includes('cost usd')) hIdx.costLocal = idx;
+        else if (hl.includes('avg') || hl.includes('average')) hIdx.avgCost = idx;
+        else if (hl.includes('ltp') || hl.includes('live price') || hl.includes('current price')) hIdx.ltp = idx;
+        else if (hl.includes('value') && hl.includes('usd')) hIdx.valueUsd = idx;
+        else if (hl.includes('p&l') && hl.includes('usd') && !hl.includes('%')) hIdx.pnlUsd = idx;
+        else if (hl.includes('p&l') && hl.includes('%')) hIdx.pnlPct = idx;
+        else if (hl.includes('holding since') || hl.includes('since')) hIdx.holdingSince = idx;
+        else if (hl.includes('days') && !hl.includes('ltcg')) hIdx.days = idx;
+      });
+      console.log('📋 Live Engine column map:', hIdx);
+      break;
+    }
   }
 
   const holdings = [];
@@ -748,39 +731,49 @@ async function loadFromSheets() {
       const region = r[3];
       const platform = r[4];
       const fallbackH = FALLBACK.holdings.find(h=>h.ticker===ticker)||{};
+      // Map columns by header index for robustness
+      const qty       = num(r[hIdx.qty]       || r[5]);
+      const costLocal = num(r[hIdx.costLocal]  || r[6]);
+      const avgCost   = num(r[hIdx.avgCost]    || r[7]);
+      const ltp       = num(r[hIdx.ltp]        || r[8]);
+      const valueUsd  = num(r[hIdx.valueUsd]   || r[9]);
+      const pnlUsd    = num(r[hIdx.pnlUsd]     || r[10]);
+      const pnlPct    = num(r[hIdx.pnlPct]     || r[11]);
+      const holdingSince = r[hIdx.holdingSince] || r[14] || fallbackH.holdingSince || '';
+      const daysHeld  = num(r[hIdx.days]        || r[15]);
+      // analyst target: try col K of Transactions via fallback
+      const analysisPct = fallbackH.analysisPct !== undefined ? fallbackH.analysisPct : null;
+
       holdings.push({
-        ticker, assetType:r[1], sector:r[2], region, platform,
-        qty:num(r[5]), totalCostUsd:num(r[6]), avgCostUsd:num(r[7]),
-        ltpUsd:num(r[8]), valueUsd:num(r[9]), pnlUsd:num(r[10]),
-        pnlPct:num(r[11]),
-        holdingSince: r[14]||fallbackH.holdingSince||'',
-        daysHeld: num(r[15]),
+        ticker, assetType:r[1]||'Equity', sector:r[2]||'', region, platform,
+        qty, totalCostUsd:costLocal, avgCostUsd:avgCost,
+        ltpUsd:ltp, valueUsd, pnlUsd, pnlPct,
+        holdingSince, daysHeld,
         isHedge: fallbackH.isHedge||false,
         name: fallbackH.name||ticker,
         notes: fallbackH.notes||'',
         action: fallbackH.action||'Hold',
         ac: fallbackH.ac||'b-hold',
         cc: fallbackH.cc||'hc-blue',
-        analysisPct: fallbackH.analysisPct||null,
+        analysisPct,
       });
     }
   }
 
-  // Parse Dashboard summary
-  let totalVal=0, totalCost=0, pnl=0, usVal=0, uaeVal=0, indiaVal=0, cryptoVal=0;
-  for (const r of dashRows) {
-    const lbl = r[0]||'';
-    if (lbl.includes('Total Portfolio')) totalVal=num(r[1]);
-    if (lbl.includes('Total Cost')) totalCost=num(r[1]);
-    if (lbl.includes('P&L') && !lbl.includes('%')) pnl=num(r[1]);
-    if (lbl.includes('Wio USD')) usVal=num(r[1]);
-    if (lbl.includes('Wio AED')) uaeVal=num(r[1]);
-    if (lbl.includes('Zerodha')) indiaVal=num(r[1]);
-  }
+  // Derive all totals directly from holdings — most reliable
+  // Platform splits: Wio USD = US equities, Wio AED equity = UAE, Wio AED crypto = Crypto, Zerodha = India
+  const usHoldArr    = holdings.filter(h => h.platform==='Wio USD');
+  const uaeHoldArr   = holdings.filter(h => h.platform==='Wio AED' && h.assetType!=='Crypto');
+  const cryptoHoldArr= holdings.filter(h => h.assetType==='Crypto');
+  const indiaHoldArr = holdings.filter(h => h.platform==='Zerodha');
 
-  // Derive crypto from holdings
-  const cryptoHoldings = holdings.filter(h=>h.assetType==='Crypto');
-  cryptoVal = cryptoHoldings.reduce((s,h)=>s+h.valueUsd,0);
+  const usVal    = usHoldArr.reduce((s,h)=>s+h.valueUsd,0);
+  const uaeVal   = uaeHoldArr.reduce((s,h)=>s+h.valueUsd,0);
+  const cryptoVal= cryptoHoldArr.reduce((s,h)=>s+h.valueUsd,0);
+  const indiaVal = indiaHoldArr.reduce((s,h)=>s+h.valueUsd,0);
+  const totalVal = usVal + uaeVal + cryptoVal + indiaVal;
+  const totalCost= holdings.reduce((s,h)=>s+(h.totalCostUsd||(h.avgCostUsd*h.qty)||0),0);
+  const pnl      = holdings.reduce((s,h)=>s+h.pnlUsd,0);
 
   // Parse Tax
   let harvestSavingInr=0, taxLiabilityInr=0, totalPnlInr=0;
@@ -819,6 +812,7 @@ async function loadFromSheets() {
 async function init() {
   try {
     LIVE = await loadFromSheets();
+    await loadWatchlist();
     document.getElementById('loadingBanner').classList.add('hidden');
     const now = new Date();
     document.getElementById('lastUpdated').textContent = `✅ Live data loaded ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — from Google Sheets`;
@@ -837,13 +831,38 @@ async function init() {
       2. Sheet names must be exactly: <code>Live Engine</code> · <code>Dashboard</code> · <code>Settings</code> · <code>Tax Optimiser</code><br>
       3. Open browser Console (F12) and look for red errors<br><br>
       <strong>Proxy URL being used:</strong> api.allorigins.win<br>
-      <strong>Sheet ID:</strong> ${SHEET_ID}
+      <strong>Sheet ID:</strong> ${PUB_ID}
     `;
     document.getElementById('lastUpdated').textContent = `📋 Snapshot data (16 Jun 2026) — see error above`;
     document.getElementById('livePillText').textContent = `Snapshot 16 Jun 2026`;
   }
-
   renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REFRESH BUTTON
+// ─────────────────────────────────────────────────────────────────────────────
+async function refreshDashboard() {
+  const btn = document.getElementById('refreshBtn');
+  btn.textContent = '↻ Refreshing…';
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+  document.getElementById('errorBanner').style.display = 'none';
+  document.getElementById('loadingBanner').classList.remove('hidden');
+  try {
+    LIVE = await loadFromSheets();
+    await loadWatchlist();
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent = `✅ Refreshed ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — from Google Sheets`;
+    document.getElementById('livePillText').textContent = `Live ${now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
+  } catch(e) {
+    document.getElementById('lastUpdated').textContent = `⚠ Refresh failed — ${e.message}`;
+  }
+  document.getElementById('loadingBanner').classList.add('hidden');
+  renderAll();
+  btn.textContent = '↻ REFRESH';
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -974,8 +993,8 @@ function renderAll() {
   buildPositionRings();
   buildAnalyticsPanels();
   buildHoldingsSections();
-  buildHealth();
-  buildScanner();
+  buildHealthLive();
+  buildWatchlist();
 
   // footer
   document.getElementById('footer').innerHTML = `<span>Sijo Tom · Portfolio Intelligence · USD Base</span><span>${dateStr} · ${(D.holdings||FALLBACK.holdings).length} positions · $1M Mission @ 18% CAGR</span>`;
@@ -1246,40 +1265,257 @@ function buildHoldings(id, data){
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HEALTH BOARD
+// L2 — LIVE POSITION HEALTH
+// Pulls from live holdings — calculates health vs 18% CAGR pro-rata
 // ─────────────────────────────────────────────────────────────────────────────
-function buildHealth(){
-  const el=document.getElementById('healthGrid');
-  if(!el) return;
-  el.innerHTML='';
-  healthData.forEach(h=>{
-    const bars=h.dims.map(d=>`<div class="hb-dim"><div class="hb-dim-label">${d.l}</div><div class="hb-dim-bar"><div class="hb-dim-fill" style="width:${d.s/5*100}%;background:${d.c}"></div></div><div class="hb-dim-score" style="color:${d.c}">${d.s}/5</div></div>`).join('');
-    el.innerHTML+=`<div class="hb-card"><div class="hb-header"><div><div class="hb-name">${h.name}</div><div class="hb-meta">${h.bucket} · LTP ${h.ltp} · <span style="color:${h.pos?'var(--green)':'var(--red)'}">${h.pct}</span></div></div><div class="hb-score-ring ${h.sc}">${h.total}</div></div><div class="hb-body"><div class="hb-dims">${bars}</div><div class="hb-note">${h.note}</div><div class="hb-review"><span>Reviewed:</span>${h.reviewed}&nbsp;&nbsp;<span>Next:</span>${h.next}</div></div></div>`;
+function buildHealthLive() {
+  const el = document.getElementById('healthLiveGrid');
+  if (!el) return;
+  const holdings = (LIVE.holdings || FALLBACK.holdings).filter(h => h.valueUsd > 0);
+  if (!holdings.length) { el.innerHTML = '<p style="color:var(--muted);font-size:9px;padding:20px">No holdings loaded</p>'; return; }
+  el.innerHTML = '';
+
+  holdings.forEach(h => {
+    const days = wtdAvgDays(h);
+    const actualPct = h.pnlPct * 100;
+    const prTarget = proRataTarget(days);
+    const vs = actualPct - prTarget;
+    const isHedge = h.isHedge;
+    const isIndia = h.region === 'India';
+
+    // Score out of 10 — purely numeric
+    let score, scoreColor, scoreClass;
+    if (isHedge) {
+      score = '—'; scoreColor = 'var(--teal)'; scoreClass = 's-blue';
+    } else {
+      const raw = Math.min(Math.max(Math.round(5 + (vs / Math.max(prTarget, 5)) * 5), 0), 10);
+      score = raw;
+      scoreColor = raw >= 7 ? 'var(--green)' : raw >= 4 ? 'var(--blue)' : raw >= 2 ? 'var(--orange)' : 'var(--red)';
+      scoreClass = raw >= 7 ? 's-green' : raw >= 4 ? 's-blue' : raw >= 2 ? 's-amber' : 's-red';
+    }
+
+    // Analyst target upside
+    const hasTarget = h.analysisPct !== null && h.analysisPct !== undefined;
+    const targetUpside = hasTarget ? (h.analysisPct * 100).toFixed(1) + '%' : '—';
+    const targetColor = hasTarget ? (h.analysisPct > 0 ? 'var(--green)' : 'var(--red)') : 'var(--muted)';
+
+    // Status signal
+    let signal, sigColor;
+    if (isHedge) { signal = 'HEDGE — HOLD'; sigColor = 'var(--teal)'; }
+    else if (vs >= 5) { signal = 'AHEAD OF TARGET'; sigColor = 'var(--green)'; }
+    else if (vs >= 0) { signal = 'ON TRACK'; sigColor = 'var(--blue)'; }
+    else if (actualPct >= 0) { signal = 'BEHIND TARGET'; sigColor = 'var(--orange)'; }
+    else { signal = 'IN DRAWDOWN'; sigColor = 'var(--red)'; }
+
+    // LTCG flag
+    const ltcgFlag = isIndia ? (days >= 365 ?
+      `<span style="background:#051209;color:var(--green);border:1px solid #0a2010;border-radius:3px;font-size:7px;padding:1px 5px">✅ LTCG</span>` :
+      `<span style="background:#14100a;color:var(--orange);border:1px solid #2a1a00;border-radius:3px;font-size:7px;padding:1px 5px">⏳ STCG ${Math.round(365-days)}d</span>`) : '';
+
+    // INR drag
+    const inrNote = isIndia ? `<div style="font-size:7px;color:var(--orange);margin-top:2px">INR drag ~${(3.5*days/365).toFixed(1)}% · USD adj ~${(actualPct - 3.5*days/365).toFixed(1)}%</div>` : '';
+
+    // 5 dimension bars — all derived from numbers
+    const dims = [
+      { l: 'vs Target', v: isHedge ? 50 : Math.min(Math.max(50 + vs * 2, 0), 100), c: vs >= 0 ? 'var(--green)' : 'var(--red)', t: isHedge ? 'N/A' : (vs >= 0 ? '+' : '') + vs.toFixed(1) + '%' },
+      { l: 'Gain/Loss', v: Math.min(Math.max(50 + actualPct * 2, 0), 100), c: actualPct >= 0 ? 'var(--green)' : 'var(--red)', t: (actualPct >= 0 ? '+' : '') + actualPct.toFixed(1) + '%' },
+      { l: 'Analyst Upside', v: hasTarget ? Math.min(Math.max(50 + h.analysisPct * 100, 0), 100) : 50, c: hasTarget && h.analysisPct > 0 ? 'var(--green)' : 'var(--orange)', t: targetUpside },
+      { l: 'Conviction', v: h.isHedge ? 60 : (h.action === 'Conviction Hold' ? 90 : h.action.includes('Exit') ? 20 : 65), c: 'var(--blue)', t: h.action },
+      { l: 'Duration', v: Math.min(days / 365 * 50 + 50, 100), c: days >= 365 ? 'var(--green)' : 'var(--orange)', t: Math.round(days) + 'd' },
+    ];
+
+    const dimBars = dims.map(d => `
+      <div class="hb-dim">
+        <div class="hb-dim-label">${d.l}</div>
+        <div class="hb-dim-bar"><div class="hb-dim-fill" style="width:${d.v}%;background:${d.c}"></div></div>
+        <div class="hb-dim-score" style="color:${d.c};font-size:7px">${d.t}</div>
+      </div>`).join('');
+
+    el.innerHTML += `
+    <div class="hb-card">
+      <div class="hb-header">
+        <div>
+          <div class="hb-name">${h.name} <span style="font-size:8px;color:var(--muted)">${h.ticker}</span></div>
+          <div class="hb-meta" style="margin-top:3px">
+            ${h.platform} · ${Math.round(days)}d held · 
+            <span style="color:${actualPct >= 0 ? 'var(--green)' : 'var(--red)'}">${(actualPct >= 0 ? '+' : '') + actualPct.toFixed(2)}%</span>
+            · ${fmt$(h.valueUsd, 0)}
+            ${ltcgFlag}
+          </div>
+          ${inrNote}
+          <div style="margin-top:4px;font-size:8px;color:${sigColor};letter-spacing:.5px">${signal}</div>
+        </div>
+        <div class="hb-score-ring ${scoreClass}" style="color:${scoreColor};border-color:${scoreColor}">${score}</div>
+      </div>
+      <div class="hb-body">
+        <div class="hb-dims">${dimBars}</div>
+        <div class="hb-note">
+          <strong>Pro-rata 18% target (${Math.round(days)}d):</strong> ${prTarget.toFixed(1)}% · 
+          <strong>Actual:</strong> <span style="color:${actualPct >= 0 ? 'var(--green)' : 'var(--red)'}">${(actualPct >= 0 ? '+' : '') + actualPct.toFixed(1)}%</span> · 
+          <strong>vs target:</strong> <span style="color:${vs >= 0 ? 'var(--green)' : 'var(--red)'}">${(vs >= 0 ? '+' : '') + vs.toFixed(1)}%</span><br>
+          <strong>Analyst target upside:</strong> <span style="color:${targetColor}">${targetUpside}</span> · 
+          <strong>Action:</strong> ${h.action} · 
+          <strong>Notes:</strong> ${h.notes || '—'}
+        </div>
+      </div>
+    </div>`;
   });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCANNER
+// L3 — LIVE WATCHLIST
+// Fetches from Watchlist sheet — shows research cards + buy zone alerts
 // ─────────────────────────────────────────────────────────────────────────────
-function buildScanner(){
-  const el=document.getElementById('scannerGrid');
-  if(!el) return;
-  el.innerHTML='';
-  scanData.forEach(s=>{
-    const pabs=s.pabrai.map(p=>`<span class="pb ${p.y?'pb-y':'pb-n'}">${p.l}: ${p.y?'✓':'✗'}</span>`).join('');
-    el.innerHTML+=`<div class="scan-card"><span class="scan-urgency ${s.uc}">${s.urgency}</span>
-    <div class="scan-header"><div class="scan-title">${s.name}</div><div class="scan-sub">${s.sector} · Jun 2026</div></div>
-    <div class="scan-body">
-    <div class="scan-g4">
-      <div class="scan-metric"><div class="scan-mlabel">Current</div><div class="scan-mval">${s.current}</div></div>
-      <div class="scan-metric"><div class="scan-mlabel">Entry Zone</div><div class="scan-mval" style="color:var(--green)">${s.entry}</div></div>
-      <div class="scan-metric"><div class="scan-mlabel">Upside</div><div class="scan-mval" style="color:var(--gold2)">${s.upside}</div></div>
-      <div class="scan-metric"><div class="scan-mlabel">Size</div><div class="scan-mval" style="font-size:9px;color:var(--blue)">${s.size}</div></div>
-    </div>
-    <div class="pabrai-bar">${pabs}</div>
-    <div class="scan-thesis">${s.thesis}</div>
-    <div class="scan-risk">⚠ <strong>Risk:</strong> ${s.risk}</div>
-    </div></div>`;
+async function loadWatchlist() {
+  try {
+    const rows = await fetchSheet(SHEETS.watchlist);
+    // Find header row (row with "Ticker")
+    let headerIdx = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][1] && rows[i][1].toLowerCase() === 'ticker') { headerIdx = i; break; }
+    }
+    if (headerIdx < 0) { WATCHLIST = []; return; }
+
+    WATCHLIST = [];
+    for (let i = headerIdx + 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[1] || r[1].trim() === '') continue; // skip empty rows
+      WATCHLIST.push({
+        date:      r[0] || '',
+        ticker:    r[1] || '',
+        company:   r[2] || r[1],
+        entryLow:  num(r[3]),
+        entryHigh: num(r[4]),
+        qty:       num(r[5]),
+        currency:  r[6] || 'USD',
+        platform:  r[7] || '',
+        notes:     r[8] || '',
+        analystTarget: num(r[9]),
+        livePrice: num(r[10]),
+        upsidePct: num(r[11]),
+        sector:    r[12] || '',
+        region:    r[13] || '',
+        inBuyZone: r[14] || '',   // col O — formula result
+        pctFromLow: num(r[15]),   // col P
+        w52Low:    num(r[16]),    // col Q
+        w52High:   num(r[17]),    // col R
+      });
+    }
+  } catch(e) {
+    console.warn('Watchlist fetch failed:', e.message);
+    WATCHLIST = [];
+  }
+}
+
+function buildWatchlist() {
+  const grid = document.getElementById('watchlistGrid');
+  const empty = document.getElementById('watchlistEmpty');
+  const alertBanner = document.getElementById('alertBanner');
+  const alertList = document.getElementById('alertList');
+  if (!grid) return;
+
+  if (!WATCHLIST.length) {
+    grid.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+
+  grid.style.display = 'block';
+  if (empty) empty.style.display = 'none';
+  grid.innerHTML = '';
+
+  // Check for buy zone alerts
+  const inZone = WATCHLIST.filter(w => w.inBuyZone && w.inBuyZone.includes('YES'));
+  if (inZone.length > 0) {
+    alertBanner.style.display = 'block';
+    alertList.innerHTML = inZone.map(w =>
+      `<div style="margin-top:4px">🟢 <strong>${w.ticker}</strong> — ${w.company} · Current: ${w.currency === 'INR' ? '₹' : '$'}${w.livePrice.toFixed(2)} · Entry zone: ${w.currency === 'INR' ? '₹' : '$'}${w.entryLow}–${w.entryHigh} · ${w.notes}</div>`
+    ).join('');
+  } else {
+    alertBanner.style.display = 'none';
+  }
+
+  // Build cards
+  WATCHLIST.slice(0, 20).forEach(w => {
+    const inZone = w.inBuyZone && w.inBuyZone.includes('YES');
+    const aboveZone = w.livePrice > w.entryHigh;
+    const belowZone = w.livePrice < w.entryLow && w.livePrice > 0;
+    const pctFromLow = w.entryLow > 0 && w.livePrice > 0 ? ((w.livePrice - w.entryLow) / w.entryLow * 100) : null;
+    const currSym = w.currency === 'INR' ? '₹' : w.currency === 'AED' ? 'AED ' : '$';
+    const targetUpside = w.analystTarget > 0 && w.livePrice > 0 ? ((w.analystTarget - w.livePrice) / w.livePrice * 100) : null;
+
+    // Status badge
+    let statusLabel, statusBg, statusBorder, statusColor;
+    if (inZone) {
+      statusLabel = '🟢 IN BUY ZONE'; statusBg = '#0a2010'; statusBorder = 'var(--green)'; statusColor = 'var(--green)';
+    } else if (belowZone) {
+      statusLabel = '⬇ BELOW ZONE — WAIT'; statusBg = '#14100a'; statusBorder = 'var(--orange)'; statusColor = 'var(--orange)';
+    } else if (aboveZone) {
+      statusLabel = '⬆ ABOVE ZONE — PATIENCE'; statusBg = '#1a0808'; statusBorder = 'var(--red)'; statusColor = 'var(--red)';
+    } else {
+      statusLabel = '⏳ APPROACHING'; statusBg = '#050d1a'; statusBorder = 'var(--blue)'; statusColor = 'var(--blue)';
+    }
+
+    // 52W position bar
+    const w52Bar = (w.w52Low > 0 && w.w52High > w.w52Low && w.livePrice > 0) ?
+      Math.min(Math.max((w.livePrice - w.w52Low) / (w.w52High - w.w52Low) * 100, 0), 100) : null;
+
+    grid.innerHTML += `
+    <div class="scan-card" style="border-color:${statusBorder}40;margin-bottom:8px">
+      <div style="position:absolute;top:10px;right:10px;background:${statusBg};border:1px solid ${statusBorder};border-radius:4px;padding:2px 8px;font-size:7px;color:${statusColor};letter-spacing:.5px">${statusLabel}</div>
+      <div class="scan-header">
+        <div class="scan-title">${w.company} <span style="font-size:11px;color:var(--muted)">${w.ticker}</span></div>
+        <div class="scan-sub">${w.sector} · ${w.region} · ${w.platform} · Added ${w.date}</div>
+      </div>
+      <div class="scan-body">
+        <div class="scan-g4">
+          <div class="scan-metric">
+            <div class="scan-mlabel">Live Price</div>
+            <div class="scan-mval" style="color:${inZone ? 'var(--green)' : 'var(--text)'}">${currSym}${w.livePrice > 0 ? w.livePrice.toFixed(2) : '—'}</div>
+          </div>
+          <div class="scan-metric">
+            <div class="scan-mlabel">Entry Zone</div>
+            <div class="scan-mval" style="color:var(--gold);font-size:10px">${currSym}${w.entryLow}–${w.entryHigh}</div>
+          </div>
+          <div class="scan-metric">
+            <div class="scan-mlabel">% From Low</div>
+            <div class="scan-mval" style="color:${pctFromLow !== null ? (pctFromLow <= 5 ? 'var(--green)' : pctFromLow <= 15 ? 'var(--orange)' : 'var(--red)') : 'var(--muted)'}">
+              ${pctFromLow !== null ? (pctFromLow >= 0 ? '+' : '') + pctFromLow.toFixed(1) + '%' : '—'}
+            </div>
+          </div>
+          <div class="scan-metric">
+            <div class="scan-mlabel">Analyst Upside</div>
+            <div class="scan-mval" style="color:${targetUpside !== null ? (targetUpside > 0 ? 'var(--green)' : 'var(--red)') : 'var(--muted)'}">
+              ${targetUpside !== null ? (targetUpside > 0 ? '+' : '') + targetUpside.toFixed(1) + '%' : '—'}
+            </div>
+          </div>
+        </div>
+
+        ${w52Bar !== null ? `
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--muted);margin-bottom:3px">
+            <span>52W Low: ${currSym}${w.w52Low.toFixed(2)}</span>
+            <span style="color:var(--muted2)">▼ 52-Week Range ▼</span>
+            <span>52W High: ${currSym}${w.w52High.toFixed(2)}</span>
+          </div>
+          <div style="height:6px;background:var(--s3);border-radius:3px;position:relative">
+            <div style="position:absolute;left:${Math.min(w.entryLow > 0 ? (w.entryLow - w.w52Low) / (w.w52High - w.w52Low) * 100 : 0, 95)}%;top:0;bottom:0;width:${Math.min(((w.entryHigh - w.entryLow) / (w.w52High - w.w52Low)) * 100, 30)}%;background:var(--gold);opacity:0.4;border-radius:3px"></div>
+            <div style="position:absolute;left:${w52Bar}%;top:-3px;width:3px;height:12px;background:var(--text);border-radius:2px;transform:translateX(-50%)"></div>
+          </div>
+          <div style="font-size:6.5px;color:var(--muted);margin-top:2px;text-align:center">Gold zone = your entry range · White line = current price</div>
+        </div>` : ''}
+
+        <div style="display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap">
+          <span style="font-size:8px;color:var(--muted)">Plan: <strong style="color:var(--text)">${w.qty > 0 ? w.qty + ' shares' : '—'}</strong></span>
+          <span style="font-size:8px;color:var(--muted)">·</span>
+          <span style="font-size:8px;color:var(--muted)">Est. cost: <strong style="color:var(--text)">${w.qty > 0 && w.livePrice > 0 ? fmt$(w.qty * w.livePrice * (w.currency === 'INR' ? 1/95 : w.currency === 'AED' ? 1/3.67 : 1), 0) : '—'}</strong></span>
+          <span style="font-size:8px;color:var(--muted)">·</span>
+          <span style="font-size:8px;color:var(--muted)">Analyst target: <strong style="color:var(--gold)">${w.analystTarget > 0 ? currSym + w.analystTarget.toFixed(2) : '—'}</strong></span>
+        </div>
+
+        <div class="scan-thesis">${w.notes || 'No thesis noted yet — add in Notes column of Watchlist sheet.'}</div>
+      </div>
+    </div>`;
   });
 }
 
