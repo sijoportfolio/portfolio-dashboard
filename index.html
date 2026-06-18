@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +55,7 @@ document.write('<link rel="manifest" href="' + manifestURL + '">');
      so users see the update notification banner.
 ═══════════════════════════════════════════════ -->
 <script>
-const DASHBOARD_VERSION = '1.2.0';
+const DASHBOARD_VERSION = '1.5.0';
 const DASHBOARD_DATE    = '2026-06-18';
 </script>
 
@@ -527,14 +526,14 @@ tbody tr:last-child td{border-bottom:none}
 // IMPORTANT: Replace SHEET_ID with your actual Google Sheets file ID
 // Then publish each sheet via File → Share → Publish to web → CSV
 // ─────────────────────────────────────────────────────────────────────────────
-const SHEET_ID = '1-7LPwA7NzlHYuAO50JTzuNnH5Ijg7IrJvM0aCJ8fvMs';
+// Published document ID (different from the edit ID — this is correct)
+const PUB_ID = '2PACX-1vSJskJo5k4xoCmesFc2OHVpnVz2TbRImCXr7AgBFQW625WIbhB2e8tFLrrXp4Btgj7n5yhIHKTjSP0E';
 
-// Using gviz/tq endpoint with GIDs — handles CORS correctly from GitHub Pages
 const SHEETS = {
-  liveEngine: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1676786946`,
-  dashboard:  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=2012162756`,
-  settings:   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=202595598`,
-  taxOpt:     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1536752207`,
+  liveEngine: `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1676786946&single=true&output=csv`,
+  dashboard:  `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=2012162756&single=true&output=csv`,
+  settings:   `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=202595598&single=true&output=csv`,
+  taxOpt:     `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1536752207&single=true&output=csv`,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -705,16 +704,11 @@ function num(v) {
 // FETCH FROM GOOGLE SHEETS
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchSheet(url) {
-  // Try direct fetch first
-  const r = await fetch(url, {
-    method: 'GET',
-    headers: { 'Accept': 'text/csv, text/plain, */*' },
-  });
-  if (!r.ok) throw new Error(`HTTP ${r.status} — sheet may not be published`);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const text = await r.text();
-  // gviz sometimes returns HTML error page — detect it
   if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-    throw new Error('Google returned HTML instead of CSV — check sheet is published');
+    throw new Error('Google returned HTML — sheet may not be published correctly');
   }
   return parseCSV(text);
 }
@@ -723,16 +717,20 @@ async function loadFromSheets() {
   // Fetch sheets one by one so we can identify which one fails
   let leRows, dashRows, settRows, taxRows;
 
-  try { leRows   = await fetchSheet(SHEETS.liveEngine); }
+  console.log('📡 Fetching Live Engine...');
+  try { leRows   = await fetchSheet(SHEETS.liveEngine);  console.log(`✅ Live Engine: ${leRows.length} rows`); }
   catch(e) { throw new Error(`Live Engine sheet: ${e.message}`); }
 
-  try { dashRows  = await fetchSheet(SHEETS.dashboard); }
+  console.log('📡 Fetching Dashboard...');
+  try { dashRows  = await fetchSheet(SHEETS.dashboard);  console.log(`✅ Dashboard: ${dashRows.length} rows`); }
   catch(e) { throw new Error(`Dashboard sheet: ${e.message}`); }
 
-  try { settRows  = await fetchSheet(SHEETS.settings); }
+  console.log('📡 Fetching Settings...');
+  try { settRows  = await fetchSheet(SHEETS.settings);   console.log(`✅ Settings: ${settRows.length} rows`); }
   catch(e) { throw new Error(`Settings sheet: ${e.message}`); }
 
-  try { taxRows   = await fetchSheet(SHEETS.taxOpt); }
+  console.log('📡 Fetching Tax Optimiser...');
+  try { taxRows   = await fetchSheet(SHEETS.taxOpt);     console.log(`✅ Tax Optimiser: ${taxRows.length} rows`); }
   catch(e) { throw new Error(`Tax Optimiser sheet: ${e.message}`); }
 
   // Parse Live Engine holdings (header row index ~6)
@@ -826,13 +824,22 @@ async function init() {
     document.getElementById('lastUpdated').textContent = `✅ Live data loaded ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — from Google Sheets`;
     document.getElementById('livePillText').textContent = `Live ${now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
   } catch(e) {
-    console.warn('Google Sheets fetch failed, using snapshot data:', e.message);
+    console.warn('❌ Google Sheets fetch failed:', e.message);
     LIVE = FALLBACK;
     document.getElementById('loadingBanner').classList.add('hidden');
     const eb = document.getElementById('errorBanner');
     eb.style.display='block';
-    eb.innerHTML=`<strong>⚠ Google Sheets not publicly published yet.</strong> Showing snapshot data from v5.xlsx (16 Jun 2026). To enable live data: in Google Sheets → File → Share → Publish to web → each sheet as CSV. <br>Error: ${e.message}`;
-    document.getElementById('lastUpdated').textContent = `📋 Snapshot data (16 Jun 2026) — publish Sheets to enable live feed`;
+    eb.innerHTML=`
+      <strong>⚠ Could not load live data — showing snapshot (16 Jun 2026)</strong><br><br>
+      <strong>Error detail:</strong> ${e.message}<br><br>
+      <strong>What to check:</strong><br>
+      1. Google Sheets → File → Share → Publish to web → confirm all 4 sheets show as Published<br>
+      2. Sheet names must be exactly: <code>Live Engine</code> · <code>Dashboard</code> · <code>Settings</code> · <code>Tax Optimiser</code><br>
+      3. Open browser Console (F12) and look for red errors<br><br>
+      <strong>Proxy URL being used:</strong> api.allorigins.win<br>
+      <strong>Sheet ID:</strong> ${SHEET_ID}
+    `;
+    document.getElementById('lastUpdated').textContent = `📋 Snapshot data (16 Jun 2026) — see error above`;
     document.getElementById('livePillText').textContent = `Snapshot 16 Jun 2026`;
   }
 
