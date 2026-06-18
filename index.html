@@ -1,1 +1,1333 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Portfolio · Sijo</title>
+
+<!-- ═══════════════════════════════════════════════
+     PWA / iPhone Home Screen App Configuration
+     Version: 1.0.0 · Updated: June 2026
+     To update: edit index.html on GitHub, commit.
+     Changes go live within 2 minutes.
+═══════════════════════════════════════════════ -->
+
+<!-- iPhone: run as standalone app (no Safari chrome) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Portfolio">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#06070a">
+
+<!-- iPhone App Icon (180x180 — used for home screen) -->
+<!-- Gold ring on dark background, "ST" initials -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%2306070a'/%3E%3Ccircle cx='90' cy='90' r='68' fill='none' stroke='%231c2130' stroke-width='12'/%3E%3Ccircle cx='90' cy='90' r='68' fill='none' stroke='url(%23g)' stroke-width='12' stroke-dasharray='320 427' stroke-linecap='round' transform='rotate(-90 90 90)'/%3E%3Ccircle cx='90' cy='90' r='52' fill='none' stroke='%230f1520' stroke-width='8'/%3E%3Ccircle cx='90' cy='90' r='52' fill='none' stroke='%231a3a6a' stroke-width='8' stroke-dasharray='180 326' stroke-linecap='round' transform='rotate(-90 90 90)'/%3E%3Ctext x='90' y='82' text-anchor='middle' fill='%23e8c97a' font-size='28' font-family='Georgia,serif' font-weight='700'%3EST%3C/text%3E%3Ctext x='90' y='108' text-anchor='middle' fill='%235a6070' font-size='11' font-family='monospace' letter-spacing='3'%3EPORTFOLIO%3C/text%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%235a4820'/%3E%3Cstop offset='100%25' stop-color='%23e8c97a'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E">
+
+<!-- iPhone Splash Screens (covers loading gap before app paints) -->
+<!-- iPhone 14 Pro Max -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1290' height='2796'%3E%3Crect width='1290' height='2796' fill='%2306070a'/%3E%3Ccircle cx='645' cy='1250' r='200' fill='none' stroke='%231c2130' stroke-width='30'/%3E%3Ccircle cx='645' cy='1250' r='200' fill='none' stroke='%23c9a84c' stroke-width='30' stroke-dasharray='900 1257' stroke-linecap='round' transform='rotate(-90 645 1250)'/%3E%3Ctext x='645' y='1230' text-anchor='middle' fill='%23e8c97a' font-size='80' font-family='Georgia,serif' font-weight='700'%3EST%3C/text%3E%3Ctext x='645' y='1310' text-anchor='middle' fill='%235a6070' font-size='32' font-family='monospace' letter-spacing='8'%3EPORTFOLIO%3C/text%3E%3Ctext x='645' y='1500' text-anchor='middle' fill='%235a4820' font-size='28' font-family='monospace'%3ELoading live data…%3C/text%3E%3C/svg%3E">
+<!-- iPhone 14 / 13 -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1170' height='2532'%3E%3Crect width='1170' height='2532' fill='%2306070a'/%3E%3Ccircle cx='585' cy='1100' r='180' fill='none' stroke='%231c2130' stroke-width='28'/%3E%3Ccircle cx='585' cy='1100' r='180' fill='none' stroke='%23c9a84c' stroke-width='28' stroke-dasharray='810 1131' stroke-linecap='round' transform='rotate(-90 585 1100)'/%3E%3Ctext x='585' y='1082' text-anchor='middle' fill='%23e8c97a' font-size='72' font-family='Georgia,serif' font-weight='700'%3EST%3C/text%3E%3Ctext x='585' y='1158' text-anchor='middle' fill='%235a6070' font-size='28' font-family='monospace' letter-spacing='7'%3EPORTFOLIO%3C/text%3E%3Ctext x='585' y='1340' text-anchor='middle' fill='%235a4820' font-size='26' font-family='monospace'%3ELoading live data…%3C/text%3E%3C/svg%3E">
+
+<!-- Web App Manifest (for Android / Chrome PWA install) -->
+<script>
+const MANIFEST = {
+  name: "Portfolio Intelligence — Sijo Tom",
+  short_name: "Portfolio",
+  description: "Personal investment dashboard — $1M mission at 18% CAGR",
+  start_url: "./",
+  display: "standalone",
+  background_color: "#06070a",
+  theme_color: "#06070a",
+  orientation: "portrait-primary",
+  icons: [
+    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='48' fill='%2306070a'/%3E%3Ccircle cx='96' cy='96' r='72' fill='none' stroke='%23c9a84c' stroke-width='14' stroke-dasharray='340 452' stroke-linecap='round' transform='rotate(-90 96 96)'/%3E%3Ctext x='96' y='88' text-anchor='middle' fill='%23e8c97a' font-size='32' font-family='Georgia,serif' font-weight='700'%3EST%3C/text%3E%3Ctext x='96' y='116' text-anchor='middle' fill='%235a6070' font-size='12' font-family='monospace' letter-spacing='3'%3EPORTFOLIO%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" }
+  ]
+};
+const blob = new Blob([JSON.stringify(MANIFEST)], {type:'application/json'});
+const manifestURL = URL.createObjectURL(blob);
+document.write('<link rel="manifest" href="' + manifestURL + '">');
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     DASHBOARD VERSION TRACKER
+     Bump VERSION string on every GitHub commit
+     so users see the update notification banner.
+═══════════════════════════════════════════════ -->
+<script>
+const DASHBOARD_VERSION = '1.2.0';
+const DASHBOARD_DATE    = '2026-06-18';
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06070a;--s1:#0c0e14;--s2:#11141c;--s3:#161a24;
+  --border:#1c2130;--border2:#242a3a;
+  --gold:#c9a84c;--gold2:#e8c97a;--gold-dim:#5a4820;
+  --green:#2ecc8a;--red:#e05555;--blue:#4a8cff;
+  --purple:#8b5cf6;--orange:#f59e0b;--teal:#14b8a6;
+  --text:#dde1ec;--muted:#5a6070;--muted2:#8892a4;
+  --india:#ff8c00;--uae:#00c47a;--us:#4a8cff;--crypto:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'JetBrains Mono',monospace;overflow-x:hidden;
+  /* iPhone safe areas — respects notch + home bar */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+.wrap{max-width:1160px;margin:0 auto;padding:24px 14px 72px}
+
+/* UPDATE BANNER */
+.update-banner{
+  background:linear-gradient(135deg,#0a1a0f,#0f2018);
+  border:1px solid #1a4a2a;border-radius:8px;
+  padding:10px 14px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;font-size:8.5px;color:#4ade80;
+}
+.update-banner.hidden{display:none}
+.update-banner-text strong{color:#86efac}
+.update-close{background:none;border:1px solid #1a4a2a;border-radius:4px;padding:3px 8px;font-size:8px;color:#4ade80;cursor:pointer;font-family:'JetBrains Mono',monospace}
+.update-close:hover{background:#0a2a14}
+.nav-tabs{display:flex;gap:3px;margin-bottom:20px;border-bottom:1px solid var(--border2);position:relative}
+.nav-tabs::after{content:'';position:absolute;bottom:-1px;left:0;width:70px;height:1px;background:var(--gold)}
+.tab-btn{background:none;border:none;padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--gold2);border-bottom-color:var(--gold)}
+.tab-content{display:none}.tab-content.active{display:block}
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:14px;margin-bottom:18px;border-bottom:1px solid var(--border);position:relative}
+.masthead::after{content:'';position:absolute;bottom:-1px;left:0;width:70px;height:1px;background:var(--gold)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:700;color:var(--gold)}
+.brand-sub{font-size:8.5px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.live-pill{display:flex;align-items:center;gap:5px;background:#0a1a0f;border:1px solid #1a3a24;border-radius:20px;padding:4px 11px;font-size:8.5px;color:var(--green);letter-spacing:1px}
+.pulse{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* LOADING STATE */
+#loadingBanner{background:#0a0d14;border:1px solid var(--gold-dim);border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:9px;color:var(--gold)}
+#loadingBanner.hidden{display:none}
+.spinner{width:12px;height:12px;border:2px solid var(--gold-dim);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ERROR BANNER */
+#errorBanner{background:#140505;border:1px solid #3a1010;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:8.5px;color:var(--red);display:none}
+#errorBanner strong{color:#ff8a8a}
+/* METRICS */
+.metrics-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:7px;margin-bottom:14px}
+.metric{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:12px 14px;position:relative;overflow:hidden}
+.metric-accent{position:absolute;top:0;left:0;right:0;height:2px}
+.metric-label{font-size:8px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.metric-value{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600}
+.metric-sub{font-size:8px;color:var(--muted2);margin-top:2px}
+.metric-local{font-size:8px;color:var(--muted);margin-top:1px}
+.pos{color:var(--green)}.neg{color:var(--red)}.gold{color:var(--gold)}
+/* PERIOD TOGGLE */
+.period-toggle{display:flex;gap:4px;margin-bottom:16px;align-items:center}
+.period-label{font-size:8px;color:var(--muted);letter-spacing:1px;margin-right:4px}
+.ptog{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:5px 14px;font-size:8.5px;color:var(--muted2);cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.ptog.active{background:#14110a;border-color:var(--gold-dim);color:var(--gold2)}
+/* RING SECTION */
+.rings-section{margin-bottom:18px}
+.main-ring-row{display:flex;gap:14px;align-items:flex-start;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+.ring-svg{overflow:visible}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.ring-title{font-size:9px;color:var(--muted2);letter-spacing:.8px;text-transform:uppercase;text-align:center}
+.ring-subtitle{font-size:8px;color:var(--muted);text-align:center;margin-top:1px}
+.country-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.xirr-col{display:flex;flex-direction:column;gap:10px;justify-content:center}
+/* POSITION RINGS GRID */
+.pos-rings-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.pos-ring-card{background:var(--s1);border:1px solid var(--border);border-radius:9px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;transition:border-color .2s}
+.pos-ring-card:hover{border-color:var(--border2)}
+.pr-name{font-size:10.5px;font-weight:500;color:var(--text);text-align:center}
+.pr-ticker{font-size:7.5px;color:var(--muted);text-align:center}
+.pr-stats{display:flex;gap:10px;justify-content:center}
+.pr-stat{text-align:center}
+.pr-stat-label{font-size:7px;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+.pr-stat-val{font-size:9px;font-weight:500;margin-top:1px}
+.pr-period-badge{font-size:7px;color:var(--muted);text-align:center;margin-top:1px;letter-spacing:.3px}
+/* benchmark strip */
+.bmark-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:14px}
+.bm{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:8px 9px;text-align:center}
+.bm.target-bar{border-color:var(--gold-dim)}
+.bm-label{font-size:7px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+.bm-val{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600}
+.bm-sub{font-size:7px;color:var(--muted);margin-top:1px}
+.bm-bar{height:2px;border-radius:2px;margin-top:3px;background:var(--s3);overflow:hidden}
+.bm-fill{height:100%;border-radius:2px}
+/* analytics */
+.analytics-bar{display:flex;gap:5px;margin:14px 0 7px;flex-wrap:wrap;align-items:center}
+.bar-label{font-size:8px;color:var(--muted);letter-spacing:1px}
+.tbtn{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:8px;color:var(--muted2);cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s;font-family:'JetBrains Mono',monospace}
+.tbtn:hover{border-color:var(--border2);color:var(--text)}.tbtn.active{border-color:var(--gold-dim);color:var(--gold);background:#14110a}
+.apanel{display:none;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:8px}
+.apanel.visible{display:block}
+.ptitle{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold2);margin-bottom:10px}
+.ag{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:9px}
+.ag4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:9px}
+.ag5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:9px}
+.acard{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:9px;text-align:center}
+.alabel{font-size:7px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.aval{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600}
+.asub{font-size:7px;color:var(--muted);margin-top:2px}
+.pnote{font-size:8.5px;color:var(--muted2);line-height:1.8;padding-top:7px;border-top:1px solid var(--border)}
+.pnote strong{color:var(--gold2)}
+/* section headers */
+.sh{display:flex;align-items:center;gap:7px;margin:14px 0 7px}
+.stripe{width:3px;height:16px;border-radius:2px;flex-shrink:0}
+.sname{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600}
+.sr{margin-left:auto;font-size:8px;color:var(--muted);letter-spacing:1px}
+/* holding cards */
+.holdings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:6px}
+.holding-card{background:var(--s1);border:1px solid var(--border);border-radius:9px;overflow:hidden;transition:border-color .2s}
+.holding-card:hover{border-color:var(--border2)}
+.hc-top{padding:10px 12px 7px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.hc-name{font-size:11.5px;font-weight:500;color:var(--text)}
+.hc-ticker{font-size:8px;color:var(--muted);margin-top:1px}
+.hc-bucket{font-size:7px;padding:2px 6px;border-radius:3px;background:var(--s3);color:var(--muted2);margin-top:3px;display:inline-block}
+.hc-right{text-align:right}
+.hc-ltp{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600}
+.hc-local{font-size:8px;color:var(--muted);margin-top:1px}
+.hc-body{padding:9px 12px}
+.hc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}
+.hc-stat{text-align:center}
+.hc-stat-label{font-size:7px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.hc-stat-val{font-size:10px;font-weight:500}
+.dur-badge{font-size:7px;padding:2px 6px;border-radius:3px;letter-spacing:.3px;display:inline-block;margin-top:3px}
+.dur-green{background:#051209;color:var(--green);border:1px solid #0a2010}
+.dur-blue{background:#050d1a;color:var(--blue);border:1px solid #0a1530}
+.dur-amber{background:#14100a;color:var(--orange);border:1px solid #2a1a00}
+.dur-red{background:#140505;color:var(--red);border:1px solid #2a0a0a}
+.dur-grey{background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+.dur-hedge{background:#0a1a1a;color:var(--teal);border:1px solid #0a2a2a}
+.hc-action{display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid var(--border)}
+/* goal graph */
+.goal-graph{margin-bottom:7px}
+.gg-label{display:flex;justify-content:space-between;font-size:7px;color:var(--muted);margin-bottom:3px}
+.gg-track{position:relative;height:20px;background:var(--s3);border-radius:4px;overflow:hidden}
+.gg-target-line{position:absolute;top:0;bottom:0;width:1px;background:var(--gold);opacity:.8;z-index:3}
+.gg-sp500-line{position:absolute;top:0;bottom:0;width:1px;background:#4a8cff;opacity:.6;z-index:2}
+.gg-actual{position:absolute;top:0;left:0;bottom:0;border-radius:4px 0 0 4px;display:flex;align-items:center;justify-content:flex-end;padding-right:3px}
+.gg-neg{position:absolute;top:0;right:0;bottom:0;border-radius:0 4px 4px 0;display:flex;align-items:center;justify-content:flex-start;padding-left:3px}
+.gg-actual-label{font-size:7px;font-weight:500;white-space:nowrap}
+.gg-bm-labels{display:flex;justify-content:flex-end;gap:10px;margin-top:2px;font-size:6.5px}
+/* badge */
+.badge{display:inline-block;font-size:7.5px;padding:2px 7px;border-radius:3px;letter-spacing:.3px;text-transform:uppercase}
+.b-hold{background:#0d1520;color:#4a8cff}.b-add{background:#0a1a10;color:var(--green)}
+.b-rev{background:#1a0808;color:var(--red)}.b-wait{background:#1a1400;color:var(--gold)}
+.b-exit{background:#2a0808;color:#ff6b6b}.b-hedge{background:#0a1a1a;color:var(--teal)}
+.b-new{background:#0d1520;color:var(--purple)}
+/* row colours */
+.hc-red{border-color:rgba(224,85,85,.4)}
+.hc-amber{border-color:rgba(245,158,11,.4)}
+.hc-green{border-color:rgba(46,204,138,.3)}
+.hc-blue{border-color:rgba(74,140,255,.3)}
+.hc-gold{border-color:rgba(201,168,76,.4)}
+/* tables */
+.tw{background:var(--s1);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:5px}
+table{width:100%;border-collapse:collapse;font-size:10px}
+thead th{background:var(--s2);font-size:7.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:7px 9px;text-align:right;border-bottom:1px solid var(--border);font-weight:400}
+thead th:first-child{text-align:left}
+tbody td{padding:9px;text-align:right;border-bottom:1px solid #0e1018}
+tbody td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:none}
+.sn{font-size:10.5px;color:var(--text);font-weight:500}
+.st{font-size:8px;color:var(--muted);margin-top:1px}
+.chip{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8.5px}
+.cg{background:#081a10;color:var(--green)}.cr{background:#180808;color:var(--red)}
+.lim{background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:2px 5px;font-size:8.5px;color:var(--gold2);display:inline-block}
+/* health board */
+.hb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.hb-card{background:var(--s1);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.hb-header{padding:10px 12px 8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.hb-name{font-size:11px;font-weight:500;color:var(--text)}
+.hb-meta{font-size:7.5px;color:var(--muted)}
+.hb-score-ring{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid}
+.hb-body{padding:9px 12px}
+.hb-dims{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:6px}
+.hb-dim{text-align:center}
+.hb-dim-label{font-size:6.5px;color:var(--muted);margin-bottom:2px}
+.hb-dim-bar{height:3px;border-radius:2px;background:var(--s3);overflow:hidden;margin-bottom:2px}
+.hb-dim-fill{height:100%;border-radius:2px}
+.hb-dim-score{font-size:8px;font-weight:500}
+.hb-note{font-size:8.5px;color:var(--muted2);line-height:1.6;padding-top:6px;border-top:1px solid var(--border)}
+.hb-note strong{color:var(--text)}
+.hb-review{font-size:7px;color:var(--muted);margin-top:4px;display:flex;gap:8px}
+.hb-review span{color:var(--gold)}
+.s-green{color:var(--green);border-color:var(--green);background:#051209}
+.s-blue{color:var(--blue);border-color:var(--blue);background:#050d1a}
+.s-amber{color:var(--orange);border-color:var(--orange);background:#14100a}
+.s-red{color:var(--red);border-color:var(--red);background:#140505}
+/* scanner */
+.scan-card{background:var(--s1);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;margin-bottom:8px}
+.scan-urgency{position:absolute;top:10px;right:10px;font-size:7px;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px}
+.urg-hot{background:#2a0808;color:#ff6b6b}.urg-watch{background:#1a1400;color:var(--gold)}.urg-patient{background:#0a1a10;color:var(--green)}
+.scan-header{padding:12px 12px 8px;border-bottom:1px solid var(--border)}
+.scan-title{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.scan-sub{font-size:8px;color:var(--muted)}
+.scan-body{padding:10px 12px}
+.scan-g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.scan-metric{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:7px;text-align:center}
+.scan-mlabel{font-size:7px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.scan-mval{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600}
+.pabrai-bar{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.pb{font-size:7.5px;padding:2px 6px;border-radius:3px}
+.pb-y{background:#0a1a10;color:var(--green)}.pb-n{background:#1a0808;color:var(--red)}
+.scan-thesis{font-size:8.5px;color:var(--muted2);line-height:1.7;padding-top:7px;border-top:1px solid var(--border)}
+.scan-thesis strong{color:var(--gold2)}
+.scan-risk{font-size:8px;color:var(--red);margin-top:4px}
+/* notes */
+.note{background:linear-gradient(135deg,#0c0e14,#0f1118);border:1px solid var(--border2);border-left:3px solid var(--gold);border-radius:0 7px 7px 0;padding:10px 14px;margin-top:5px;font-size:8.5px;color:var(--muted2);line-height:1.9}
+.note strong{color:var(--gold2)}
+.note.india-n{border-left-color:var(--india);margin-top:5px}
+.note.warn-n{border-left-color:var(--orange);margin-top:5px}
+.note.tax-n{border-left-color:var(--teal);margin-top:5px}
+.legend{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;font-size:7.5px;color:var(--muted)}
+.ld{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.footer{margin-top:20px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:7.5px;color:var(--muted);line-height:2}
+/* last-updated badge */
+#lastUpdated{font-size:8px;color:var(--muted);margin-top:2px}
+@media(max-width:700px){
+  .metrics-row,.bmark-strip,.holdings-grid,.hb-grid,.pos-rings-grid{grid-template-columns:1fr 1fr}
+  .country-col{grid-template-columns:1fr 1fr}
+  .main-ring-row{flex-direction:column;align-items:center}
+  .hc-stats{grid-template-columns:repeat(2,1fr)}
+  .scan-g4,.ag,.ag4,.ag5{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- UPDATE NOTIFICATION BANNER -->
+<div id="updateBanner" class="update-banner hidden">
+  <div class="update-banner-text">
+    🆕 <strong id="updateVersionText"></strong> — Dashboard updated. Refresh to load the latest version.
+  </div>
+  <button class="update-close" onclick="document.getElementById('updateBanner').classList.add('hidden')">Dismiss</button>
+</div>
+
+<div class="masthead">
+  <div>
+    <div class="brand">Portfolio Intelligence</div>
+    <div class="brand-sub" id="mastheadSub">Sijo Tom · Global Consolidated · USD Base · Loading…</div>
+    <div id="lastUpdated">⏳ Fetching live data from Google Sheets…</div>
+  </div>
+  <div class="live-pill"><span class="pulse"></span><span id="livePillText">Syncing…</span></div>
+</div>
+
+<div id="loadingBanner">
+  <div class="spinner"></div>
+  <span>Loading live data from Google Sheets (Portfolio_Sijo_Tom_v5)…</span>
+</div>
+<div id="errorBanner"></div>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('snapshot',this)">L1 · Portfolio Snapshot</button>
+  <button class="tab-btn" onclick="showTab('health',this)">L2 · Position Health</button>
+  <button class="tab-btn" onclick="showTab('scanner',this)">L3 · Opportunity Scanner</button>
+</div>
+
+<!-- L1 -->
+<div id="tab-snapshot" class="tab-content active">
+<div class="period-toggle">
+  <span class="period-label">VIEW PERIOD →</span>
+  <button class="ptog active" onclick="setPeriod('total',this)">TOTAL</button>
+  <button class="ptog" onclick="setPeriod('t12m',this)">T12M</button>
+  <button class="ptog" onclick="setPeriod('ytd',this)">YTD 2026</button>
+</div>
+
+<!-- METRICS (populated by JS) -->
+<div class="metrics-row" id="metricsRow">
+  <div class="metric"><div class="metric-accent" style="background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div><div class="metric-label">Total Portfolio (USD)</div><div class="metric-value" id="m-total">—</div><div class="metric-sub" id="m-sub">Loading…</div><div class="metric-local" id="m-local"></div></div>
+  <div class="metric"><div class="metric-accent" style="background:var(--us)"></div><div class="metric-label">🇺🇸 US Equities</div><div class="metric-value" style="font-size:20px" id="m-us">—</div><div class="metric-sub" id="m-us-sub"></div></div>
+  <div class="metric"><div class="metric-accent" style="background:var(--uae)"></div><div class="metric-label">🇦🇪 UAE</div><div class="metric-value" style="font-size:20px" id="m-uae">—</div><div class="metric-local" id="m-uae-local"></div></div>
+  <div class="metric"><div class="metric-accent" style="background:var(--india)"></div><div class="metric-label">🇮🇳 India (Zerodha)</div><div class="metric-value" style="font-size:20px" id="m-india">—</div><div class="metric-local" id="m-india-local"></div></div>
+</div>
+
+<!-- RINGS SECTION -->
+<div class="rings-section">
+  <div class="main-ring-row">
+    <!-- MAIN $1M RING -->
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="220" height="220" viewBox="0 0 220 220">
+        <defs>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#5a4820"/>
+            <stop offset="100%" style="stop-color:#e8c97a"/>
+          </linearGradient>
+        </defs>
+        <circle cx="110" cy="110" r="92" fill="none" stroke="#0f1118" stroke-width="16"/>
+        <circle cx="110" cy="110" r="92" fill="none" stroke="#1c2130" stroke-width="16" stroke-dasharray="2 143.5" transform="rotate(-90 110 110)"/>
+        <circle id="mainArc" cx="110" cy="110" r="92" fill="none" stroke="url(#goldGrad)" stroke-width="16" stroke-dasharray="0 578.1" stroke-linecap="round" transform="rotate(-90 110 110)" style="transition:stroke-dasharray 2s cubic-bezier(.4,0,.2,1)"/>
+        <circle id="cagrTargetArc" cx="110" cy="110" r="92" fill="none" stroke="#5a4820" stroke-width="3" stroke-dasharray="0 578.1" stroke-linecap="round" transform="rotate(-90 110 110)" opacity="0.8"/>
+        <circle cx="110" cy="110" r="74" fill="none" stroke="#0f1118" stroke-width="10"/>
+        <circle id="monthlyArc" cx="110" cy="110" r="74" fill="none" stroke="#1a3a6a" stroke-width="10" stroke-dasharray="0 464.9" stroke-linecap="round" transform="rotate(-90 110 110)" style="transition:stroke-dasharray 2.2s cubic-bezier(.4,0,.2,1) .3s"/>
+        <line x1="110" y1="2" x2="110" y2="18" stroke="#c9a84c" stroke-width="1.5" opacity="0.4"/>
+        <line x1="202" y1="110" x2="218" y2="110" stroke="#c9a84c" stroke-width="1.5" opacity="0.4"/>
+        <line x1="110" y1="202" x2="110" y2="218" stroke="#c9a84c" stroke-width="1.5" opacity="0.4"/>
+      </svg>
+      <div class="ring-center" style="width:128px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--muted);letter-spacing:1px">PORTFOLIO</div>
+        <div id="mainVal" style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--text);line-height:1">—</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--gold2)" id="mainPct">—</div>
+        <div style="font-size:7px;color:var(--muted);margin-top:2px">of $1,000,000</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);margin-top:4px" id="targetDate">…</div>
+        <div style="font-size:7px;color:var(--muted)" id="monthsLeft"></div>
+      </div>
+      <div class="ring-title" style="color:var(--gold2)">$1M Journey</div>
+      <div class="ring-subtitle">Outer: progress · Inner: monthly adds · Ticks: $250K milestones</div>
+    </div>
+
+    <!-- COUNTRY RINGS -->
+    <div class="country-col">
+      <div class="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="45" fill="none" stroke="#0f1118" stroke-width="10"/>
+          <circle id="usArc" cx="55" cy="55" r="45" fill="none" stroke="#4a8cff" stroke-width="10" stroke-dasharray="0 282.7" stroke-linecap="round" transform="rotate(-90 55 55)" style="transition:stroke-dasharray 1.8s ease .5s"/>
+        </svg>
+        <div class="ring-center" style="width:68px;text-align:center">
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--us)" id="usPct">—</div>
+          <div style="font-size:7.5px;color:var(--text)" id="usVal">—</div>
+          <div style="font-size:6.5px;color:var(--muted)" id="usCount">—</div>
+        </div>
+        <div class="ring-title" style="color:var(--us)">🇺🇸 US Equities</div>
+      </div>
+      <div class="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="45" fill="none" stroke="#0f1118" stroke-width="10"/>
+          <circle id="uaeArc" cx="55" cy="55" r="45" fill="none" stroke="#00c47a" stroke-width="10" stroke-dasharray="0 282.7" stroke-linecap="round" transform="rotate(-90 55 55)" style="transition:stroke-dasharray 1.8s ease .7s"/>
+        </svg>
+        <div class="ring-center" style="width:68px;text-align:center">
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--uae)" id="uaePct">—</div>
+          <div style="font-size:7.5px;color:var(--text)" id="uaeVal">—</div>
+          <div style="font-size:6.5px;color:var(--muted)" id="uaeLocal">—</div>
+        </div>
+        <div class="ring-title" style="color:var(--uae)">🇦🇪 UAE</div>
+      </div>
+      <div class="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="45" fill="none" stroke="#0f1118" stroke-width="10"/>
+          <circle id="indiaArc" cx="55" cy="55" r="45" fill="none" stroke="#ff8c00" stroke-width="10" stroke-dasharray="0 282.7" stroke-linecap="round" transform="rotate(-90 55 55)" style="transition:stroke-dasharray 1.8s ease .9s"/>
+        </svg>
+        <div class="ring-center" style="width:68px;text-align:center">
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--india)" id="indiaPct">—</div>
+          <div style="font-size:7.5px;color:var(--text)" id="indiaVal">—</div>
+          <div style="font-size:6.5px;color:var(--muted)" id="indiaLocal">—</div>
+        </div>
+        <div class="ring-title" style="color:var(--india)">🇮🇳 Zerodha</div>
+      </div>
+      <div class="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="45" fill="none" stroke="#0f1118" stroke-width="10"/>
+          <circle id="cryptoArc" cx="55" cy="55" r="45" fill="none" stroke="#a78bfa" stroke-width="10" stroke-dasharray="0 282.7" stroke-linecap="round" transform="rotate(-90 55 55)" style="transition:stroke-dasharray 1.8s ease 1.1s"/>
+        </svg>
+        <div class="ring-center" style="width:68px;text-align:center">
+          <div style="font-size:14px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--crypto)" id="cryptoPct">—</div>
+          <div style="font-size:7.5px;color:var(--text)" id="cryptoVal">—</div>
+          <div style="font-size:6.5px;color:var(--muted)" id="cryptoCount">—</div>
+        </div>
+        <div class="ring-title" style="color:var(--crypto)">⬡ Crypto</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSITION RINGS -->
+  <div class="sh"><div class="stripe" style="background:var(--gold)"></div><div class="sname" style="color:var(--gold2)">Position Rings — 18% CAGR Pro-Rata</div><div class="sr">Gold arc = target · Coloured arc = actual · Red = behind</div></div>
+  <div class="pos-rings-grid" id="posRingsGrid"></div>
+</div>
+
+<!-- BENCHMARK STRIP -->
+<div class="bmark-strip" id="bmarkStrip">
+  <div class="bm target-bar"><div class="bm-label">18% CAGR Target</div><div class="bm-val gold" id="bm-target">—</div><div class="bm-sub" id="bm-target-sub">Annual target</div><div class="bm-bar"><div class="bm-fill" style="background:var(--gold);width:100%"></div></div></div>
+  <div class="bm"><div class="bm-label">Portfolio Total</div><div class="bm-val" id="bm-port">—</div><div class="bm-sub" id="bm-port-sub">All platforms</div><div class="bm-bar"><div id="bm-port-fill" class="bm-fill" style="background:var(--green)"></div></div></div>
+  <div class="bm"><div class="bm-label">🇺🇸 US</div><div class="bm-val" id="bm-us">—</div><div class="bm-sub">Wio USD</div><div class="bm-bar"><div id="bm-us-fill" class="bm-fill" style="background:var(--us)"></div></div></div>
+  <div class="bm"><div class="bm-label">🇦🇪 UAE</div><div class="bm-val" id="bm-uae">—</div><div class="bm-sub">Wio AED</div><div class="bm-bar"><div id="bm-uae-fill" class="bm-fill" style="background:var(--uae)"></div></div></div>
+  <div class="bm"><div class="bm-label">🇮🇳 India</div><div class="bm-val" id="bm-india">—</div><div class="bm-sub">Zerodha · INR</div><div class="bm-bar"><div id="bm-india-fill" class="bm-fill" style="background:var(--india)"></div></div></div>
+</div>
+
+<!-- ANALYTICS PANELS -->
+<div class="analytics-bar">
+  <span class="bar-label">ANALYTICS →</span>
+  <button class="tbtn" onclick="tog('xirr')">📊 XIRR / TWR</button>
+  <button class="tbtn" onclick="tog('twr')">📈 P&amp;L Breakdown</button>
+  <button class="tbtn" onclick="tog('realised')">💰 Realised</button>
+  <button class="tbtn" onclick="tog('tax')">🏛 Tax &amp; Harvest</button>
+  <button class="tbtn" onclick="tog('charges')">💸 Fees</button>
+</div>
+
+<div id="panel-xirr" class="apanel">
+  <div class="ptitle">XIRR · TWR · Annualised Returns</div>
+  <div class="ag5" id="xirrGrid"></div>
+  <div class="pnote" id="xirrNote"></div>
+</div>
+
+<div id="panel-twr" class="apanel">
+  <div class="ptitle">P&amp;L Breakdown by Platform</div>
+  <div class="ag4" id="plGrid"></div>
+</div>
+
+<div id="panel-realised" class="apanel">
+  <div class="ptitle">Realised Gains</div>
+  <div class="pnote">AIQ sold 6 Jun 2026 · +41.9% · Realised gain: <strong style="color:var(--green)">+$1,074</strong> · Cost: $392 → Proceeds: $1,466</div>
+</div>
+
+<div id="panel-tax" class="apanel">
+  <div class="ptitle">India LTCG Tax &amp; Harvest Optimiser</div>
+  <div class="ag4" id="taxGrid"></div>
+  <div class="pnote" id="taxNote"></div>
+</div>
+
+<div id="panel-charges" class="apanel">
+  <div class="ptitle">Broker Fee Summary</div>
+  <div class="ag" id="feesGrid"></div>
+  <div class="pnote">Wio USD: 0.2%+VAT capped $5.1975 buy/sell · Wio Commodity: 0.15%+VAT min $1.05 · Wio AED Crypto: 0.525% no cap · Zerodha: Zero delivery, 0.1% STT sell-side</div>
+</div>
+
+<!-- HOLDINGS SECTIONS -->
+<div id="holdingsSection">
+  <div class="sh"><div class="stripe" style="background:var(--us)"></div><div class="sname" style="color:var(--us)">🇺🇸 US Equities — Wio USD</div><div class="sr" id="us-sr"></div></div>
+  <div class="holdings-grid" id="us-holdings"></div>
+
+  <div class="sh"><div class="stripe" style="background:var(--uae)"></div><div class="sname" style="color:var(--uae)">🇦🇪 UAE Equities — Wio AED</div><div class="sr" id="uae-sr"></div></div>
+  <div class="holdings-grid" id="uae-holdings"></div>
+
+  <div class="sh"><div class="stripe" style="background:var(--crypto)"></div><div class="sname" style="color:var(--crypto)">⬡ Crypto — Wio AED</div><div class="sr" id="crypto-sr"></div></div>
+  <div class="holdings-grid" id="crypto-holdings"></div>
+
+  <div class="sh"><div class="stripe" style="background:var(--india)"></div><div class="sname" style="color:var(--india)">🇮🇳 India Equities — Zerodha</div><div class="sr" id="india-sr"></div></div>
+  <div class="holdings-grid" id="india-holdings"></div>
+</div>
+
+<div class="footer" id="footer"></div>
+</div><!-- /L1 -->
+
+<!-- L2 HEALTH -->
+<div id="tab-health" class="tab-content">
+  <div class="sh"><div class="stripe" style="background:var(--gold)"></div><div class="sname">Position Health Board</div><div class="sr">Last review: <span id="lastReviewDate">—</span></div></div>
+  <div class="hb-grid" id="healthGrid"></div>
+</div>
+
+<!-- L3 SCANNER -->
+<div id="tab-scanner" class="tab-content">
+  <div class="sh"><div class="stripe" style="background:var(--purple)"></div><div class="sname" style="color:var(--purple)">Opportunity Scanner</div><div class="sr">Pabrai Framework · Heads-I-Win</div></div>
+  <div id="scannerGrid"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG — Google Sheets published CSV URLs
+// IMPORTANT: Replace SHEET_ID with your actual Google Sheets file ID
+// Then publish each sheet via File → Share → Publish to web → CSV
+// ─────────────────────────────────────────────────────────────────────────────
+const SHEET_ID = '1-7LPwA7NzlHYuAO50JTzuNnH5Ijg7IrJvM0aCJ8fvMs';
+
+// Using gviz/tq endpoint with GIDs — handles CORS correctly from GitHub Pages
+const SHEETS = {
+  liveEngine: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1676786946`,
+  dashboard:  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=2012162756`,
+  settings:   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=202595598`,
+  taxOpt:     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1536752207`,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FALLBACK DATA — used when Google Sheets is not publicly published
+// Contains the live snapshot from Portfolio_Sijo_Tom_v5.xlsx
+// ─────────────────────────────────────────────────────────────────────────────
+const FALLBACK = {
+  totalVal: 85202.19,
+  totalCost: 86609.94,
+  pnl: -1407.76,
+  usVal: 54346.93,
+  uaeVal: 13387.15,
+  indiaVal: 17468.11,
+  cryptoVal: 6247.89,
+  usdInr: 94.45,
+  usdAed: 3.6725,
+  progress: 0.0852,
+  etaYear: 2033,
+  lastReview: '2026-06-15',
+  holdings: [
+    // US positions
+    {ticker:'NVDA',name:'NVIDIA Corporation',platform:'Wio USD',assetType:'Equity',sector:'AI/Semiconductor',region:'US',qty:34,avgCostUsd:211.30,ltpUsd:207.41,valueUsd:7051.94,pnlUsd:-132.29,pnlPct:-0.0184,holdingSince:'2026-05-18',daysHeld:30,analysisPct:-0.204,isHedge:false,notes:'13 pending at $208',action:'Hold+Add',ac:'b-add',cc:'hc-blue'},
+    {ticker:'MSFT',name:'Microsoft',platform:'Wio USD',assetType:'Equity',sector:'Cloud/AI',region:'US',qty:21,avgCostUsd:416.92,ltpUsd:393.83,valueUsd:8270.43,pnlUsd:-484.97,pnlPct:-0.0554,holdingSince:'2026-04-27',daysHeld:51,analysisPct:0.219,isHedge:false,notes:'Azure AI strong · PT $480',action:'Hold — Strong',ac:'b-hold',cc:'hc-green'},
+    {ticker:'META',name:'Meta Platforms',platform:'Wio USD',assetType:'Equity',sector:'AI/Social Media',region:'US',qty:13.45,avgCostUsd:647.60,ltpUsd:600.21,valueUsd:8072.82,pnlUsd:-637.41,pnlPct:-0.0732,holdingSince:'2025-09-18',daysHeld:272,analysisPct:0.200,isHedge:false,notes:'-2.2% vs 7.96% pro-rata · watch Q2',action:'Hold — Recovering',ac:'b-hold',cc:'hc-amber'},
+    {ticker:'MELI',name:'MercadoLibre',platform:'Wio USD',assetType:'Equity',sector:'E-Commerce/Fintech',region:'US',qty:5,avgCostUsd:1637.74,ltpUsd:1674.08,valueUsd:8370.40,pnlUsd:181.70,pnlPct:0.0222,holdingSince:'2026-04-01',daysHeld:77,analysisPct:0.314,isHedge:false,notes:'Revenue +49% YoY · insider buy May',action:'Hold',ac:'b-hold',cc:'hc-green'},
+    {ticker:'GOOGL',name:'Alphabet/Google',platform:'Wio USD',assetType:'Equity',sector:'AI/Search/Cloud',region:'US',qty:21,avgCostUsd:371.89,ltpUsd:373.25,valueUsd:7838.25,pnlUsd:28.64,pnlPct:0.0037,holdingSince:'2026-05-29',daysHeld:19,analysisPct:-0.437,isHedge:false,notes:'3d old · on track · PT $430',action:'New — Building',ac:'b-new',cc:'hc-blue'},
+    {ticker:'NEM',name:'Newmont Corp',platform:'Wio USD',assetType:'Equity',sector:'Mining/Gold',region:'US',qty:51,avgCostUsd:115.23,ltpUsd:108.44,valueUsd:5530.44,pnlUsd:-346.46,pnlPct:-0.059,holdingSince:'2026-03-05',daysHeld:104,analysisPct:null,isHedge:true,notes:'Gold/macro hedge · PT $143 · $6B buyback',action:'Hedge — Hold',ac:'b-hedge',cc:'hc-gold'},
+    {ticker:'CCJ',name:'Cameco Corporation',platform:'Wio USD',assetType:'Equity',sector:'Energy/Uranium',region:'US',qty:7,avgCostUsd:100.21,ltpUsd:107.88,valueUsd:755.16,pnlUsd:53.69,pnlPct:0.0765,holdingSince:'2026-06-09',daysHeld:8,analysisPct:-0.397,isHedge:false,notes:'Uranium cycle · new position',action:'Hold',ac:'b-hold',cc:'hc-blue'},
+    {ticker:'XAG',name:'Silver Troy Oz',platform:'Wio USD',assetType:'Commodity',sector:'Commodity/Silver',region:'US',qty:8.3,avgCostUsd:63.62,ltpUsd:69.80,valueUsd:579.33,pnlUsd:51.31,pnlPct:0.097,holdingSince:'2026-06-10',daysHeld:7,analysisPct:null,isHedge:true,notes:'Silver commodity hedge',action:'Hedge — Hold',ac:'b-hedge',cc:'hc-gold'},
+    {ticker:'ADBE',name:'Adobe Inc',platform:'Wio USD',assetType:'Equity',sector:'Software & Services',region:'US',qty:38,avgCostUsd:210.14,ltpUsd:207.32,valueUsd:7878.16,pnlUsd:-107.04,pnlPct:-0.0134,holdingSince:'2026-06-15',daysHeld:2,analysisPct:0.216,isHedge:false,notes:'New · PT $252',action:'New — Building',ac:'b-new',cc:'hc-blue'},
+    // UAE
+    {ticker:'ADNOCDRILL',name:'ADNOC Drilling',platform:'Wio AED',assetType:'Equity',sector:'Energy/Oil',region:'UAE',qty:4298,avgCostUsd:1.462,ltpUsd:1.658,valueUsd:7127.25,pnlUsd:844.79,pnlPct:0.1345,holdingSince:'2025-05-08',daysHeld:405,analysisPct:null,isHedge:false,notes:'XIRR 21.54% · 4 tranches · No CGT',action:'Hold',ac:'b-hold',cc:'hc-green'},
+    {ticker:'DFM',name:'Dubai Fin. Market',platform:'Wio AED',assetType:'Equity',sector:'Financial Exchange',region:'UAE',qty:30,avgCostUsd:0.464,ltpUsd:0.400,valueUsd:12.01,pnlUsd:-1.92,pnlPct:-0.138,holdingSince:'2026-01-21',daysHeld:147,analysisPct:null,isHedge:false,notes:'Negligible · exit or size up',action:'Size Up or Exit',ac:'b-rev',cc:'hc-red'},
+    // Crypto
+    {ticker:'DOGE',name:'Dogecoin',platform:'Wio AED',assetType:'Crypto',sector:'Meme Crypto',region:'Global',qty:20000,avgCostUsd:0.1068,ltpUsd:0.0865,valueUsd:1730,pnlUsd:-406.50,pnlPct:-0.190,holdingSince:'2026-02-03',daysHeld:134,analysisPct:null,isHedge:false,notes:'AED avg 0.39 · 0.525% fee · Watch',action:'Watch',ac:'b-hold',cc:'hc-blue'},
+    {ticker:'SOL',name:'Solana',platform:'Wio AED',assetType:'Crypto',sector:'Layer 1',region:'Global',qty:1,avgCostUsd:86.28,ltpUsd:72.89,valueUsd:72.89,pnlUsd:-13.39,pnlPct:-0.155,holdingSince:'2026-03-27',daysHeld:82,analysisPct:null,isHedge:false,notes:'AED avg 314.98 · Watch',action:'Watch',ac:'b-hold',cc:'hc-blue'},
+    {ticker:'ETH',name:'Ethereum',platform:'Wio AED',assetType:'Crypto',sector:'Layer 1/DeFi',region:'Global',qty:2.5,avgCostUsd:1588.68,ltpUsd:1778,valueUsd:4445,pnlUsd:473.30,pnlPct:0.1192,holdingSince:'2026-06-05',daysHeld:12,analysisPct:null,isHedge:false,notes:'New position · +11.9%',action:'Hold',ac:'b-hold',cc:'hc-green'},
+    // India
+    {ticker:'ASIANPAINT',name:'Asian Paints',platform:'Zerodha',assetType:'Equity',sector:'Consumer/Paints',region:'India',qty:59,avgCostUsd:23.05,ltpUsd:29.03,valueUsd:1712.96,pnlUsd:352.86,pnlPct:0.2594,holdingSince:'2023-01-15',daysHeld:1249,analysisPct:0.021,isHedge:false,notes:'1,249d · LTCG · +25.9%',action:'Hold',ac:'b-hold',cc:'hc-green'},
+    {ticker:'BAJAJ-AUTO',name:'Bajaj Auto',platform:'Zerodha',assetType:'Equity',sector:'Automobile',region:'India',qty:15,avgCostUsd:104.74,ltpUsd:105.62,valueUsd:1584.33,pnlUsd:13.27,pnlPct:0.0084,holdingSince:'2023-06-01',daysHeld:1112,analysisPct:0.053,isHedge:false,notes:'1,112d · LTCG · +0.8%',action:'Hold',ac:'b-hold',cc:'hc-blue'},
+    {ticker:'HINDUNILVR',name:'Hindustan Unilever',platform:'Zerodha',assetType:'Equity',sector:'Consumer/FMCG',region:'India',qty:63,avgCostUsd:24.51,ltpUsd:23.17,valueUsd:1459.50,pnlUsd:-84.33,pnlPct:-0.0546,holdingSince:'2023-09-01',daysHeld:1020,analysisPct:0.143,isHedge:false,notes:'Harvest loss -₹8,814 → tax saving',action:'Review + Harvest',ac:'b-rev',cc:'hc-amber'},
+    {ticker:'IDFCFIRSTB',name:'IDFC First Bank',platform:'Zerodha',assetType:'Equity',sector:'Banking',region:'India',qty:3000,avgCostUsd:0.696,ltpUsd:0.819,valueUsd:2457.80,pnlUsd:368.86,pnlPct:0.1766,holdingSince:'2024-03-01',daysHeld:838,analysisPct:null,isHedge:false,notes:'838d · LTCG · monitor closely',action:'Hold',ac:'b-hold',cc:'hc-green'},
+    {ticker:'JIOFIN',name:'Jio Financial',platform:'Zerodha',assetType:'Equity',sector:'Fintech',region:'India',qty:791,avgCostUsd:3.421,ltpUsd:2.566,valueUsd:2029.88,pnlUsd:-676.51,pnlPct:-0.250,holdingSince:'2024-01-01',daysHeld:898,analysisPct:0.155,isHedge:false,notes:'Conviction hold · Reliance ecosystem',action:'Conviction Hold',ac:'b-hold',cc:'hc-gold'},
+    {ticker:'KPITTECH',name:'KPIT Technologies',platform:'Zerodha',assetType:'Equity',sector:'Auto/IT Services',region:'India',qty:85,avgCostUsd:17.11,ltpUsd:8.02,valueUsd:681.84,pnlUsd:-772.10,pnlPct:-0.531,holdingSince:'2023-08-01',daysHeld:1051,analysisPct:0.188,isHedge:false,notes:'Exit ₹900–950 · harvest -₹73.7K',action:'Exit on Rally ₹900',ac:'b-exit',cc:'hc-red'},
+    {ticker:'LTTS',name:'L&T Tech Services',platform:'Zerodha',assetType:'Equity',sector:'IT Services',region:'India',qty:20,avgCostUsd:47.28,ltpUsd:36.63,valueUsd:732.60,pnlUsd:-213.09,pnlPct:-0.225,holdingSince:'2023-10-01',daysHeld:990,analysisPct:null,isHedge:false,notes:'Harvest loss -₹20.6K',action:'Review + Harvest',ac:'b-rev',cc:'hc-amber'},
+    {ticker:'MAXHEALTH',name:'Max Healthcare',platform:'Zerodha',assetType:'Equity',sector:'Healthcare',region:'India',qty:96,avgCostUsd:10.84,ltpUsd:10.82,valueUsd:1038.46,pnlUsd:-2.38,pnlPct:-0.0023,holdingSince:'2024-06-01',daysHeld:746,analysisPct:0.126,isHedge:false,notes:'Near breakeven · 746d LTCG',action:'Watch',ac:'b-hold',cc:'hc-amber'},
+    {ticker:'NIFTYBEES',name:'Nifty BeES ETF',platform:'Zerodha',assetType:'ETF',sector:'Index/Passive',region:'India',qty:900,avgCostUsd:3.011,ltpUsd:2.886,valueUsd:2597.75,pnlUsd:-111.82,pnlPct:-0.0413,holdingSince:'2024-02-01',daysHeld:867,analysisPct:null,isHedge:false,notes:'Harvest + same-day rebuy',action:'Harvest + Rebuy',ac:'b-hold',cc:'hc-blue'},
+    {ticker:'NIVABUPA',name:'Niva Bupa Health',platform:'Zerodha',assetType:'Equity',sector:'Health Insurance',region:'India',qty:1150,avgCostUsd:0.884,ltpUsd:0.898,valueUsd:1033.23,pnlUsd:16.39,pnlPct:0.0161,holdingSince:'2024-11-01',daysHeld:593,analysisPct:null,isHedge:false,notes:'Near breakeven · 593d LTCG',action:'Hold',ac:'b-hold',cc:'hc-green'},
+    {ticker:'HDFCBANK',name:'HDFC Bank',platform:'Zerodha',assetType:'Equity',sector:'Banking',region:'India',qty:256,avgCostUsd:8.22,ltpUsd:8.36,valueUsd:2139.74,pnlUsd:35.29,pnlPct:0.0168,holdingSince:'2026-06-16',daysHeld:1,analysisPct:0.393,isHedge:false,notes:'New · STCG (< 1yr) · PT ₹1,100',action:'Hold — STCG',ac:'b-hold',cc:'hc-blue'},
+  ],
+  taxData: {
+    totalPnlInr: -111591.51,
+    taxLiabilityInr: 8456.10,
+    harvestSavingInr: 22677.04,
+  },
+  concentration: {
+    us: 0.5396, india: 0.2050, uae: 0.0838, latam: 0.0982, global: 0.0733
+  },
+  milestones: [
+    {label:'🌱 Seed',target:25000,status:'✅ Done'},
+    {label:'🌿 Growing',target:50000,status:'✅ Done'},
+    {label:'🌳 Foundation',target:75000,status:'✅ Done'},
+    {label:'💎 Six Figures',target:100000,status:'⏳'},
+    {label:'🏆 Mission!',target:1000000,status:'⏳'},
+  ]
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATIC DATA (not in sheets — kept here for health & scanner)
+// ─────────────────────────────────────────────────────────────────────────────
+const healthData=[
+  {name:'NVIDIA (NVDA)',bucket:'AI Core · 34 shares · Avg $211.30',ltp:'$207.41',pct:'-1.8%',pos:false,
+   dims:[{l:'Theme',s:5,c:'#2ecc8a'},{l:'Fundamentals',s:5,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:4,c:'#2ecc8a'},{l:'Fit',s:5,c:'#2ecc8a'}],
+   total:23,note:'Q1 FY27 EPS beat 6.5%. Revenue +85% YoY. 61 Buy. PT $165. Computex Jun 2026 upcoming catalyst. <strong>13 pending at $208 — fills soon.</strong>',
+   reviewed:'15 Jun 2026',next:'Aug 26 2026 (Q2)',sc:'s-green'},
+  {name:'Microsoft (MSFT)',bucket:'AI Core · 21 shares · Avg $416.92',ltp:'$393.83',pct:'-5.5%',pos:false,
+   dims:[{l:'Theme',s:5,c:'#2ecc8a'},{l:'Fundamentals',s:5,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:5,c:'#2ecc8a'},{l:'Fit',s:5,c:'#2ecc8a'}],
+   total:24,note:'Q3 Revenue $82.9B +18.3%. Azure AI strong. PT $480. Ackman buying. <strong>Long-term hold — thesis intact.</strong>',
+   reviewed:'15 Jun 2026',next:'Jul 2026 (Q4)',sc:'s-green'},
+  {name:'MercadoLibre (MELI)',bucket:'Diversification · 5 shares · Avg $1,637',ltp:'$1,674',pct:'+2.2%',pos:true,
+   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:3,c:'#f59e0b'},{l:'Macro/Geo',s:3,c:'#f59e0b'},{l:'Price/Thesis',s:4,c:'#2ecc8a'},{l:'Fit',s:4,c:'#2ecc8a'}],
+   total:18,note:'Revenue +49% YoY. EPS missed 11%. <strong>Insider buy May 26.</strong> PT $2,200. Thesis intact.',
+   reviewed:'15 Jun 2026',next:'Aug 2026 (Q2)',sc:'s-blue'},
+  {name:'Meta Platforms (META)',bucket:'AI Core · 13.45 shares · Avg $647.60',ltp:'$600.21',pct:'-7.3%',pos:false,
+   dims:[{l:'Theme',s:5,c:'#2ecc8a'},{l:'Fundamentals',s:5,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:3,c:'#f59e0b'},{l:'Fit',s:4,c:'#2ecc8a'}],
+   total:21,note:'$145B capex 2026. Nvidia confirmed 3.5x ad clicks from AI. <strong>-7.3% vs pro-rata target.</strong> Watch Q2 Jul.',
+   reviewed:'15 Jun 2026',next:'Jul 2026 (Q2)',sc:'s-green'},
+  {name:'Newmont Corp (NEM)',bucket:'Gold Hedge · 51 shares · Avg $115.23',ltp:'$108.44',pct:'-5.9%',pos:false,
+   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:4,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:3,c:'#f59e0b'},{l:'Fit',s:5,c:'#2ecc8a'}],
+   total:20,note:'Q1 EPS beat 33%. $6B buyback. 18 Buy PT $143. <strong>Hedge — not vs 18% CAGR.</strong>',
+   reviewed:'15 Jun 2026',next:'Jul 29 2026 (Q2)',sc:'s-blue'},
+  {name:'ADNOC Drilling',bucket:'UAE GCC · 4,298 shares · Avg AED 5.36',ltp:'AED 6.09',pct:'+13.5%',pos:true,
+   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:4,c:'#2ecc8a'},{l:'Macro/Geo',s:4,c:'#2ecc8a'},{l:'Price/Thesis',s:4,c:'#2ecc8a'},{l:'Fit',s:4,c:'#2ecc8a'}],
+   total:20,note:'XIRR 21.54%. GCC capex intact. No CGT. +13.5% vs 14.6% pro-rata — on track.',
+   reviewed:'15 Jun 2026',next:'Next ADNOC earnings',sc:'s-green'},
+  {name:'KPIT Technologies',bucket:'India IT · Exit plan',ltp:'₹757.65',pct:'-53.1%',pos:false,
+   dims:[{l:'Theme',s:2,c:'#e05555'},{l:'Fundamentals',s:2,c:'#e05555'},{l:'Macro/Geo',s:2,c:'#e05555'},{l:'Price/Thesis',s:1,c:'#e05555'},{l:'Fit',s:1,c:'#e05555'}],
+   total:8,note:'Auto software thesis broken. <strong>Exit ₹900–950 → harvest -₹73.7K → redeploy US.</strong>',
+   reviewed:'15 Jun 2026',next:'Monitor ₹900 trigger',sc:'s-red'},
+  {name:'Adobe Inc (ADBE)',bucket:'Software · NEW · 38 shares · Avg $210',ltp:'$207.32',pct:'-1.3%',pos:false,
+   dims:[{l:'Theme',s:4,c:'#2ecc8a'},{l:'Fundamentals',s:4,c:'#2ecc8a'},{l:'Macro/Geo',s:3,c:'#f59e0b'},{l:'Price/Thesis',s:3,c:'#f59e0b'},{l:'Fit',s:4,c:'#2ecc8a'}],
+   total:18,note:'2d old. Firefly AI expanding. PT $252. <strong>Full health score Sep 2026.</strong>',
+   reviewed:'15 Jun 2026',next:'Sep 2026 (90-day review)',sc:'s-blue'},
+];
+
+const scanData=[
+  {name:'Credo Technology (CRDO)',sector:'AI Interconnect · Data Centre · Under-the-radar',urgency:'HOT',uc:'urg-hot',
+   current:'$225',entry:'$215–225 now',upside:'3–5x in 3–4yr',size:'$3,500–4,000',
+   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:true},{l:'Simple biz',y:true},{l:'Mgmt skin',y:true},{l:'Mispriced',y:true}],
+   thesis:'Active electrical cables and AI data centre interconnects. Revenue +278% YoY. <strong>Zero portfolio overlap.</strong> Less crowded than NVDA/AMD. AI interconnect cycle not fully priced. Best Pabrai score of all picks.',
+   risk:'Hyperscaler customer concentration. Small cap volatility. In-house build risk.'},
+  {name:'Taiwan Semiconductor (TSM)',sector:'AI Foundry · Picks and Shovels · Global',urgency:'HOT',uc:'urg-hot',
+   current:'$423',entry:'$415–425 now',upside:'50–70% in 3yr',size:'$4,000–5,000',
+   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:false},{l:'Simple biz',y:true},{l:'Mgmt skin',y:true},{l:'Mispriced',y:true}],
+   thesis:'Every AI chip — NVDA, AMD, Apple, Google, ARM — manufactured at TSMC. <strong>2026 revenue growth raised to 30%+.</strong> Classic Pabrai toll road — simple moat, mispriced via Taiwan geopolitical discount.',
+   risk:'Taiwan geopolitical risk. 18x forward earnings — cheaper than US peers but not distressed.'},
+  {name:'ARM Holdings (ARM)',sector:'AI Architecture · Royalty Model · Wait for dip',urgency:'WATCH',uc:'urg-watch',
+   current:'$341 — do not chase',entry:'$290–310 limit',upside:'2–3x in 3–4yr',size:'$3,000 on dip',
+   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:false},{l:'Simple biz',y:true},{l:'Mgmt skin',y:false},{l:'Mispriced',y:false}],
+   thesis:'Every custom AI chip pays ARM royalty. Royalty base compounds as AI moves to edge. <strong>Set limit $290–310 — do not chase $341.</strong>',
+   risk:'Current $341 embeds significant AI optionality. SoftBank overhang. Patience required.'},
+  {name:'Intel (INTC)',sector:'Contrarian Deep Value · Foundry Pivot',urgency:'WATCH',uc:'urg-watch',
+   current:'$120.79',entry:'$110–120 now',upside:'3–5x in 5yr if foundry works',size:'$1,500 max',
+   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:true},{l:'Simple biz',y:true},{l:'Mgmt skin',y:true},{l:'Mispriced',y:true}],
+   thesis:'CEO Lip-Bu Tan executing foundry pivot. CHIPS Act tailwind. <strong>At $120 downside largely priced.</strong> Heads-I-win Pabrai setup.',
+   risk:'Execution risk very real. 5-year bet not 1-year trade. Size at $1,500 max.'},
+  {name:'Cerebras Systems (CBRS)',sector:'AI Inference · Wafer-Scale · Post-IPO dip',urgency:'PATIENT',uc:'urg-patient',
+   current:'~$256',entry:'$210–230 on dip',upside:'3–4x in 3yr',size:'$1,500–2,000',
+   pabrai:[{l:'Downside defined',y:true},{l:'3-5x upside',y:true},{l:'Simple biz',y:false},{l:'Mgmt skin',y:true},{l:'Mispriced',y:false}],
+   thesis:'IPO May 14 opened $385 → <strong>now $256, -33% from open.</strong> OpenAI $20B+. UAE MBZUAI 62% revenue. Q1 $510M +76% YoY. Wait for $210–230.',
+   risk:'62% customer concentration. $55B at 7.5x sales. Do not buy at $256.'},
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let LIVE = null; // populated from Google Sheets or fallback
+let currentPeriod = 'total';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CSV PARSER (simple, handles quoted fields)
+// ─────────────────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur.trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+function num(v) {
+  if (v === null || v === undefined || v === '' || v === '—' || v === '#ERROR!') return 0;
+  return parseFloat(String(v).replace(/[^0-9.\-]/g,'')) || 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FETCH FROM GOOGLE SHEETS
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchSheet(url) {
+  // Try direct fetch first
+  const r = await fetch(url, {
+    method: 'GET',
+    headers: { 'Accept': 'text/csv, text/plain, */*' },
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status} — sheet may not be published`);
+  const text = await r.text();
+  // gviz sometimes returns HTML error page — detect it
+  if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+    throw new Error('Google returned HTML instead of CSV — check sheet is published');
+  }
+  return parseCSV(text);
+}
+
+async function loadFromSheets() {
+  // Fetch sheets one by one so we can identify which one fails
+  let leRows, dashRows, settRows, taxRows;
+
+  try { leRows   = await fetchSheet(SHEETS.liveEngine); }
+  catch(e) { throw new Error(`Live Engine sheet: ${e.message}`); }
+
+  try { dashRows  = await fetchSheet(SHEETS.dashboard); }
+  catch(e) { throw new Error(`Dashboard sheet: ${e.message}`); }
+
+  try { settRows  = await fetchSheet(SHEETS.settings); }
+  catch(e) { throw new Error(`Settings sheet: ${e.message}`); }
+
+  try { taxRows   = await fetchSheet(SHEETS.taxOpt); }
+  catch(e) { throw new Error(`Tax Optimiser sheet: ${e.message}`); }
+
+  // Parse Live Engine holdings (header row index ~6)
+  let holdingStart = -1;
+  for (let i=0;i<leRows.length;i++) {
+    if (leRows[i][0]==='Ticker' && leRows[i][1]==='Asset Type') { holdingStart=i+1; break; }
+  }
+
+  const holdings = [];
+  if (holdingStart > 0) {
+    for (let i=holdingStart;i<leRows.length;i++) {
+      const r = leRows[i];
+      if (!r[0] || r[0]==='PORTFOLIO TOTAL' || r[0].startsWith('📊')) break;
+      const ticker = r[0];
+      const region = r[3];
+      const platform = r[4];
+      const fallbackH = FALLBACK.holdings.find(h=>h.ticker===ticker)||{};
+      holdings.push({
+        ticker, assetType:r[1], sector:r[2], region, platform,
+        qty:num(r[5]), totalCostUsd:num(r[6]), avgCostUsd:num(r[7]),
+        ltpUsd:num(r[8]), valueUsd:num(r[9]), pnlUsd:num(r[10]),
+        pnlPct:num(r[11]),
+        holdingSince: r[14]||fallbackH.holdingSince||'',
+        daysHeld: num(r[15]),
+        isHedge: fallbackH.isHedge||false,
+        name: fallbackH.name||ticker,
+        notes: fallbackH.notes||'',
+        action: fallbackH.action||'Hold',
+        ac: fallbackH.ac||'b-hold',
+        cc: fallbackH.cc||'hc-blue',
+        analysisPct: fallbackH.analysisPct||null,
+      });
+    }
+  }
+
+  // Parse Dashboard summary
+  let totalVal=0, totalCost=0, pnl=0, usVal=0, uaeVal=0, indiaVal=0, cryptoVal=0;
+  for (const r of dashRows) {
+    const lbl = r[0]||'';
+    if (lbl.includes('Total Portfolio')) totalVal=num(r[1]);
+    if (lbl.includes('Total Cost')) totalCost=num(r[1]);
+    if (lbl.includes('P&L') && !lbl.includes('%')) pnl=num(r[1]);
+    if (lbl.includes('Wio USD')) usVal=num(r[1]);
+    if (lbl.includes('Wio AED')) uaeVal=num(r[1]);
+    if (lbl.includes('Zerodha')) indiaVal=num(r[1]);
+  }
+
+  // Derive crypto from holdings
+  const cryptoHoldings = holdings.filter(h=>h.assetType==='Crypto');
+  cryptoVal = cryptoHoldings.reduce((s,h)=>s+h.valueUsd,0);
+
+  // Parse Tax
+  let harvestSavingInr=0, taxLiabilityInr=0, totalPnlInr=0;
+  for (const r of taxRows) {
+    const lbl = r[0]||'';
+    if (lbl.includes('Total P&L')) totalPnlInr=num(r[1]);
+    if (lbl.includes('Tax Liability')) taxLiabilityInr=num(r[1]);
+    if (lbl.includes('Harvestable')) harvestSavingInr=num(r[1]);
+  }
+
+  // Parse FX from Live Engine
+  let usdInr=94.45, usdAed=3.6725;
+  for (const r of leRows) {
+    if (r[0]==='USD/INR') usdInr=num(r[3])||94.45;
+    if (r[0]==='USD/AED') usdAed=num(r[3])||3.6725;
+  }
+
+  return {
+    totalVal, totalCost, pnl,
+    usVal, uaeVal, indiaVal, cryptoVal,
+    usdInr, usdAed,
+    progress: totalVal/1000000,
+    holdings,
+    taxData:{totalPnlInr,taxLiabilityInr,harvestSavingInr},
+    concentration: FALLBACK.concentration,
+    milestones: FALLBACK.milestones,
+    lastReview: '2026-06-15',
+    etaYear: 2033,
+    fromSheets: true,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT — try live, fall back to snapshot
+// ─────────────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    LIVE = await loadFromSheets();
+    document.getElementById('loadingBanner').classList.add('hidden');
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent = `✅ Live data loaded ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — from Google Sheets`;
+    document.getElementById('livePillText').textContent = `Live ${now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
+  } catch(e) {
+    console.warn('Google Sheets fetch failed, using snapshot data:', e.message);
+    LIVE = FALLBACK;
+    document.getElementById('loadingBanner').classList.add('hidden');
+    const eb = document.getElementById('errorBanner');
+    eb.style.display='block';
+    eb.innerHTML=`<strong>⚠ Google Sheets not publicly published yet.</strong> Showing snapshot data from v5.xlsx (16 Jun 2026). To enable live data: in Google Sheets → File → Share → Publish to web → each sheet as CSV. <br>Error: ${e.message}`;
+    document.getElementById('lastUpdated').textContent = `📋 Snapshot data (16 Jun 2026) — publish Sheets to enable live feed`;
+    document.getElementById('livePillText').textContent = `Snapshot 16 Jun 2026`;
+  }
+
+  renderAll();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function fmt$(n,dec=0){ return n==null?'—':'$'+n.toLocaleString('en',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function fmtPct(n,dec=1){ if(n==null)return'—'; return (n>=0?'+':'')+n.toFixed(dec)+'%'; }
+function fmtPctRaw(n){ return n>=0?`<span class="pos">${fmtPct(n)}</span>`:`<span class="neg">${fmtPct(n)}</span>`; }
+
+function proRataTarget(days){ return (Math.pow(1.18, days/365)-1)*100; }
+
+function wtdAvgDays(h) {
+  // h.holdingSince is a date string
+  if (!h.holdingSince) return h.daysHeld||30;
+  const start = new Date(h.holdingSince);
+  const now = new Date();
+  return Math.max(1, Math.round((now-start)/(86400000)));
+}
+
+function pnlColor(n){ return n>=0?'var(--green)':'var(--red)'; }
+
+// S&P 500 approximate return from a given date (annualised 10.5%, pro-rated)
+function spReturn(isoDate, days){
+  if (!days) {
+    const d = new Date(isoDate);
+    days = Math.max(1, Math.round((new Date()-d)/86400000));
+  }
+  return (Math.pow(1.105, days/365)-1)*100;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER ALL
+// ─────────────────────────────────────────────────────────────────────────────
+function renderAll() {
+  const D = LIVE;
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('mastheadSub').textContent = `Sijo Tom · Global Consolidated · USD Base · ${dateStr}`;
+  document.getElementById('lastReviewDate').textContent = D.lastReview||'—';
+
+  // METRICS
+  const pnlPct = D.totalCost>0 ? D.pnl/D.totalCost*100 : 0;
+  document.getElementById('m-total').textContent = fmt$(D.totalVal);
+  document.getElementById('m-sub').innerHTML = `Invested ${fmt$(D.totalCost)} · P&amp;L <span style="color:${pnlColor(D.pnl)}">${fmtPct(pnlPct)}</span>`;
+  document.getElementById('m-local').textContent = `AED ${Math.round(D.totalVal*(D.usdAed||3.67)).toLocaleString()} est. · ₹${Math.round(D.totalVal*(D.usdInr||95)).toLocaleString()} est.`;
+  document.getElementById('m-us').textContent = fmt$(D.usVal);
+  const usHoldings = (D.holdings||FALLBACK.holdings).filter(h=>h.platform==='Wio USD');
+  document.getElementById('m-us-sub').innerHTML = `${usHoldings.length} positions · Wio USD`;
+  document.getElementById('m-uae').textContent = fmt$(D.uaeVal);
+  document.getElementById('m-uae-local').textContent = `AED ${Math.round(D.uaeVal*(D.usdAed||3.67)).toLocaleString()}`;
+  document.getElementById('m-india').textContent = fmt$(D.indiaVal);
+  const indiaHoldings = (D.holdings||FALLBACK.holdings).filter(h=>h.platform==='Zerodha');
+  document.getElementById('m-india-local').textContent = `₹${Math.round(D.indiaVal*(D.usdInr||95)).toLocaleString()} · ${indiaHoldings.length} positions`;
+
+  // MAIN RING
+  const pct = D.progress||D.totalVal/1000000;
+  const circ = 578.1;
+  const mainFill = Math.min(pct, 1)*circ;
+  // Pro-rata: portfolio started ~Jan 2023 roughly — use ~3.4 years
+  const portfolioStartDays = Math.round((new Date()-new Date('2023-01-15'))/86400000);
+  const cagrTarget = Math.min(proRataTarget(portfolioStartDays)/100, 1);
+  const cagrFill = Math.min(cagrTarget*circ/1, circ*0.9);
+  document.getElementById('mainVal').textContent = fmt$(D.totalVal);
+  document.getElementById('mainPct').textContent = (pct*100).toFixed(2)+'%';
+  document.getElementById('targetDate').textContent = `ETA ~${D.etaYear||2033}`;
+
+  setTimeout(()=>{
+    document.getElementById('mainArc').style.strokeDasharray=`${mainFill} ${circ}`;
+    document.getElementById('cagrTargetArc').style.strokeDasharray=`${Math.min(cagrFill,circ*0.3)} ${circ}`;
+    const monthlyFill = Math.min((D.totalVal/3000/120)*464.9, 464.9);
+    document.getElementById('monthlyArc').style.strokeDasharray=`${monthlyFill} 464.9`;
+  },300);
+
+  // COUNTRY RINGS
+  const total = D.totalVal||1;
+  const usPct = D.usVal/total; const uaePct = D.uaeVal/total;
+  const indiaPct = D.indiaVal/total; const cryptoPct = D.cryptoVal/total;
+  const c282 = 282.7;
+  document.getElementById('usPct').textContent = (usPct*100).toFixed(1)+'%';
+  document.getElementById('usVal').textContent = fmt$(D.usVal);
+  document.getElementById('usCount').textContent = `${usHoldings.length} positions`;
+  document.getElementById('uaePct').textContent = (uaePct*100).toFixed(1)+'%';
+  document.getElementById('uaeVal').textContent = fmt$(D.uaeVal);
+  document.getElementById('uaeLocal').textContent = `AED ${Math.round(D.uaeVal*(D.usdAed||3.67)).toLocaleString()}`;
+  document.getElementById('indiaPct').textContent = (indiaPct*100).toFixed(1)+'%';
+  document.getElementById('indiaVal').textContent = fmt$(D.indiaVal);
+  document.getElementById('indiaLocal').textContent = `${indiaHoldings.length} positions`;
+  document.getElementById('cryptoPct').textContent = (cryptoPct*100).toFixed(1)+'%';
+  document.getElementById('cryptoVal').textContent = fmt$(D.cryptoVal);
+  document.getElementById('cryptoCount').textContent = `3 assets`;
+
+  setTimeout(()=>{
+    document.getElementById('usArc').style.strokeDasharray=`${usPct*c282} ${c282}`;
+    document.getElementById('uaeArc').style.strokeDasharray=`${uaePct*c282} ${c282}`;
+    document.getElementById('indiaArc').style.strokeDasharray=`${indiaPct*c282} ${c282}`;
+    document.getElementById('cryptoArc').style.strokeDasharray=`${cryptoPct*c282} ${c282}`;
+  },400);
+
+  // BENCHMARK STRIP
+  document.getElementById('bm-target').textContent = '+18.0%';
+  const overallPnlPct = pnlPct;
+  document.getElementById('bm-port').innerHTML = `<span style="color:${pnlColor(overallPnlPct)}">${fmtPct(overallPnlPct)}</span>`;
+  document.getElementById('bm-port-fill').style.width = Math.min(Math.abs(overallPnlPct)/18*100,100)+'%';
+  document.getElementById('bm-port-fill').style.background = overallPnlPct>=0?'var(--green)':'var(--red)';
+
+  // Calc platform P&L %
+  const usCost = usHoldings.reduce((s,h)=>s+(h.totalCostUsd||h.avgCostUsd*h.qty||0),0);
+  const usPnl = usHoldings.reduce((s,h)=>s+h.pnlUsd,0);
+  const usPnlPct = usCost>0 ? usPnl/usCost*100 : 0;
+  const uaeHoldings = (D.holdings||FALLBACK.holdings).filter(h=>h.platform==='Wio AED');
+  const uaeCost = uaeHoldings.reduce((s,h)=>s+(h.totalCostUsd||h.avgCostUsd*h.qty||0),0);
+  const uaePnlAmt = uaeHoldings.reduce((s,h)=>s+h.pnlUsd,0);
+  const uaePnlPct = uaeCost>0 ? uaePnlAmt/uaeCost*100 : 0;
+  const indiaCost = indiaHoldings.reduce((s,h)=>s+(h.totalCostUsd||h.avgCostUsd*h.qty||0),0);
+  const indiaPnlAmt = indiaHoldings.reduce((s,h)=>s+h.pnlUsd,0);
+  const indiaPnlPct = indiaCost>0 ? indiaPnlAmt/indiaCost*100 : 0;
+
+  document.getElementById('bm-us').innerHTML = `<span style="color:${pnlColor(usPnlPct)}">${fmtPct(usPnlPct)}</span>`;
+  document.getElementById('bm-us-fill').style.width = Math.min(Math.abs(usPnlPct)/18*100,100)+'%';
+  document.getElementById('bm-us-fill').style.background = usPnlPct>=0?'var(--green)':'var(--red)';
+  document.getElementById('bm-uae').innerHTML = `<span style="color:${pnlColor(uaePnlPct)}">${fmtPct(uaePnlPct)}</span>`;
+  document.getElementById('bm-uae-fill').style.width = Math.min(Math.abs(uaePnlPct)/18*100,100)+'%';
+  document.getElementById('bm-uae-fill').style.background = uaePnlPct>=0?'var(--green)':'var(--red)';
+  document.getElementById('bm-india').innerHTML = `<span style="color:${pnlColor(indiaPnlPct)}">${fmtPct(indiaPnlPct)}</span>`;
+  document.getElementById('bm-india-fill').style.width = Math.min(Math.abs(indiaPnlPct)/18*100,100)+'%';
+  document.getElementById('bm-india-fill').style.background = indiaPnlPct>=0?'var(--green)':'var(--red)';
+
+  buildPositionRings();
+  buildAnalyticsPanels();
+  buildHoldingsSections();
+  buildHealth();
+  buildScanner();
+
+  // footer
+  document.getElementById('footer').innerHTML = `<span>Sijo Tom · Portfolio Intelligence · USD Base</span><span>${dateStr} · ${(D.holdings||FALLBACK.holdings).length} positions · $1M Mission @ 18% CAGR</span>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POSITION RINGS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildPositionRings(){
+  const holdings = (LIVE.holdings||FALLBACK.holdings).filter(h=>h.valueUsd>0 && h.ticker!=='AIQ');
+  const el = document.getElementById('posRingsGrid');
+  el.innerHTML='';
+  const circ=163.4;
+
+  holdings.forEach((p,i)=>{
+    const days = wtdAvgDays(p);
+    const actualRet = p.pnlPct*100;
+    const prTarget = proRataTarget(days);
+    const isIndia = p.region==='India';
+    const isHedge = p.isHedge;
+    const scale = Math.max(Math.abs(prTarget)*2.5,10);
+    let ringFill, ringColor, negFill=0;
+
+    if(isHedge){
+      ringFill=circ*0.6; ringColor='#14b8a6';
+    } else if(actualRet>=0){
+      ringFill=Math.min(actualRet/scale*circ,circ);
+      ringColor = actualRet>=prTarget?'#2ecc8a': actualRet>=prTarget*0.5?'#4a8cff':'#f59e0b';
+      negFill=0;
+    } else {
+      ringFill=0; ringColor='transparent';
+      negFill=Math.min(Math.abs(actualRet)/scale*circ,circ*0.8);
+      ringColor='#e05555';
+    }
+
+    const targetFill=Math.min(prTarget/scale*circ,circ*0.6);
+    const rid='pr_'+i, nid='prn_'+i;
+    const vs=actualRet-prTarget;
+    let statusTxt, statusColor;
+    if(isHedge){statusTxt='HEDGE';statusColor='#14b8a6';}
+    else if(vs>=0){statusTxt='+'+vs.toFixed(1)+'% vs target';statusColor='#2ecc8a';}
+    else{statusTxt=vs.toFixed(1)+'% vs target';statusColor='#e05555';}
+
+    const inrDrag = isIndia?(3.5*days/365):0;
+    const usdAdj = isIndia?(actualRet-inrDrag):null;
+    const bmRet = spReturn(p.holdingSince, days);
+    const bmLabel = isHedge?'Gold hedge':isIndia?('Nifty '+(bmRet>=0?'+':'')+bmRet.toFixed(1)+'%'):('S&P '+(bmRet>=0?'+':'')+bmRet.toFixed(1)+'%');
+
+    el.innerHTML+=`
+    <div class="pos-ring-card">
+      <div style="position:relative;display:inline-flex;align-items:center;justify-content:center">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle cx="42" cy="42" r="26" fill="none" stroke="#0f1118" stroke-width="10"/>
+          <circle cx="42" cy="42" r="26" fill="none" stroke="#c9a84c" stroke-width="3"
+            stroke-dasharray="${targetFill} ${circ}" stroke-linecap="round"
+            transform="rotate(-90 42 42)" opacity="0.8"/>
+          <circle id="${rid}" cx="42" cy="42" r="26" fill="none"
+            stroke="${actualRet>=0&&!isHedge?ringColor:(isHedge?'#14b8a6':'transparent')}"
+            stroke-width="9" stroke-dasharray="0 ${circ}" stroke-linecap="round"
+            transform="rotate(-90 42 42)"
+            style="transition:stroke-dasharray 1.5s cubic-bezier(.4,0,.2,1) ${0.4+i*0.07}s"/>
+          <circle id="${nid}" cx="42" cy="42" r="26" fill="none" stroke="#e05555"
+            stroke-width="9" stroke-dasharray="0 ${circ}" stroke-linecap="round"
+            transform="rotate(90 42 42)"
+            style="transition:stroke-dasharray 1.5s cubic-bezier(.4,0,.2,1) ${0.5+i*0.07}s"/>
+          <text x="42" y="68" text-anchor="middle" fill="#4a5568"
+            font-size="4.5" font-family="JetBrains Mono,monospace"
+            font-style="italic">${bmLabel.slice(0,18)}</text>
+        </svg>
+        <div style="position:absolute;text-align:center;width:54px;pointer-events:none">
+          <div style="font-size:10px;font-weight:700;color:${actualRet>=0?ringColor:'#e05555'};font-family:'JetBrains Mono',monospace;line-height:1.1">
+            ${isHedge?'HEDGE':(actualRet>=0?'+':'')+actualRet.toFixed(1)+'%'}
+          </div>
+          <div style="font-size:6.5px;color:${statusColor};margin-top:1px">${statusTxt}</div>
+          ${usdAdj!==null?`<div style="font-size:6px;color:#f59e0b;margin-top:1px">USD~${usdAdj>=0?'+':''}${usdAdj.toFixed(1)}%</div>`:''}
+          <div style="font-size:6px;color:#5a6070;margin-top:1px">${days.toFixed(0)}d</div>
+        </div>
+      </div>
+      <div class="pr-name">${p.name}</div>
+      <div class="pr-ticker">${p.ticker}${isIndia?' · INR':''}</div>
+      <div class="pr-stats">
+        <div class="pr-stat"><div class="pr-stat-label">Target</div><div class="pr-stat-val" style="color:var(--gold)">${prTarget.toFixed(1)}%</div></div>
+        <div class="pr-stat"><div class="pr-stat-label">Actual</div><div class="pr-stat-val" style="color:${actualRet>=0?'var(--green)':'var(--red)'}">${actualRet>=0?'+':''}${actualRet.toFixed(1)}%</div></div>
+      </div>
+      <div class="pr-period-badge">${isHedge?'Hedge — diff benchmark':'Pro-rata 18% target: '+prTarget.toFixed(1)+'%'}</div>
+    </div>`;
+
+    setTimeout(()=>{
+      const rEl=document.getElementById(rid), nEl=document.getElementById(nid);
+      if(rEl&&(actualRet>=0||isHedge)){
+        const fill=isHedge?circ*0.6:Math.min(actualRet/scale*circ,circ);
+        rEl.style.strokeDasharray=`${Math.max(fill,0)} ${circ}`;
+      }
+      if(nEl&&actualRet<0&&!isHedge){
+        nEl.style.strokeDasharray=`${Math.min(Math.abs(actualRet)/scale*circ,circ*0.8)} ${circ}`;
+      }
+    },600+i*70);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ANALYTICS PANELS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildAnalyticsPanels(){
+  const D = LIVE;
+  const holdings = D.holdings||FALLBACK.holdings;
+  const totalVal = D.totalVal||0;
+  const totalCost = D.totalCost||0;
+  const overallPnl = D.pnl||0;
+  const overallPct = totalCost>0?overallPnl/totalCost*100:0;
+
+  // XIRR panel (estimated)
+  const portfolioDays = Math.round((new Date()-new Date('2023-01-15'))/86400000);
+  const estimatedXirr = (Math.pow(1+overallPct/100, 365/portfolioDays)-1)*100;
+  const indiaXirrEst = 18.74;
+
+  document.getElementById('xirrGrid').innerHTML = `
+    <div class="acard"><div class="alabel">Est. Portfolio CAGR</div><div class="aval" style="color:${pnlColor(estimatedXirr)}">${fmtPct(estimatedXirr)}</div><div class="asub">Since Jan 2023</div></div>
+    <div class="acard"><div class="alabel">India XIRR (Zerodha)</div><div class="aval" style="color:var(--india)">+18.74%</div><div class="asub">Pre-tax INR</div></div>
+    <div class="acard"><div class="alabel">India USD-Adj</div><div class="aval" style="color:var(--orange)">~+15.2%</div><div class="asub">After ~3.5% INR drag/yr</div></div>
+    <div class="acard"><div class="alabel">US Platform</div><div class="aval" style="color:${pnlColor(overallPct)}">${fmtPct(overallPct)}</div><div class="asub">Wio USD total</div></div>
+    <div class="acard"><div class="alabel">18% CAGR Target</div><div class="aval" style="color:var(--gold)">+18.0%</div><div class="asub">Annual benchmark</div></div>`;
+  document.getElementById('xirrNote').innerHTML = `<strong>Note:</strong> XIRR requires actual cash-flow dates — computed precisely in the Google Sheets Transactions tab. Values shown are TWR estimates. India XIRR 18.74% pre-tax per workbook. INR drag ~3.5%/yr reduces USD-adj to ~15.2%. Harvestable India losses: ₹1,81,499 → tax saving ₹22,677.`;
+
+  // P&L breakdown
+  const usH = holdings.filter(h=>h.platform==='Wio USD');
+  const uaeH = holdings.filter(h=>h.platform==='Wio AED');
+  const indiaH = holdings.filter(h=>h.platform==='Zerodha');
+  const usP = usH.reduce((s,h)=>s+h.pnlUsd,0);
+  const uaeP = uaeH.reduce((s,h)=>s+h.pnlUsd,0);
+  const indiaP = indiaH.reduce((s,h)=>s+h.pnlUsd,0);
+
+  document.getElementById('plGrid').innerHTML = `
+    <div class="acard"><div class="alabel">Total P&amp;L</div><div class="aval" style="color:${pnlColor(overallPnl)}">${fmt$(overallPnl,0)}</div><div class="asub">${fmtPct(overallPct)} overall</div></div>
+    <div class="acard"><div class="alabel">🇺🇸 Wio USD</div><div class="aval" style="color:${pnlColor(usP)}">${fmt$(usP,0)}</div><div class="asub">${usH.length} positions</div></div>
+    <div class="acard"><div class="alabel">🇦🇪 Wio AED</div><div class="aval" style="color:${pnlColor(uaeP)}">${fmt$(uaeP,0)}</div><div class="asub">${uaeH.length} positions</div></div>
+    <div class="acard"><div class="alabel">🇮🇳 Zerodha</div><div class="aval" style="color:${pnlColor(indiaP)}">${fmt$(indiaP,0)}</div><div class="asub">${indiaH.length} positions</div></div>`;
+
+  // TAX
+  const tax = D.taxData||FALLBACK.taxData;
+  document.getElementById('taxGrid').innerHTML = `
+    <div class="acard"><div class="alabel">Total Unrealised P&amp;L</div><div class="aval" style="color:${pnlColor(tax.totalPnlInr)}">₹${Math.round(tax.totalPnlInr).toLocaleString('en-IN')}</div><div class="asub">India (INR)</div></div>
+    <div class="acard"><div class="alabel">Tax Liability (12.5%)</div><div class="aval" style="color:var(--red)">₹${Math.round(tax.taxLiabilityInr).toLocaleString('en-IN')}</div><div class="asub">On gains only</div></div>
+    <div class="acard"><div class="alabel">Harvestable Saving</div><div class="aval" style="color:var(--teal)">₹${Math.round(tax.harvestSavingInr).toLocaleString('en-IN')}</div><div class="asub">Sell losers → rebuy</div></div>
+    <div class="acard"><div class="alabel">Exempt (₹1.25L p.a.)</div><div class="aval" style="color:var(--green)">₹1,25,000</div><div class="asub">LTCG annual exemption</div></div>`;
+  document.getElementById('taxNote').innerHTML = `<strong>Harvest candidates:</strong> HINDUNILVR -₹8,814 · KPITTECH -₹73,725 · LTTS -₹20,646 · NIFTYBEES -₹12,051 · JIOFIN -₹65,384. Harvesting these losses saves ₹22,677 in tax (12.5% LTCG rate). All India positions are LTCG (held >1 year) except HDFCBANK (new Jun 2026).`;
+
+  // FEES
+  document.getElementById('feesGrid').innerHTML = `
+    <div class="acard"><div class="alabel">Wio USD Equity</div><div class="aval gold">$5.1975</div><div class="asub">0.2%+VAT cap</div></div>
+    <div class="acard"><div class="alabel">Wio Commodity</div><div class="aval gold">Min $1.05</div><div class="asub">0.15%+VAT</div></div>
+    <div class="acard"><div class="alabel">Wio Crypto</div><div class="aval" style="color:var(--crypto)">0.525%</div><div class="asub">No cap · AED</div></div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HOLDINGS CARDS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildHoldingsSections(){
+  const holdings = LIVE.holdings||FALLBACK.holdings;
+  const usd = holdings.filter(h=>h.platform==='Wio USD'&&h.valueUsd>0);
+  const uae = holdings.filter(h=>h.platform==='Wio AED'&&h.assetType!=='Crypto'&&h.valueUsd>0);
+  const crypto = holdings.filter(h=>h.assetType==='Crypto');
+  const india = holdings.filter(h=>h.platform==='Zerodha');
+
+  document.getElementById('us-sr').textContent = `${usd.length} positions · ${fmt$(usd.reduce((s,h)=>s+h.valueUsd,0))}`;
+  document.getElementById('uae-sr').textContent = `${uae.length} positions`;
+  document.getElementById('crypto-sr').textContent = `${crypto.length} assets`;
+  document.getElementById('india-sr').textContent = `${india.length} positions · Zerodha`;
+
+  buildHoldings('us-holdings', usd);
+  buildHoldings('uae-holdings', uae);
+  buildHoldings('crypto-holdings', crypto);
+  buildHoldings('india-holdings', india);
+}
+
+function buildHoldings(id, data){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.innerHTML='';
+  data.forEach(h=>{
+    const days = wtdAvgDays(h);
+    const actualPct = h.pnlPct*100;
+    const prTarget = proRataTarget(days);
+    const vs = actualPct-prTarget;
+    const isHedge = h.isHedge;
+    const isIndia = h.region==='India';
+
+    let durBadge;
+    if(isHedge) durBadge=`<span class="dur-badge dur-hedge">HEDGE</span>`;
+    else if(vs>=2) durBadge=`<span class="dur-badge dur-green">🟢 AHEAD +${vs.toFixed(1)}%</span>`;
+    else if(vs>=-2) durBadge=`<span class="dur-badge dur-blue">🔵 ON TRACK</span>`;
+    else if(actualPct>=0) durBadge=`<span class="dur-badge dur-amber">🟡 ${vs.toFixed(1)}% vs target</span>`;
+    else durBadge=`<span class="dur-badge dur-red">🔴 ${vs.toFixed(1)}% vs target</span>`;
+
+    const bmRet = spReturn(h.holdingSince, days);
+    const bmLabel = isIndia?'Nifty':'S&P 500';
+
+    // LTP display
+    let ltpDisplay, avgDisplay;
+    if(h.region==='UAE'&&h.assetType!=='Crypto'){
+      ltpDisplay=`AED ${(h.ltpUsd*(LIVE.usdAed||3.6725)).toFixed(2)}`;
+      avgDisplay=`AED ${(h.avgCostUsd*(LIVE.usdAed||3.6725)).toFixed(2)}`;
+    } else if(isIndia){
+      ltpDisplay=`₹${(h.ltpUsd*(LIVE.usdInr||94.45)).toFixed(0)}`;
+      avgDisplay=`₹${(h.avgCostUsd*(LIVE.usdInr||94.45)).toFixed(0)}`;
+    } else {
+      ltpDisplay=h.ltpUsd>=100?`$${h.ltpUsd.toFixed(2)}`:`$${h.ltpUsd.toFixed(4)}`;
+      avgDisplay=h.avgCostUsd>=100?`$${h.avgCostUsd.toFixed(2)}`:`$${h.avgCostUsd.toFixed(4)}`;
+    }
+
+    const maxVal = Math.max(Math.abs(actualPct)*1.4, prTarget*2, 10);
+    const targetPct = Math.min(prTarget/maxVal*100,90);
+    const bmPct = Math.min(Math.max(bmRet/maxVal*100,0),95);
+    const barColor = vs>=0?'var(--green)':actualPct>=0?'var(--orange)':'var(--red)';
+    const inrNote = isIndia?` <span style="color:var(--orange)">· USD adj ~${(actualPct-3.5*days/365).toFixed(1)}%</span>`:'';
+
+    let graphHtml;
+    if(isHedge){
+      graphHtml=`<div class="goal-graph"><div class="gg-label"><span>Hedge — not benchmarked vs 18% CAGR</span><span style="color:var(--teal)">Serves USD debasement role</span></div><div class="gg-track" style="background:#0a1a1a"><div style="position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;font-size:7px;color:var(--teal)">Gold/Silver macro hedge — different benchmark</div></div></div>`;
+    } else {
+      const statusTxt=vs>=0?`+${vs.toFixed(1)}% ahead of pro-rata target`:actualPct>=0?`${vs.toFixed(1)}% below ${prTarget.toFixed(1)}% target`:`${actualPct.toFixed(1)}% — behind (target: ${prTarget.toFixed(1)}%)`;
+      graphHtml=`<div class="goal-graph">
+        <div class="gg-label"><span>Return vs pro-rata 18% (${Math.round(days)}d)</span><span style="color:${barColor}">${statusTxt}${inrNote}</span></div>
+        <div class="gg-track">
+          ${actualPct>=0?`<div class="gg-actual" style="width:${Math.min(actualPct/maxVal*100,100)}%;background:${barColor}22;border-right:2px solid ${barColor}"><span class="gg-actual-label" style="color:${barColor}">${actualPct>=0?'+':''}${actualPct.toFixed(1)}%</span></div>`
+          :`<div style="position:absolute;top:0;right:0;bottom:0;width:${Math.min(Math.abs(actualPct)/maxVal*100,50)}%;background:#e0555520;border-left:2px solid var(--red);display:flex;align-items:center;padding-left:3px"><span style="font-size:7px;color:var(--red)">${actualPct.toFixed(1)}%</span></div>`}
+          <div class="gg-target-line" style="left:${targetPct}%"></div>
+          <div class="gg-sp500-line" style="left:${Math.min(bmPct,95)}%"></div>
+        </div>
+        <div class="gg-bm-labels">
+          <span style="color:var(--gold)">▪ Pro-rata 18% = ${prTarget.toFixed(1)}%</span>
+          <span style="color:var(--blue)">▪ ${bmLabel}: ${bmRet>=0?'+':''}${bmRet.toFixed(1)}% same period</span>
+          ${isIndia?`<span style="color:var(--orange)">▪ INR drag ~${(3.5*days/365).toFixed(1)}%</span>`:''}
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML+=`
+    <div class="holding-card ${h.cc}">
+      <div class="hc-top">
+        <div>
+          <div class="hc-name">${h.name}</div>
+          <div class="hc-ticker">${h.ticker} · ${h.sector||h.assetType}</div>
+          <span class="hc-bucket">${h.assetType}</span>
+          ${durBadge}
+        </div>
+        <div class="hc-right">
+          <div class="hc-ltp">${ltpDisplay}</div>
+          <div style="font-size:10.5px;font-weight:500;color:${actualPct>=0?'var(--green)':'var(--red)'}">${actualPct>=0?'+':''}${actualPct.toFixed(2)}%</div>
+          <div class="hc-local">${fmt$(h.valueUsd,0)}</div>
+        </div>
+      </div>
+      <div class="hc-body">
+        <div class="hc-stats">
+          <div class="hc-stat"><div class="hc-stat-label">Avg</div><div class="hc-stat-val">${avgDisplay}</div></div>
+          <div class="hc-stat"><div class="hc-stat-label">Qty</div><div class="hc-stat-val">${h.qty}</div></div>
+          <div class="hc-stat"><div class="hc-stat-label">Pro-Rata</div><div class="hc-stat-val" style="color:var(--gold)">${prTarget.toFixed(1)}%</div></div>
+          <div class="hc-stat"><div class="hc-stat-label">Days</div><div class="hc-stat-val">${Math.round(days)}</div></div>
+        </div>
+        ${graphHtml}
+        <div class="hc-action">
+          <span style="font-size:7.5px;color:var(--muted)">${h.notes||''}</span>
+          <span class="badge ${h.ac}">${h.action}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HEALTH BOARD
+// ─────────────────────────────────────────────────────────────────────────────
+function buildHealth(){
+  const el=document.getElementById('healthGrid');
+  if(!el) return;
+  el.innerHTML='';
+  healthData.forEach(h=>{
+    const bars=h.dims.map(d=>`<div class="hb-dim"><div class="hb-dim-label">${d.l}</div><div class="hb-dim-bar"><div class="hb-dim-fill" style="width:${d.s/5*100}%;background:${d.c}"></div></div><div class="hb-dim-score" style="color:${d.c}">${d.s}/5</div></div>`).join('');
+    el.innerHTML+=`<div class="hb-card"><div class="hb-header"><div><div class="hb-name">${h.name}</div><div class="hb-meta">${h.bucket} · LTP ${h.ltp} · <span style="color:${h.pos?'var(--green)':'var(--red)'}">${h.pct}</span></div></div><div class="hb-score-ring ${h.sc}">${h.total}</div></div><div class="hb-body"><div class="hb-dims">${bars}</div><div class="hb-note">${h.note}</div><div class="hb-review"><span>Reviewed:</span>${h.reviewed}&nbsp;&nbsp;<span>Next:</span>${h.next}</div></div></div>`;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCANNER
+// ─────────────────────────────────────────────────────────────────────────────
+function buildScanner(){
+  const el=document.getElementById('scannerGrid');
+  if(!el) return;
+  el.innerHTML='';
+  scanData.forEach(s=>{
+    const pabs=s.pabrai.map(p=>`<span class="pb ${p.y?'pb-y':'pb-n'}">${p.l}: ${p.y?'✓':'✗'}</span>`).join('');
+    el.innerHTML+=`<div class="scan-card"><span class="scan-urgency ${s.uc}">${s.urgency}</span>
+    <div class="scan-header"><div class="scan-title">${s.name}</div><div class="scan-sub">${s.sector} · Jun 2026</div></div>
+    <div class="scan-body">
+    <div class="scan-g4">
+      <div class="scan-metric"><div class="scan-mlabel">Current</div><div class="scan-mval">${s.current}</div></div>
+      <div class="scan-metric"><div class="scan-mlabel">Entry Zone</div><div class="scan-mval" style="color:var(--green)">${s.entry}</div></div>
+      <div class="scan-metric"><div class="scan-mlabel">Upside</div><div class="scan-mval" style="color:var(--gold2)">${s.upside}</div></div>
+      <div class="scan-metric"><div class="scan-mlabel">Size</div><div class="scan-mval" style="font-size:9px;color:var(--blue)">${s.size}</div></div>
+    </div>
+    <div class="pabrai-bar">${pabs}</div>
+    <div class="scan-thesis">${s.thesis}</div>
+    <div class="scan-risk">⚠ <strong>Risk:</strong> ${s.risk}</div>
+    </div></div>`;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UI CONTROLS
+// ─────────────────────────────────────────────────────────────────────────────
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function tog(id){
+  const p=document.getElementById('panel-'+id);
+  const vis=p.classList.contains('visible');
+  document.querySelectorAll('.apanel').forEach(x=>x.classList.remove('visible'));
+  document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
+  if(!vis){ p.classList.add('visible'); }
+}
+
+function setPeriod(p,btn){
+  currentPeriod=p;
+  document.querySelectorAll('.ptog').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  // Period-aware recalculation would filter positions by date — MVP shows total
+  buildPositionRings();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VERSION CHECK
+// Compares DASHBOARD_VERSION against localStorage.
+// When you push a new version to GitHub, bump DASHBOARD_VERSION at the top.
+// On next open the banner appears: "v1.1.0 available — refresh".
+// ─────────────────────────────────────────────────────────────────────────────
+function checkVersion() {
+  try {
+    const seen = localStorage.getItem('portfolio_dashboard_version');
+    if (seen && seen !== DASHBOARD_VERSION) {
+      // New version loaded — show banner
+      document.getElementById('updateVersionText').textContent =
+        `v${DASHBOARD_VERSION} loaded (${DASHBOARD_DATE})`;
+      document.getElementById('updateBanner').classList.remove('hidden');
+    }
+    localStorage.setItem('portfolio_dashboard_version', DASHBOARD_VERSION);
+  } catch(e) {
+    // localStorage not available — silent fail
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────────────────────
+checkVersion();
+init();
+</script>
+</body>
+</html>
