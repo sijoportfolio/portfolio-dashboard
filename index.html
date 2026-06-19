@@ -55,7 +55,7 @@ document.write('<link rel="manifest" href="' + manifestURL + '">');
      so users see the update notification banner.
 ═══════════════════════════════════════════════ -->
 <script>
-const DASHBOARD_VERSION = '2.3.0';
+const DASHBOARD_VERSION = '3.0.0';
 const DASHBOARD_DATE    = '2026-06-18';
 </script>
 
@@ -322,6 +322,7 @@ tbody tr:last-child td{border-bottom:none}
     <button id="refreshBtn" onclick="refreshDashboard()" style="background:#0a1a0f;border:1px solid #1a3a24;border-radius:6px;padding:5px 12px;font-size:8px;color:var(--green);cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;transition:all .2s" onmouseover="this.style.background='#0f2a14'" onmouseout="this.style.background='#0a1a0f'">
       ↻ REFRESH
     </button>
+    <div id="autoRefreshStatus" style="font-size:7px;color:var(--muted);text-align:right">Auto-refresh: every 5 min</div>
   </div>
 </div>
 
@@ -350,8 +351,8 @@ tbody tr:last-child td{border-bottom:none}
 <div class="metrics-row" id="metricsRow">
   <div class="metric"><div class="metric-accent" style="background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div><div class="metric-label">Total Portfolio (USD)</div><div class="metric-value" id="m-total">—</div><div class="metric-sub" id="m-sub">Loading…</div><div class="metric-local" id="m-local"></div></div>
   <div class="metric"><div class="metric-accent" style="background:var(--us)"></div><div class="metric-label">🇺🇸 US Equities</div><div class="metric-value" style="font-size:20px" id="m-us">—</div><div class="metric-sub" id="m-us-sub"></div></div>
-  <div class="metric"><div class="metric-accent" style="background:var(--uae)"></div><div class="metric-label">🇦🇪 UAE</div><div class="metric-value" style="font-size:20px" id="m-uae">—</div><div class="metric-local" id="m-uae-local"></div></div>
-  <div class="metric"><div class="metric-accent" style="background:var(--india)"></div><div class="metric-label">🇮🇳 India (Zerodha)</div><div class="metric-value" style="font-size:20px" id="m-india">—</div><div class="metric-local" id="m-india-local"></div></div>
+  <div class="metric"><div class="metric-accent" style="background:var(--uae)"></div><div class="metric-label">🇦🇪 UAE Equities</div><div class="metric-value" style="font-size:20px" id="m-uae">—</div><div class="metric-local" id="m-uae-local"></div></div>
+  <div class="metric"><div class="metric-accent" style="background:var(--india)"></div><div class="metric-label">🇮🇳 India Equities</div><div class="metric-value" style="font-size:20px" id="m-india">—</div><div class="metric-local" id="m-india-local"></div></div>
 </div>
 
 <!-- RINGS SECTION -->
@@ -380,11 +381,11 @@ tbody tr:last-child td{border-bottom:none}
         <div style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--muted);letter-spacing:1px">PORTFOLIO</div>
         <div id="mainVal" style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--text);line-height:1">—</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--gold2)" id="mainPct">—</div>
-        <div style="font-size:7px;color:var(--muted);margin-top:2px">of $1,000,000</div>
+        <div style="font-size:7px;color:var(--muted);margin-top:2px" id="goalLabel">of —</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);margin-top:4px" id="targetDate">…</div>
         <div style="font-size:7px;color:var(--muted)" id="monthsLeft"></div>
       </div>
-      <div class="ring-title" style="color:var(--gold2)">$1M Journey</div>
+      <div class="ring-title" style="color:var(--gold2)" id="ringTitle">Goal Journey</div>
       <div class="ring-subtitle" id="ringSubtitle">Outer: progress to goal · Inner: monthly add pace · Gold arc = CAGR target</div>
     </div>
 
@@ -412,7 +413,7 @@ tbody tr:last-child td{border-bottom:none}
           <div style="font-size:7.5px;color:var(--text)" id="uaeVal">—</div>
           <div style="font-size:6.5px;color:var(--muted)" id="uaeLocal">—</div>
         </div>
-        <div class="ring-title" style="color:var(--uae)">🇦🇪 UAE</div>
+        <div class="ring-title" style="color:var(--uae)">🇦🇪 UAE Equities</div>
       </div>
       <div class="ring-wrap">
         <svg width="110" height="110" viewBox="0 0 110 110">
@@ -424,7 +425,7 @@ tbody tr:last-child td{border-bottom:none}
           <div style="font-size:7.5px;color:var(--text)" id="indiaVal">—</div>
           <div style="font-size:6.5px;color:var(--muted)" id="indiaLocal">—</div>
         </div>
-        <div class="ring-title" style="color:var(--india)">🇮🇳 Zerodha</div>
+        <div class="ring-title" style="color:var(--india)">🇮🇳 India Equities</div>
       </div>
       <div class="ring-wrap">
         <svg width="110" height="110" viewBox="0 0 110 110">
@@ -442,17 +443,17 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 
   <!-- POSITION RINGS -->
-  <div class="sh"><div class="stripe" style="background:var(--gold)"></div><div class="sname" style="color:var(--gold2)">Position Rings — 18% CAGR Pro-Rata</div><div class="sr">Gold arc = target · Coloured arc = actual · Red = behind</div></div>
+  <div class="sh"><div class="stripe" style="background:var(--gold)"></div><div class="sname" style="color:var(--gold2)" id="ringsSectionTitle">Position Rings</div><div class="sr">Gold arc = target · Coloured arc = actual · Red = behind</div></div>
   <div class="pos-rings-grid" id="posRingsGrid"></div>
 </div>
 
 <!-- BENCHMARK STRIP -->
 <div class="bmark-strip" id="bmarkStrip">
-  <div class="bm target-bar"><div class="bm-label">18% CAGR Target</div><div class="bm-val gold" id="bm-target">—</div><div class="bm-sub" id="bm-target-sub">Annual target</div><div class="bm-bar"><div class="bm-fill" style="background:var(--gold);width:100%"></div></div></div>
+  <div class="bm target-bar"><div class="bm-label" id="bmTargetLabel">CAGR Target</div><div class="bm-val gold" id="bm-target">—</div><div class="bm-sub" id="bm-target-sub">Annual target</div><div class="bm-bar"><div class="bm-fill" style="background:var(--gold);width:100%"></div></div></div>
   <div class="bm"><div class="bm-label">Portfolio Total</div><div class="bm-val" id="bm-port">—</div><div class="bm-sub" id="bm-port-sub">All platforms</div><div class="bm-bar"><div id="bm-port-fill" class="bm-fill" style="background:var(--green)"></div></div></div>
-  <div class="bm"><div class="bm-label">🇺🇸 US</div><div class="bm-val" id="bm-us">—</div><div class="bm-sub">Wio USD</div><div class="bm-bar"><div id="bm-us-fill" class="bm-fill" style="background:var(--us)"></div></div></div>
-  <div class="bm"><div class="bm-label">🇦🇪 UAE</div><div class="bm-val" id="bm-uae">—</div><div class="bm-sub">Wio AED</div><div class="bm-bar"><div id="bm-uae-fill" class="bm-fill" style="background:var(--uae)"></div></div></div>
-  <div class="bm"><div class="bm-label">🇮🇳 India</div><div class="bm-val" id="bm-india">—</div><div class="bm-sub">Zerodha · INR</div><div class="bm-bar"><div id="bm-india-fill" class="bm-fill" style="background:var(--india)"></div></div></div>
+  <div class="bm"><div class="bm-label">🇺🇸 US Equities</div><div class="bm-val" id="bm-us">—</div><div class="bm-sub">US Equities</div><div class="bm-bar"><div id="bm-us-fill" class="bm-fill" style="background:var(--us)"></div></div></div>
+  <div class="bm"><div class="bm-label">🇦🇪 UAE Equities</div><div class="bm-val" id="bm-uae">—</div><div class="bm-sub">UAE Equities</div><div class="bm-bar"><div id="bm-uae-fill" class="bm-fill" style="background:var(--uae)"></div></div></div>
+  <div class="bm"><div class="bm-label">🇮🇳 India Equities</div><div class="bm-val" id="bm-india">—</div><div class="bm-sub">India Equities · INR</div><div class="bm-bar"><div id="bm-india-fill" class="bm-fill" style="background:var(--india)"></div></div></div>
 </div>
 
 <!-- ANALYTICS PANELS -->
@@ -495,16 +496,16 @@ tbody tr:last-child td{border-bottom:none}
 
 <!-- HOLDINGS SECTIONS -->
 <div id="holdingsSection">
-  <div class="sh"><div class="stripe" style="background:var(--us)"></div><div class="sname" style="color:var(--us)">🇺🇸 US Equities — Wio USD</div><div class="sr" id="us-sr"></div></div>
+  <div class="sh"><div class="stripe" style="background:var(--us)"></div><div class="sname" style="color:var(--us)">🇺🇸 US Equities</div><div class="sr" id="us-sr"></div></div>
   <div class="holdings-grid" id="us-holdings"></div>
 
-  <div class="sh"><div class="stripe" style="background:var(--uae)"></div><div class="sname" style="color:var(--uae)">🇦🇪 UAE Equities — Wio AED</div><div class="sr" id="uae-sr"></div></div>
+  <div class="sh"><div class="stripe" style="background:var(--uae)"></div><div class="sname" style="color:var(--uae)">🇦🇪 UAE Equities Equities</div><div class="sr" id="uae-sr"></div></div>
   <div class="holdings-grid" id="uae-holdings"></div>
 
-  <div class="sh"><div class="stripe" style="background:var(--crypto)"></div><div class="sname" style="color:var(--crypto)">⬡ Crypto — Wio AED</div><div class="sr" id="crypto-sr"></div></div>
+  <div class="sh"><div class="stripe" style="background:var(--crypto)"></div><div class="sname" style="color:var(--crypto)">⬡ Crypto</div><div class="sr" id="crypto-sr"></div></div>
   <div class="holdings-grid" id="crypto-holdings"></div>
 
-  <div class="sh"><div class="stripe" style="background:var(--india)"></div><div class="sname" style="color:var(--india)">🇮🇳 India Equities — Zerodha</div><div class="sr" id="india-sr"></div></div>
+  <div class="sh"><div class="stripe" style="background:var(--india)"></div><div class="sname" style="color:var(--india)">🇮🇳 India Equities</div><div class="sr" id="india-sr"></div></div>
   <div class="holdings-grid" id="india-holdings"></div>
 </div>
 
@@ -516,7 +517,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="sh">
     <div class="stripe" style="background:var(--gold)"></div>
     <div class="sname">Position Health — Live</div>
-    <div class="sr">vs 18% CAGR pro-rata · analyst targets from Transactions</div>
+    <div class="sr" id="l2SubTitle">vs CAGR target · analyst targets from Transactions</div>
   </div>
   <div id="healthLiveGrid" class="hb-grid"></div>
 </div>
@@ -550,17 +551,12 @@ tbody tr:last-child td{border-bottom:none}
 // Then publish each sheet via File → Share → Publish to web → CSV
 // ─────────────────────────────────────────────────────────────────────────────
 // Published document ID (different from the edit ID — this is correct)
-const PUB_ID = '2PACX-1vSJskJo5k4xoCmesFc2OHVpnVz2TbRImCXr7AgBFQW625WIbhB2e8tFLrrXp4Btgj7n5yhIHKTjSP0E';
-
-const SHEETS = {
-  liveEngine: `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1676786946&single=true&output=csv`,
-  dashboard:  `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=2012162756&single=true&output=csv`,
-  settings:   `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=202595598&single=true&output=csv`,
-  taxOpt:     `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1536752207&single=true&output=csv`,
-  // Add your Watchlist sheet GID below after creating the tab
-  // Go to the Watchlist tab → check URL for gid=XXXXXXX → replace 0 below
-  watchlist:  `https://docs.google.com/spreadsheets/d/e/${PUB_ID}/pub?gid=1099209047&single=true&output=csv`,
-};
+// ═══════════════════════════════════════════════════════════════════════
+// APPS SCRIPT WEB APP URL
+// After deploying portfolio_api.gs as a Web App, paste the URL below.
+// Deploy → New deployment → Web app → Execute as: Me → Access: Anyone
+// ═══════════════════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4LPTab9bIOcrBmmqm_JYIwDryh4lRxZyrAcJaOL1O9NllWk6UYdd_u759Ecoa6l6x/exec';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FALLBACK DATA — used when Google Sheets is not publicly published
@@ -655,190 +651,80 @@ function num(v) {
 // ─────────────────────────────────────────────────────────────────────────────
 // FETCH FROM GOOGLE SHEETS
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchSheet(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const text = await r.text();
-  if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-    throw new Error('Google returned HTML — sheet may not be published correctly');
+// ═══════════════════════════════════════════════════════════════════════
+// DATA FETCHING — via Google Apps Script Web App
+// The Web App runs on Google's servers with full sheet access
+// No CORS issues, no proxy needed, always fresh data
+// ═══════════════════════════════════════════════════════════════════════
+
+async function fetchFromAppsScript() {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx4LPTab9bIOcrBmmqm_JYIwDryh4lRxZyrAcJaOL1O9NllWk6UYdd_u759Ecoa6l6x/exec') {
+    throw new Error('APPS_SCRIPT_URL not configured — see setup instructions below');
   }
-  return parseCSV(text);
+  const r = await fetch(APPS_SCRIPT_URL, {
+    method: 'GET',
+    cache: 'no-store',
+    redirect: 'follow',
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const data = await r.json();
+  if (data.error) throw new Error(data.message || 'Apps Script error');
+  return data;
 }
 
 async function loadFromSheets() {
-  let leRows, dashRows, settRows, taxRows;
+  const data = await fetchFromAppsScript();
 
-  console.log('📡 Fetching Live Engine...');
-  try { leRows   = await fetchSheet(SHEETS.liveEngine);  console.log(`✅ Live Engine: ${leRows.length} rows`); }
-  catch(e) { throw new Error(`Live Engine sheet: ${e.message}`); }
+  // Map Apps Script response to dashboard's expected format
+  const settings  = data.settings  || {};
+  const totals    = data.totals    || {};
+  const holdings  = data.holdings  || [];
+  const tax       = data.tax       || {};
+  const watchlist = data.watchlist || [];
 
-  console.log('📡 Fetching Settings...');
-  try { settRows  = await fetchSheet(SHEETS.settings);   console.log(`✅ Settings: ${settRows.length} rows`); }
-  catch(e) { throw new Error(`Settings sheet: ${e.message}`); }
+  // Store watchlist globally
+  WATCHLIST = watchlist;
 
-  console.log('📡 Fetching Tax Optimiser...');
-  try { taxRows   = await fetchSheet(SHEETS.taxOpt);     console.log(`✅ Tax Optimiser: ${taxRows.length} rows`); }
-  catch(e) { throw new Error(`Tax Optimiser sheet: ${e.message}`); }
-
-  // ── SETTINGS: Goal parameters — Settings col C (index 2)
-  // Row 5 = Target Value, Row 6 = CAGR, Row 7 = Monthly, Row 8 = INR fallback
-  // Row 9 = AED, Row 12 = Last Review, Row 16 = S&P CAGR
-  let goalTarget = 1000000, goalCagr = 0.18, monthlyTarget = 3000;
-  let usdInrFallback = 95, usdAedFixed = 3.67;
-  let lastReview = '2026-06-15', sp500Cagr = 0.105;
-  let singlePosAmber = 0.15, singlePosRed = 0.25;
-
-  settRows.forEach((r, i) => {
-    const label = (r[0]||'').toString().trim();
-    const val   = num(r[2]); // col C = index 2
-    if (label === 'Target Portfolio Value')  goalTarget      = val || 1000000;
-    if (label === 'Target CAGR')             goalCagr        = val || 0.18;
-    if (label === 'Monthly Addition Target') monthlyTarget   = val || 3000;
-    if (label === 'USD / INR Rate')          usdInrFallback  = val || 95;
-    if (label === 'USD / AED Rate')          usdAedFixed     = val || 3.67;
-    if (label === 'Last Review Completed')   lastReview      = r[2] ? new Date(r[2]).toISOString().slice(0,10) : lastReview;
-    // S&P row: col A = year (2026), col B = cagr (index 1)
-    if ((r[0]||'').toString().trim() === '2026') sp500Cagr = num(r[1]) || 0.105;
-    if (label === 'Single position')         { singlePosAmber = num(r[1])||0.15; singlePosRed = num(r[2])||0.25; }
-  });
-
-  // ── LIVE ENGINE: FX rates — row 5 col D (index 3), row 6 col D (index 3)
-  let usdInr = usdInrFallback, usdAed = usdAedFixed;
-  for (const r of leRows) {
-    const label = (r[0]||'').toString().trim();
-    if (label === 'USD/INR') usdInr = num(r[3]) || usdInrFallback;
-    if (label === 'USD/AED') usdAed = num(r[3]) || usdAedFixed;
-  }
-
-  // ── LIVE ENGINE: Holdings — header at row 11 (index 10 in 0-based array)
-  // Exact column map from confirmed headers:
-  // 0=Ticker 1=AssetType 2=Sector 3=Region 4=Platform 5=Qty 6=TotalCostUSD
-  // 7=AvgCostUSD 8=LivePriceUSD 9=ValueUSD 10=P&LUSD 11=P&L%
-  // 12=Weight% 13=Status 14=HoldingSince 15=DaysHeld 16=LTCG 17=UpsidePct
-  const HCOL = {
-    ticker:0, assetType:1, sector:2, region:3, platform:4,
-    qty:5, totalCostUsd:6, avgCostUsd:7, ltpUsd:8, valueUsd:9,
-    pnlUsd:10, pnlPct:11, weight:12, status:13,
-    holdingSince:14, daysHeld:15, ltcg:16, analysisPct:17
-  };
-
-  let holdingStart = -1;
-  for (let i = 0; i < leRows.length; i++) {
-    if ((leRows[i][0]||'').toString().trim() === 'Ticker') {
-      holdingStart = i + 1;
-      console.log(`📋 Holdings start at row ${i+1}`);
-      break;
-    }
-  }
-
-  const holdings = [];
-  if (holdingStart > 0) {
-    for (let i = holdingStart; i < leRows.length; i++) {
-      const r = leRows[i];
-      const ticker = (r[HCOL.ticker]||'').toString().trim();
-      if (!ticker || ticker === 'PORTFOLIO TOTAL' || ticker.startsWith('📊') || ticker.startsWith('💱')) break;
-
-      const qty = num(r[HCOL.qty]);
-      if (qty === 0 || num(r[HCOL.valueUsd]) === 0 || num(r[HCOL.ltpUsd]) === 0) continue; // skip exited/zero-value
-
-      const platform = (r[HCOL.platform]||'').toString().trim();
-      const region   = (r[HCOL.region]||'').toString().trim();
-      const assetType= (r[HCOL.assetType]||'').toString().trim();
-
-      // holdingSince — handle both date string and Date object
-      let holdingSince = '';
-      const hsRaw = r[HCOL.holdingSince];
-      if (hsRaw) {
-        try {
-          const d = new Date(hsRaw);
-          holdingSince = isNaN(d) ? hsRaw : d.toISOString().slice(0,10);
-        } catch(e) { holdingSince = String(hsRaw); }
-      }
-
-      // analysisPct — col 17, may be '—' string
-      const analysisPctRaw = r[HCOL.analysisPct];
-      const analysisPct = (analysisPctRaw && analysisPctRaw !== '—') ? num(analysisPctRaw) : null;
-
-      // isHedge — NEM and XAG are macro hedges
-      const isHedge = ['NEM','XAG'].includes(ticker);
-
-      // Display name — from Settings col G (full name) or fallback
-      const settRow = settRows.find(sr => (sr[0]||'').toString().trim() === ticker);
-      const name = settRow ? (settRow[6]||ticker) : ticker;
-
-      // Action and card colour — derive from P&L vs pro-rata target
-      const pnlPct   = num(r[HCOL.pnlPct]);
-      const daysHeld = num(r[HCOL.daysHeld]);
-      const prTarget = (Math.pow(1 + goalCagr, daysHeld/365) - 1);
-      const vs = pnlPct - prTarget;
-      let action, ac, cc;
-      if (isHedge)        { action='Hedge — Hold'; ac='b-hedge'; cc='hc-gold'; }
-      else if (vs >= 0.05){ action='Hold — Ahead'; ac='b-hold';  cc='hc-green'; }
-      else if (vs >= -0.05){ action='Hold — On Track'; ac='b-hold'; cc='hc-blue'; }
-      else if (pnlPct >= 0){ action='Monitor'; ac='b-hold'; cc='hc-amber'; }
-      else                 { action='Review'; ac='b-rev';  cc='hc-red'; }
-
-      holdings.push({
-        ticker, assetType, sector: (r[HCOL.sector]||'').toString().trim(),
-        region, platform, name,
-        qty,
-        totalCostUsd: num(r[HCOL.totalCostUsd]),
-        avgCostUsd:   num(r[HCOL.avgCostUsd]),
-        ltpUsd:       num(r[HCOL.ltpUsd]),
-        valueUsd:     num(r[HCOL.valueUsd]),
-        pnlUsd:       num(r[HCOL.pnlUsd]),
-        pnlPct,
-        weight:       num(r[HCOL.weight]),
-        holdingSince,
-        daysHeld,
-        ltcg:         (r[HCOL.ltcg]||'').toString().trim(),
-        analysisPct,
-        isHedge,
-        notes: settRow ? (settRow[7] ? `Analyst target: ${settRow[15]==='INR'?'₹':'$'}${settRow[7]}` : '') : '',
-        action, ac, cc,
-      });
-    }
-  }
-
-  console.log(`✅ Holdings parsed: ${holdings.length} active positions`);
-
-  // ── Platform totals — by platform not region (MELI under Wio USD = US bucket)
-  const usVal     = holdings.filter(h => h.platform==='Wio USD').reduce((s,h)=>s+h.valueUsd,0);
-  const uaeVal    = holdings.filter(h => h.platform==='Wio AED' && h.assetType!=='Crypto').reduce((s,h)=>s+h.valueUsd,0);
-  const cryptoVal = holdings.filter(h => h.assetType==='Crypto').reduce((s,h)=>s+h.valueUsd,0);
-  const indiaVal  = holdings.filter(h => h.platform==='Zerodha').reduce((s,h)=>s+h.valueUsd,0);
-  const totalVal  = usVal + uaeVal + cryptoVal + indiaVal;
-  const totalCost = holdings.reduce((s,h)=>s+h.totalCostUsd,0);
-  const pnl       = holdings.reduce((s,h)=>s+h.pnlUsd,0);
-
-  // ── Tax Optimiser — look for summary rows
-  let harvestSavingInr=0, taxLiabilityInr=0, totalPnlInr=0, indiaXirr=0;
-  for (const r of taxRows) {
-    const lbl = (r[0]||'').toString();
-    if (lbl.includes('Total P&L') || lbl.includes('Total Unrealised')) totalPnlInr    = num(r[1])||num(r[2]);
-    if (lbl.includes('Tax Liability'))                                  taxLiabilityInr = num(r[1])||num(r[2]);
-    if (lbl.includes('Harvestable') || lbl.includes('Harvest Saving')) harvestSavingInr= num(r[1])||num(r[2]);
-    if (lbl.includes('XIRR') || lbl.includes('India XIRR'))           indiaXirr       = num(r[1])||num(r[2]);
-  }
-
-  // ── ETA calculation — years to goalTarget at goalCagr from current value
-  const yearsLeft = totalVal > 0 ? Math.log(goalTarget/totalVal) / Math.log(1+goalCagr) : 10;
-  const etaYear   = new Date().getFullYear() + Math.ceil(yearsLeft);
+  // ETA
+  const goalTarget = settings.goalTarget || 1000000;
+  const goalCagr   = settings.goalCagr   || 0.18;
+  const etaYear    = totals.etaYear || (new Date().getFullYear() + Math.ceil(
+    Math.log(goalTarget / (totals.totalVal||1)) / Math.log(1+goalCagr)
+  ));
 
   return {
-    totalVal, totalCost, pnl,
-    usVal, uaeVal, indiaVal, cryptoVal,
-    usdInr, usdAed,
-    goalTarget, goalCagr, monthlyTarget, sp500Cagr,
-    singlePosAmber, singlePosRed,
-    progress: totalVal / goalTarget,
+    totalVal:      totals.totalVal  || 0,
+    totalCost:     totals.totalCost || 0,
+    pnl:           totals.pnl       || 0,
+    usVal:         totals.usVal     || 0,
+    uaeVal:        totals.uaeVal    || 0,
+    indiaVal:      totals.indiaVal  || 0,
+    cryptoVal:     totals.cryptoVal || 0,
+    usdInr:        settings.usdInr  || 95,
+    usdAed:        settings.usdAed  || 3.67,
+    goalTarget,
+    goalCagr,
+    monthlyTarget: settings.monthlyTarget || 3000,
+    sp500Cagr:     settings.sp500Cagr     || 0.105,
+    progress:      totals.progress        || 0,
     etaYear,
-    lastReview,
+    lastReview:    settings.lastReview    || '—',
+    indiaXirr:     tax.indiaXirr          || 0,
     holdings,
-    taxData: { totalPnlInr, taxLiabilityInr, harvestSavingInr },
-    indiaXirr,
+    taxData: {
+      totalPnlInr:     tax.totalPnlInr     || 0,
+      taxLiabilityInr: tax.taxLiabilityInr || 0,
+      harvestSavingInr:tax.harvestSavingInr|| 0,
+    },
+    refreshedAt: data.meta?.refreshedAt || '—',
     fromSheets: true,
   };
+}
+
+async function loadWatchlist() {
+  // Watchlist is already loaded inside loadFromSheets via Apps Script
+  // This function is kept for the refresh flow
+  return; // no-op — WATCHLIST already set in loadFromSheets
 }
 
 
@@ -850,8 +736,9 @@ async function init() {
     LIVE = await loadFromSheets();
     await loadWatchlist();
     document.getElementById('loadingBanner').classList.add('hidden');
+    document.getElementById('errorBanner').style.display='none';
     const now = new Date();
-    document.getElementById('lastUpdated').textContent = `✅ Live data loaded ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — from Google Sheets`;
+    document.getElementById('lastUpdated').textContent = `✅ Live · Sheet refreshed ${LIVE.refreshedAt||now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} · Dashboard loaded ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
     document.getElementById('livePillText').textContent = `Live ${now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
   } catch(e) {
     console.warn('❌ Google Sheets fetch failed:', e.message);
@@ -859,18 +746,24 @@ async function init() {
     document.getElementById('loadingBanner').classList.add('hidden');
     const eb = document.getElementById('errorBanner');
     eb.style.display='block';
-    eb.innerHTML=`
-      <strong>⚠ Could not load live data — showing snapshot (16 Jun 2026)</strong><br><br>
-      <strong>Error detail:</strong> ${e.message}<br><br>
-      <strong>What to check:</strong><br>
-      1. Google Sheets → File → Share → Publish to web → confirm all 4 sheets show as Published<br>
-      2. Sheet names must be exactly: <code>Live Engine</code> · <code>Dashboard</code> · <code>Settings</code> · <code>Tax Optimiser</code><br>
-      3. Open browser Console (F12) and look for red errors<br><br>
-      <strong>Proxy URL being used:</strong> api.allorigins.win<br>
-      <strong>Sheet ID:</strong> ${PUB_ID}
+    const is403 = e.message.includes('APPS_SCRIPT_URL not configured');
+    eb.innerHTML = is403 ? `
+      <strong>⚠ Apps Script Web App URL not configured yet</strong><br><br>
+      <strong>Setup steps:</strong><br>
+      1. Open your Google Sheet → Extensions → Apps Script<br>
+      2. Paste the <code>portfolio_api.gs</code> code<br>
+      3. Click <strong>Deploy → New deployment → Web app</strong><br>
+      4. Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong><br>
+      5. Click Deploy → copy the Web App URL<br>
+      6. In <code>index.html</code> replace <code>https://script.google.com/macros/s/AKfycbx4LPTab9bIOcrBmmqm_JYIwDryh4lRxZyrAcJaOL1O9NllWk6UYdd_u759Ecoa6l6x/exec</code> with that URL<br>
+      7. Commit to GitHub<br><br>
+      <span style="color:var(--muted)">Error: ${e.message}</span>
+    ` : `
+      <strong>⚠ Could not load live data</strong> — ${e.message}<br><br>
+      Check: Apps Script deployed as Web App with access set to Anyone
     `;
-    document.getElementById('lastUpdated').textContent = `📋 Snapshot data (16 Jun 2026) — see error above`;
-    document.getElementById('livePillText').textContent = `Snapshot 16 Jun 2026`;
+    document.getElementById('lastUpdated').textContent = `⚠ 403 Forbidden — Google Sheets not public. See instructions above.`;
+    document.getElementById('livePillText').textContent = `Sheet Error`;
   }
   renderAll();
 }
@@ -944,7 +837,7 @@ function renderAll() {
   document.getElementById('lastReviewDate').textContent = D.lastReview||'—';
 
   // METRICS
-  const pnlPct = D.totalCost>0 ? D.pnl/D.totalCost*100 : 0;
+  const pnlPct = D.totalCost>0 ? D.pnl/D.totalCost*100 : 0;  // pnlPct = overall portfolio
   document.getElementById('m-total').textContent = fmt$(D.totalVal);
   document.getElementById('m-sub').innerHTML = `Invested ${fmt$(D.totalCost)} · P&amp;L <span style="color:${pnlColor(D.pnl)}">${fmtPct(pnlPct)}</span>`;
   document.getElementById('m-local').textContent = `AED ${Math.round(D.totalVal*(D.usdAed||3.67)).toLocaleString()} est. · ₹${Math.round(D.totalVal*(D.usdInr||95)).toLocaleString()} est.`;
@@ -958,27 +851,27 @@ function renderAll() {
   document.getElementById('m-india-local').textContent = `₹${Math.round(D.indiaVal*(D.usdInr||95)).toLocaleString()} · ${indiaHoldings.length} positions`;
 
   // MAIN RING — all values from Settings via Google Sheets
-  const goalTarget    = D.goalTarget    || 1000000;
-  const goalCagr      = D.goalCagr      || 0.18;
-  const monthlyTarget = D.monthlyTarget || 3000;
-  const sp500Cagr     = D.sp500Cagr     || 0.105;
-  const pct = D.totalVal / goalTarget;
+  const gTarget    = D.goalTarget    || 1000000;
+  const gCagr      = D.goalCagr      || 0.18;
+  const gMonthly   = D.monthlyTarget || 3000;
+  const gSp500     = D.sp500Cagr     || 0.105;
+  const pct = D.totalVal / gTarget;
   const circ = 578.1;
   const mainFill = Math.min(pct, 1) * circ;
   // Pro-rata CAGR arc: how far along 18% annual should we be from portfolio start
   const allDates = (D.holdings||[]).map(h=>h.holdingSince).filter(Boolean).map(d=>new Date(d)).filter(d=>!isNaN(d));
   const portfolioStart = allDates.length ? new Date(Math.min(...allDates)) : new Date();
   const portfolioStartDays = Math.round((new Date()-portfolioStart)/86400000);
-  const cagrProRata = Math.pow(1 + goalCagr, portfolioStartDays/365) - 1;
-  const cagrFill = Math.min((cagrProRata * D.totalVal / goalTarget) * circ, circ * 0.5);
-  // Monthly ring: progress toward monthlyTarget * months invested (120 = 10yr)
+  const cagrProRata = Math.pow(1 + gCagr, portfolioStartDays/365) - 1;
+  const cagrFill = Math.min((cagrProRata * D.totalVal / gTarget) * circ, circ * 0.5);
+  // Monthly ring: progress toward gMonthly * months invested (120 = 10yr)
   const monthsInvested = portfolioStartDays / 30.44;
-  const monthlyFill = Math.min((D.totalVal / (monthlyTarget * monthsInvested)) * 464.9, 464.9);
+  const monthlyFill = Math.min((D.totalVal / (gMonthly * monthsInvested)) * 464.9, 464.9);
   document.getElementById('mainVal').textContent = fmt$(D.totalVal);
-  document.getElementById('mainPct').textContent = (pct*100).toFixed(2)+'% of ' + fmt$(goalTarget);
+  document.getElementById('mainPct').textContent = (pct*100).toFixed(2)+'% of ' + fmt$(gTarget);
   document.getElementById('targetDate').textContent = `ETA ~${D.etaYear||2033}`;
   document.getElementById('monthsLeft').textContent =
-    `${(D.etaYear - new Date().getFullYear())} yrs · ${goalCagr*100}% CAGR target`;
+    `${(D.etaYear - new Date().getFullYear())} yrs · ${gCagr*100}% CAGR target`;
 
   setTimeout(()=>{
     document.getElementById('mainArc').style.strokeDasharray=`${mainFill} ${circ}`;
@@ -1012,8 +905,8 @@ function renderAll() {
   },400);
 
   // BENCHMARK STRIP
-  document.getElementById('bm-target').textContent = '+' + (goalCagr*100).toFixed(1) + '%';
-  const overallPnlPct = pnlPct;
+  document.getElementById('bm-target').textContent = '+' + (gCagr*100).toFixed(1) + '%';
+  const overallPnlPct = D.totalCost>0 ? D.pnl/D.totalCost*100 : 0;
   document.getElementById('bm-port').innerHTML = `<span style="color:${pnlColor(overallPnlPct)}">${fmtPct(overallPnlPct)}</span>`;
   document.getElementById('bm-port-fill').style.width = Math.min(Math.abs(overallPnlPct)/18*100,100)+'%';
   document.getElementById('bm-port-fill').style.background = overallPnlPct>=0?'var(--green)':'var(--red)';
@@ -1047,7 +940,25 @@ function renderAll() {
   buildWatchlist();
 
   // footer
-  document.getElementById('footer').innerHTML = `<span>Sijo Tom · Portfolio Intelligence · USD Base</span><span>${dateStr} · ${(D.holdings||FALLBACK.holdings).length} positions · ${fmt$(goalTarget)} Mission @ ${(goalCagr*100).toFixed(0)}% CAGR</span>`;
+  // ── Dynamic text labels — all driven from sheet values
+  const cagrPct = (gCagr*100).toFixed(0) + '% CAGR';
+  const goalFmt = fmt$(gTarget);
+  if(document.getElementById('ringTitle'))       document.getElementById('ringTitle').textContent       = goalFmt + ' Journey';
+  if(document.getElementById('goalLabel'))        document.getElementById('goalLabel').textContent        = 'of ' + goalFmt;
+  if(document.getElementById('ringsSectionTitle'))document.getElementById('ringsSectionTitle').textContent= 'Position Rings — ' + cagrPct + ' Pro-Rata';
+  if(document.getElementById('bmTargetLabel'))    document.getElementById('bmTargetLabel').textContent    = cagrPct + ' Target';
+  if(document.getElementById('l2SubTitle'))       document.getElementById('l2SubTitle').textContent       = 'vs ' + cagrPct + ' pro-rata · analyst targets from Transactions';
+  if(document.getElementById('mainPct'))          document.getElementById('mainPct').textContent          = (pct*100).toFixed(2)+'% of ' + goalFmt;
+  if(document.getElementById('monthsLeft'))       document.getElementById('monthsLeft').textContent       = Math.ceil((D.etaYear||2036) - new Date().getFullYear()) + ' yrs · ' + cagrPct + ' target';
+  // XIRR start date — from oldest holding
+  const allDts = (D.holdings||[]).map(h=>h.holdingSince).filter(Boolean).map(d=>new Date(d)).filter(d=>!isNaN(d));
+  const startDt = allDts.length ? new Date(Math.min(...allDts)) : null;
+  const startLabel = startDt ? startDt.toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : '—';
+  if(document.getElementById('xirrStartDate')) document.getElementById('xirrStartDate').textContent = 'Since ' + startLabel;
+  // PWA manifest description
+  const gCagrLocal = gCagr; // alias for use inside buildHoldings template literals
+
+  document.getElementById('footer').innerHTML = `<span>Sijo Tom · Portfolio Intelligence · USD Base</span><span>${dateStr} · ${(D.holdings||FALLBACK.holdings).length} positions · ${fmt$(gTarget)} Mission @ ${(gCagr*100).toFixed(0)}% CAGR</span>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1151,8 +1062,8 @@ function buildPositionRings(){
 function buildAnalyticsPanels(){
   const D = LIVE;
   const holdings = D.holdings||FALLBACK.holdings;
-  const totalVal = D.totalVal||0;
-  const totalCost = D.totalCost||0;
+  const rTotalVal  = D.totalVal||0;
+  const rTotalCost = D.totalCost||0;
   const overallPnl = D.pnl||0;
   const overallPct = totalCost>0?overallPnl/totalCost*100:0;
 
@@ -1164,7 +1075,7 @@ function buildAnalyticsPanels(){
   const indiaXirrEst = D.indiaXirr || 0;
 
   document.getElementById('xirrGrid').innerHTML = `
-    <div class="acard"><div class="alabel">Est. Portfolio CAGR</div><div class="aval" style="color:${pnlColor(estimatedXirr)}">${fmtPct(estimatedXirr)}</div><div class="asub">Since Jan 2023</div></div>
+    <div class="acard"><div class="alabel">Est. Portfolio CAGR</div><div class="aval" style="color:${pnlColor(estimatedXirr)}">${fmtPct(estimatedXirr)}</div><div class="asub" id="xirrStartDate">Since —</div></div>
     <div class="acard"><div class="alabel">India XIRR (Zerodha)</div><div class="aval" style="color:var(--india)">${indiaXirrEst > 0 ? '+' + indiaXirrEst.toFixed(2) + '%' : '—'}</div><div class="asub">Pre-tax INR</div></div>
     <div class="acard"><div class="alabel">India USD-Adj</div><div class="aval" style="color:var(--orange)">${indiaXirrEst > 0 ? '~+' + Math.max(0, indiaXirrEst - 3.5).toFixed(1) + '%' : '—'}</div><div class="asub">After ~3.5% INR drag/yr</div></div>
     <div class="acard"><div class="alabel">US Platform</div><div class="aval" style="color:${pnlColor(overallPct)}">${fmtPct(overallPct)}</div><div class="asub">Wio USD total</div></div>
@@ -1181,8 +1092,8 @@ function buildAnalyticsPanels(){
 
   document.getElementById('plGrid').innerHTML = `
     <div class="acard"><div class="alabel">Total P&amp;L</div><div class="aval" style="color:${pnlColor(overallPnl)}">${fmt$(overallPnl,0)}</div><div class="asub">${fmtPct(overallPct)} overall</div></div>
-    <div class="acard"><div class="alabel">🇺🇸 Wio USD</div><div class="aval" style="color:${pnlColor(usP)}">${fmt$(usP,0)}</div><div class="asub">${usH.length} positions</div></div>
-    <div class="acard"><div class="alabel">🇦🇪 Wio AED</div><div class="aval" style="color:${pnlColor(uaeP)}">${fmt$(uaeP,0)}</div><div class="asub">${uaeH.length} positions</div></div>
+    <div class="acard"><div class="alabel">🇺🇸 US Equities</div><div class="aval" style="color:${pnlColor(usP)}">${fmt$(usP,0)}</div><div class="asub">${usH.length} positions</div></div>
+    <div class="acard"><div class="alabel">🇦🇪 UAE Equities</div><div class="aval" style="color:${pnlColor(uaeP)}">${fmt$(uaeP,0)}</div><div class="asub">${uaeH.length} positions</div></div>
     <div class="acard"><div class="alabel">🇮🇳 Zerodha</div><div class="aval" style="color:${pnlColor(indiaP)}">${fmt$(indiaP,0)}</div><div class="asub">${indiaH.length} positions</div></div>`;
 
   // TAX
@@ -1216,13 +1127,15 @@ function buildHoldingsSections(){
   document.getElementById('crypto-sr').textContent = `${crypto.length} assets`;
   document.getElementById('india-sr').textContent = `${india.length} positions · Zerodha`;
 
-  buildHoldings('us-holdings', usd);
-  buildHoldings('uae-holdings', uae);
-  buildHoldings('crypto-holdings', crypto);
-  buildHoldings('india-holdings', india);
+  const cagr4Holdings = (LIVE&&LIVE.goalCagr)||0.18;
+  buildHoldings('us-holdings',     usd,    cagr4Holdings);
+  buildHoldings('uae-holdings',    uae,    cagr4Holdings);
+  buildHoldings('crypto-holdings', crypto, cagr4Holdings);
+  buildHoldings('india-holdings',  india,  cagr4Holdings);
 }
 
-function buildHoldings(id, data){
+function buildHoldings(id, data, gCagrLocal){
+  gCagrLocal = gCagrLocal || (LIVE&&LIVE.goalCagr) || 0.18;
   const el=document.getElementById(id);
   if(!el) return;
   el.innerHTML='';
@@ -1619,10 +1532,47 @@ function checkVersion() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// AUTO-REFRESH — every 5 minutes in browser (independent of Apps Script)
+// Apps Script keeps Google Sheets prices fresh server-side
+// This keeps the dashboard display fresh client-side
+// ─────────────────────────────────────────────────────────────────────────────
+function startAutoRefresh() {
+  const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+  let countdown = INTERVAL_MS / 1000;
+  const statusEl = document.getElementById('autoRefreshStatus');
+
+  // Countdown timer display
+  setInterval(() => {
+    countdown--;
+    if (countdown <= 0) countdown = INTERVAL_MS / 1000;
+    const mins = Math.floor(countdown / 60);
+    const secs = countdown % 60;
+    if (statusEl) statusEl.textContent = `Auto-refresh in ${mins}:${secs.toString().padStart(2,'0')}`;
+  }, 1000);
+
+  // Actual refresh
+  setInterval(async () => {
+    console.log('⏱ Auto-refresh triggered');
+    try {
+      LIVE = await loadFromSheets();
+      await loadWatchlist();
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('lastUpdated').textContent = `✅ Auto-refreshed ${timeStr}`;
+      document.getElementById('livePillText').textContent = `Live ${now.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`;
+      renderAll();
+    } catch(e) {
+      console.warn('Auto-refresh failed:', e.message);
+      document.getElementById('lastUpdated').textContent = `⚠ Auto-refresh failed ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} — tap ↻ to retry`;
+    }
+  }, INTERVAL_MS);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // BOOT
 // ─────────────────────────────────────────────────────────────────────────────
 checkVersion();
-init();
+init().then(() => startAutoRefresh());
 </script>
 </body>
 </html>
