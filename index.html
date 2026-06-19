@@ -55,7 +55,7 @@ document.write('<link rel="manifest" href="' + manifestURL + '">');
      so users see the update notification banner.
 ═══════════════════════════════════════════════ -->
 <script>
-const DASHBOARD_VERSION = '2.1.0';
+const DASHBOARD_VERSION = '2.3.0';
 const DASHBOARD_DATE    = '2026-06-18';
 </script>
 
@@ -385,7 +385,7 @@ tbody tr:last-child td{border-bottom:none}
         <div style="font-size:7px;color:var(--muted)" id="monthsLeft"></div>
       </div>
       <div class="ring-title" style="color:var(--gold2)">$1M Journey</div>
-      <div class="ring-subtitle">Outer: progress · Inner: monthly adds · Ticks: $250K milestones</div>
+      <div class="ring-subtitle" id="ringSubtitle">Outer: progress to goal · Inner: monthly add pace · Gold arc = CAGR target</div>
     </div>
 
     <!-- COUNTRY RINGS -->
@@ -567,18 +567,12 @@ const SHEETS = {
 // Contains the live snapshot from Portfolio_Sijo_Tom_v5.xlsx
 // ─────────────────────────────────────────────────────────────────────────────
 const FALLBACK = {
-  totalVal: 85202.19,
-  totalCost: 86609.94,
-  pnl: -1407.76,
-  usVal: 54346.93,
-  uaeVal: 13387.15,
-  indiaVal: 17468.11,
-  cryptoVal: 6247.89,
-  usdInr: 94.45,
-  usdAed: 3.6725,
-  progress: 0.0852,
-  etaYear: 2033,
-  lastReview: '2026-06-15',
+  totalVal:0, totalCost:0, pnl:0,
+  usVal:0, uaeVal:0, indiaVal:0, cryptoVal:0,
+  usdInr:95, usdAed:3.67,
+  goalTarget:1000000, goalCagr:0.18, monthlyTarget:3000, sp500Cagr:0.105,
+  progress:0, etaYear:2036, indiaXirr:0,
+  lastReview:'—',
   holdings: [
     // US positions
     {ticker:'NVDA',name:'NVIDIA Corporation',platform:'Wio USD',assetType:'Equity',sector:'AI/Semiconductor',region:'US',qty:34,avgCostUsd:211.30,ltpUsd:207.41,valueUsd:7051.94,pnlUsd:-132.29,pnlPct:-0.0184,holdingSince:'2026-05-18',daysHeld:30,analysisPct:-0.204,isHedge:false,notes:'13 pending at $208',action:'Hold+Add',ac:'b-add',cc:'hc-blue'},
@@ -610,14 +604,8 @@ const FALLBACK = {
     {ticker:'NIVABUPA',name:'Niva Bupa Health',platform:'Zerodha',assetType:'Equity',sector:'Health Insurance',region:'India',qty:1150,avgCostUsd:0.884,ltpUsd:0.898,valueUsd:1033.23,pnlUsd:16.39,pnlPct:0.0161,holdingSince:'2024-11-01',daysHeld:593,analysisPct:null,isHedge:false,notes:'Near breakeven · 593d LTCG',action:'Hold',ac:'b-hold',cc:'hc-green'},
     {ticker:'HDFCBANK',name:'HDFC Bank',platform:'Zerodha',assetType:'Equity',sector:'Banking',region:'India',qty:256,avgCostUsd:8.22,ltpUsd:8.36,valueUsd:2139.74,pnlUsd:35.29,pnlPct:0.0168,holdingSince:'2026-06-16',daysHeld:1,analysisPct:0.393,isHedge:false,notes:'New · STCG (< 1yr) · PT ₹1,100',action:'Hold — STCG',ac:'b-hold',cc:'hc-blue'},
   ],
-  taxData: {
-    totalPnlInr: -111591.51,
-    taxLiabilityInr: 8456.10,
-    harvestSavingInr: 22677.04,
-  },
-  concentration: {
-    us: 0.5396, india: 0.2050, uae: 0.0838, latam: 0.0982, global: 0.0733
-  },
+  taxData: { totalPnlInr:0, taxLiabilityInr:0, harvestSavingInr:0 },
+  concentration: { us:0, india:0, uae:0, latam:0, global:0 },
   milestones: [
     {label:'🌱 Seed',target:25000,status:'✅ Done'},
     {label:'🌿 Growing',target:50000,status:'✅ Done'},
@@ -678,16 +666,11 @@ async function fetchSheet(url) {
 }
 
 async function loadFromSheets() {
-  // Fetch sheets one by one so we can identify which one fails
   let leRows, dashRows, settRows, taxRows;
 
   console.log('📡 Fetching Live Engine...');
   try { leRows   = await fetchSheet(SHEETS.liveEngine);  console.log(`✅ Live Engine: ${leRows.length} rows`); }
   catch(e) { throw new Error(`Live Engine sheet: ${e.message}`); }
-
-  console.log('📡 Fetching Dashboard...');
-  try { dashRows  = await fetchSheet(SHEETS.dashboard);  console.log(`✅ Dashboard: ${dashRows.length} rows`); }
-  catch(e) { throw new Error(`Dashboard sheet: ${e.message}`); }
 
   console.log('📡 Fetching Settings...');
   try { settRows  = await fetchSheet(SHEETS.settings);   console.log(`✅ Settings: ${settRows.length} rows`); }
@@ -697,114 +680,167 @@ async function loadFromSheets() {
   try { taxRows   = await fetchSheet(SHEETS.taxOpt);     console.log(`✅ Tax Optimiser: ${taxRows.length} rows`); }
   catch(e) { throw new Error(`Tax Optimiser sheet: ${e.message}`); }
 
-  // Parse Live Engine holdings (header row index ~6)
+  // ── SETTINGS: Goal parameters — Settings col C (index 2)
+  // Row 5 = Target Value, Row 6 = CAGR, Row 7 = Monthly, Row 8 = INR fallback
+  // Row 9 = AED, Row 12 = Last Review, Row 16 = S&P CAGR
+  let goalTarget = 1000000, goalCagr = 0.18, monthlyTarget = 3000;
+  let usdInrFallback = 95, usdAedFixed = 3.67;
+  let lastReview = '2026-06-15', sp500Cagr = 0.105;
+  let singlePosAmber = 0.15, singlePosRed = 0.25;
+
+  settRows.forEach((r, i) => {
+    const label = (r[0]||'').toString().trim();
+    const val   = num(r[2]); // col C = index 2
+    if (label === 'Target Portfolio Value')  goalTarget      = val || 1000000;
+    if (label === 'Target CAGR')             goalCagr        = val || 0.18;
+    if (label === 'Monthly Addition Target') monthlyTarget   = val || 3000;
+    if (label === 'USD / INR Rate')          usdInrFallback  = val || 95;
+    if (label === 'USD / AED Rate')          usdAedFixed     = val || 3.67;
+    if (label === 'Last Review Completed')   lastReview      = r[2] ? new Date(r[2]).toISOString().slice(0,10) : lastReview;
+    // S&P row: col A = year (2026), col B = cagr (index 1)
+    if ((r[0]||'').toString().trim() === '2026') sp500Cagr = num(r[1]) || 0.105;
+    if (label === 'Single position')         { singlePosAmber = num(r[1])||0.15; singlePosRed = num(r[2])||0.25; }
+  });
+
+  // ── LIVE ENGINE: FX rates — row 5 col D (index 3), row 6 col D (index 3)
+  let usdInr = usdInrFallback, usdAed = usdAedFixed;
+  for (const r of leRows) {
+    const label = (r[0]||'').toString().trim();
+    if (label === 'USD/INR') usdInr = num(r[3]) || usdInrFallback;
+    if (label === 'USD/AED') usdAed = num(r[3]) || usdAedFixed;
+  }
+
+  // ── LIVE ENGINE: Holdings — header at row 11 (index 10 in 0-based array)
+  // Exact column map from confirmed headers:
+  // 0=Ticker 1=AssetType 2=Sector 3=Region 4=Platform 5=Qty 6=TotalCostUSD
+  // 7=AvgCostUSD 8=LivePriceUSD 9=ValueUSD 10=P&LUSD 11=P&L%
+  // 12=Weight% 13=Status 14=HoldingSince 15=DaysHeld 16=LTCG 17=UpsidePct
+  const HCOL = {
+    ticker:0, assetType:1, sector:2, region:3, platform:4,
+    qty:5, totalCostUsd:6, avgCostUsd:7, ltpUsd:8, valueUsd:9,
+    pnlUsd:10, pnlPct:11, weight:12, status:13,
+    holdingSince:14, daysHeld:15, ltcg:16, analysisPct:17
+  };
+
   let holdingStart = -1;
-  let hIdx = {qty:5,costLocal:6,avgCost:7,ltp:8,valueUsd:9,pnlUsd:10,pnlPct:11,holdingSince:14,days:15};
-  for (let i=0;i<leRows.length;i++) {
-    const r = leRows[i];
-    if (r[0]==='Ticker' || r[0]==='ticker') {
-      holdingStart = i+1;
-      // Build column index map from headers
-      r.forEach((h,idx) => {
-        const hl = (h||'').toLowerCase().trim();
-        if (hl.includes('qty') || hl.includes('quantity')) hIdx.qty = idx;
-        else if (hl.includes('total cost') || hl.includes('cost usd')) hIdx.costLocal = idx;
-        else if (hl.includes('avg') || hl.includes('average')) hIdx.avgCost = idx;
-        else if (hl.includes('ltp') || hl.includes('live price') || hl.includes('current price')) hIdx.ltp = idx;
-        else if (hl.includes('value') && hl.includes('usd')) hIdx.valueUsd = idx;
-        else if (hl.includes('p&l') && hl.includes('usd') && !hl.includes('%')) hIdx.pnlUsd = idx;
-        else if (hl.includes('p&l') && hl.includes('%')) hIdx.pnlPct = idx;
-        else if (hl.includes('holding since') || hl.includes('since')) hIdx.holdingSince = idx;
-        else if (hl.includes('days') && !hl.includes('ltcg')) hIdx.days = idx;
-      });
-      console.log('📋 Live Engine column map:', hIdx);
+  for (let i = 0; i < leRows.length; i++) {
+    if ((leRows[i][0]||'').toString().trim() === 'Ticker') {
+      holdingStart = i + 1;
+      console.log(`📋 Holdings start at row ${i+1}`);
       break;
     }
   }
 
   const holdings = [];
   if (holdingStart > 0) {
-    for (let i=holdingStart;i<leRows.length;i++) {
+    for (let i = holdingStart; i < leRows.length; i++) {
       const r = leRows[i];
-      if (!r[0] || r[0]==='PORTFOLIO TOTAL' || r[0].startsWith('📊')) break;
-      const ticker = r[0];
-      const region = r[3];
-      const platform = r[4];
-      const fallbackH = FALLBACK.holdings.find(h=>h.ticker===ticker)||{};
-      // Map columns by header index for robustness
-      const qty       = num(r[hIdx.qty]       || r[5]);
-      const costLocal = num(r[hIdx.costLocal]  || r[6]);
-      const avgCost   = num(r[hIdx.avgCost]    || r[7]);
-      const ltp       = num(r[hIdx.ltp]        || r[8]);
-      const valueUsd  = num(r[hIdx.valueUsd]   || r[9]);
-      const pnlUsd    = num(r[hIdx.pnlUsd]     || r[10]);
-      const pnlPct    = num(r[hIdx.pnlPct]     || r[11]);
-      const holdingSince = r[hIdx.holdingSince] || r[14] || fallbackH.holdingSince || '';
-      const daysHeld  = num(r[hIdx.days]        || r[15]);
-      // analyst target: try col K of Transactions via fallback
-      const analysisPct = fallbackH.analysisPct !== undefined ? fallbackH.analysisPct : null;
+      const ticker = (r[HCOL.ticker]||'').toString().trim();
+      if (!ticker || ticker === 'PORTFOLIO TOTAL' || ticker.startsWith('📊') || ticker.startsWith('💱')) break;
+
+      const qty = num(r[HCOL.qty]);
+      if (qty === 0 || num(r[HCOL.valueUsd]) === 0 || num(r[HCOL.ltpUsd]) === 0) continue; // skip exited/zero-value
+
+      const platform = (r[HCOL.platform]||'').toString().trim();
+      const region   = (r[HCOL.region]||'').toString().trim();
+      const assetType= (r[HCOL.assetType]||'').toString().trim();
+
+      // holdingSince — handle both date string and Date object
+      let holdingSince = '';
+      const hsRaw = r[HCOL.holdingSince];
+      if (hsRaw) {
+        try {
+          const d = new Date(hsRaw);
+          holdingSince = isNaN(d) ? hsRaw : d.toISOString().slice(0,10);
+        } catch(e) { holdingSince = String(hsRaw); }
+      }
+
+      // analysisPct — col 17, may be '—' string
+      const analysisPctRaw = r[HCOL.analysisPct];
+      const analysisPct = (analysisPctRaw && analysisPctRaw !== '—') ? num(analysisPctRaw) : null;
+
+      // isHedge — NEM and XAG are macro hedges
+      const isHedge = ['NEM','XAG'].includes(ticker);
+
+      // Display name — from Settings col G (full name) or fallback
+      const settRow = settRows.find(sr => (sr[0]||'').toString().trim() === ticker);
+      const name = settRow ? (settRow[6]||ticker) : ticker;
+
+      // Action and card colour — derive from P&L vs pro-rata target
+      const pnlPct   = num(r[HCOL.pnlPct]);
+      const daysHeld = num(r[HCOL.daysHeld]);
+      const prTarget = (Math.pow(1 + goalCagr, daysHeld/365) - 1);
+      const vs = pnlPct - prTarget;
+      let action, ac, cc;
+      if (isHedge)        { action='Hedge — Hold'; ac='b-hedge'; cc='hc-gold'; }
+      else if (vs >= 0.05){ action='Hold — Ahead'; ac='b-hold';  cc='hc-green'; }
+      else if (vs >= -0.05){ action='Hold — On Track'; ac='b-hold'; cc='hc-blue'; }
+      else if (pnlPct >= 0){ action='Monitor'; ac='b-hold'; cc='hc-amber'; }
+      else                 { action='Review'; ac='b-rev';  cc='hc-red'; }
 
       holdings.push({
-        ticker, assetType:r[1]||'Equity', sector:r[2]||'', region, platform,
-        qty, totalCostUsd:costLocal, avgCostUsd:avgCost,
-        ltpUsd:ltp, valueUsd, pnlUsd, pnlPct,
-        holdingSince, daysHeld,
-        isHedge: fallbackH.isHedge||false,
-        name: fallbackH.name||ticker,
-        notes: fallbackH.notes||'',
-        action: fallbackH.action||'Hold',
-        ac: fallbackH.ac||'b-hold',
-        cc: fallbackH.cc||'hc-blue',
+        ticker, assetType, sector: (r[HCOL.sector]||'').toString().trim(),
+        region, platform, name,
+        qty,
+        totalCostUsd: num(r[HCOL.totalCostUsd]),
+        avgCostUsd:   num(r[HCOL.avgCostUsd]),
+        ltpUsd:       num(r[HCOL.ltpUsd]),
+        valueUsd:     num(r[HCOL.valueUsd]),
+        pnlUsd:       num(r[HCOL.pnlUsd]),
+        pnlPct,
+        weight:       num(r[HCOL.weight]),
+        holdingSince,
+        daysHeld,
+        ltcg:         (r[HCOL.ltcg]||'').toString().trim(),
         analysisPct,
+        isHedge,
+        notes: settRow ? (settRow[7] ? `Analyst target: ${settRow[15]==='INR'?'₹':'$'}${settRow[7]}` : '') : '',
+        action, ac, cc,
       });
     }
   }
 
-  // Derive all totals directly from holdings — most reliable
-  // Platform splits: Wio USD = US equities, Wio AED equity = UAE, Wio AED crypto = Crypto, Zerodha = India
-  const usHoldArr    = holdings.filter(h => h.platform==='Wio USD');
-  const uaeHoldArr   = holdings.filter(h => h.platform==='Wio AED' && h.assetType!=='Crypto');
-  const cryptoHoldArr= holdings.filter(h => h.assetType==='Crypto');
-  const indiaHoldArr = holdings.filter(h => h.platform==='Zerodha');
+  console.log(`✅ Holdings parsed: ${holdings.length} active positions`);
 
-  const usVal    = usHoldArr.reduce((s,h)=>s+h.valueUsd,0);
-  const uaeVal   = uaeHoldArr.reduce((s,h)=>s+h.valueUsd,0);
-  const cryptoVal= cryptoHoldArr.reduce((s,h)=>s+h.valueUsd,0);
-  const indiaVal = indiaHoldArr.reduce((s,h)=>s+h.valueUsd,0);
-  const totalVal = usVal + uaeVal + cryptoVal + indiaVal;
-  const totalCost= holdings.reduce((s,h)=>s+(h.totalCostUsd||(h.avgCostUsd*h.qty)||0),0);
-  const pnl      = holdings.reduce((s,h)=>s+h.pnlUsd,0);
+  // ── Platform totals — by platform not region (MELI under Wio USD = US bucket)
+  const usVal     = holdings.filter(h => h.platform==='Wio USD').reduce((s,h)=>s+h.valueUsd,0);
+  const uaeVal    = holdings.filter(h => h.platform==='Wio AED' && h.assetType!=='Crypto').reduce((s,h)=>s+h.valueUsd,0);
+  const cryptoVal = holdings.filter(h => h.assetType==='Crypto').reduce((s,h)=>s+h.valueUsd,0);
+  const indiaVal  = holdings.filter(h => h.platform==='Zerodha').reduce((s,h)=>s+h.valueUsd,0);
+  const totalVal  = usVal + uaeVal + cryptoVal + indiaVal;
+  const totalCost = holdings.reduce((s,h)=>s+h.totalCostUsd,0);
+  const pnl       = holdings.reduce((s,h)=>s+h.pnlUsd,0);
 
-  // Parse Tax
-  let harvestSavingInr=0, taxLiabilityInr=0, totalPnlInr=0;
+  // ── Tax Optimiser — look for summary rows
+  let harvestSavingInr=0, taxLiabilityInr=0, totalPnlInr=0, indiaXirr=0;
   for (const r of taxRows) {
-    const lbl = r[0]||'';
-    if (lbl.includes('Total P&L')) totalPnlInr=num(r[1]);
-    if (lbl.includes('Tax Liability')) taxLiabilityInr=num(r[1]);
-    if (lbl.includes('Harvestable')) harvestSavingInr=num(r[1]);
+    const lbl = (r[0]||'').toString();
+    if (lbl.includes('Total P&L') || lbl.includes('Total Unrealised')) totalPnlInr    = num(r[1])||num(r[2]);
+    if (lbl.includes('Tax Liability'))                                  taxLiabilityInr = num(r[1])||num(r[2]);
+    if (lbl.includes('Harvestable') || lbl.includes('Harvest Saving')) harvestSavingInr= num(r[1])||num(r[2]);
+    if (lbl.includes('XIRR') || lbl.includes('India XIRR'))           indiaXirr       = num(r[1])||num(r[2]);
   }
 
-  // Parse FX from Live Engine
-  let usdInr=94.45, usdAed=3.6725;
-  for (const r of leRows) {
-    if (r[0]==='USD/INR') usdInr=num(r[3])||94.45;
-    if (r[0]==='USD/AED') usdAed=num(r[3])||3.6725;
-  }
+  // ── ETA calculation — years to goalTarget at goalCagr from current value
+  const yearsLeft = totalVal > 0 ? Math.log(goalTarget/totalVal) / Math.log(1+goalCagr) : 10;
+  const etaYear   = new Date().getFullYear() + Math.ceil(yearsLeft);
 
   return {
     totalVal, totalCost, pnl,
     usVal, uaeVal, indiaVal, cryptoVal,
     usdInr, usdAed,
-    progress: totalVal/1000000,
+    goalTarget, goalCagr, monthlyTarget, sp500Cagr,
+    singlePosAmber, singlePosRed,
+    progress: totalVal / goalTarget,
+    etaYear,
+    lastReview,
     holdings,
-    taxData:{totalPnlInr,taxLiabilityInr,harvestSavingInr},
-    concentration: FALLBACK.concentration,
-    milestones: FALLBACK.milestones,
-    lastReview: '2026-06-15',
-    etaYear: 2033,
+    taxData: { totalPnlInr, taxLiabilityInr, harvestSavingInr },
+    indiaXirr,
     fromSheets: true,
   };
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INIT — try live, fall back to snapshot
@@ -872,7 +908,10 @@ function fmt$(n,dec=0){ return n==null?'—':'$'+n.toLocaleString('en',{minimumF
 function fmtPct(n,dec=1){ if(n==null)return'—'; return (n>=0?'+':'')+n.toFixed(dec)+'%'; }
 function fmtPctRaw(n){ return n>=0?`<span class="pos">${fmtPct(n)}</span>`:`<span class="neg">${fmtPct(n)}</span>`; }
 
-function proRataTarget(days){ return (Math.pow(1.18, days/365)-1)*100; }
+function proRataTarget(days){
+  const cagr = (LIVE && LIVE.goalCagr) ? LIVE.goalCagr : (FALLBACK.goalCagr || 0.18);
+  return (Math.pow(1 + cagr, days/365)-1)*100;
+}
 
 function wtdAvgDays(h) {
   // h.holdingSince is a date string
@@ -886,11 +925,12 @@ function pnlColor(n){ return n>=0?'var(--green)':'var(--red)'; }
 
 // S&P 500 approximate return from a given date (annualised 10.5%, pro-rated)
 function spReturn(isoDate, days){
+  const sp = (LIVE && LIVE.sp500Cagr) ? LIVE.sp500Cagr : 0.105;
   if (!days) {
     const d = new Date(isoDate);
     days = Math.max(1, Math.round((new Date()-d)/86400000));
   }
-  return (Math.pow(1.105, days/365)-1)*100;
+  return (Math.pow(1 + sp, days/365)-1)*100;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -917,22 +957,32 @@ function renderAll() {
   const indiaHoldings = (D.holdings||FALLBACK.holdings).filter(h=>h.platform==='Zerodha');
   document.getElementById('m-india-local').textContent = `₹${Math.round(D.indiaVal*(D.usdInr||95)).toLocaleString()} · ${indiaHoldings.length} positions`;
 
-  // MAIN RING
-  const pct = D.progress||D.totalVal/1000000;
+  // MAIN RING — all values from Settings via Google Sheets
+  const goalTarget    = D.goalTarget    || 1000000;
+  const goalCagr      = D.goalCagr      || 0.18;
+  const monthlyTarget = D.monthlyTarget || 3000;
+  const sp500Cagr     = D.sp500Cagr     || 0.105;
+  const pct = D.totalVal / goalTarget;
   const circ = 578.1;
-  const mainFill = Math.min(pct, 1)*circ;
-  // Pro-rata: portfolio started ~Jan 2023 roughly — use ~3.4 years
-  const portfolioStartDays = Math.round((new Date()-new Date('2023-01-15'))/86400000);
-  const cagrTarget = Math.min(proRataTarget(portfolioStartDays)/100, 1);
-  const cagrFill = Math.min(cagrTarget*circ/1, circ*0.9);
+  const mainFill = Math.min(pct, 1) * circ;
+  // Pro-rata CAGR arc: how far along 18% annual should we be from portfolio start
+  const allDates = (D.holdings||[]).map(h=>h.holdingSince).filter(Boolean).map(d=>new Date(d)).filter(d=>!isNaN(d));
+  const portfolioStart = allDates.length ? new Date(Math.min(...allDates)) : new Date();
+  const portfolioStartDays = Math.round((new Date()-portfolioStart)/86400000);
+  const cagrProRata = Math.pow(1 + goalCagr, portfolioStartDays/365) - 1;
+  const cagrFill = Math.min((cagrProRata * D.totalVal / goalTarget) * circ, circ * 0.5);
+  // Monthly ring: progress toward monthlyTarget * months invested (120 = 10yr)
+  const monthsInvested = portfolioStartDays / 30.44;
+  const monthlyFill = Math.min((D.totalVal / (monthlyTarget * monthsInvested)) * 464.9, 464.9);
   document.getElementById('mainVal').textContent = fmt$(D.totalVal);
-  document.getElementById('mainPct').textContent = (pct*100).toFixed(2)+'%';
+  document.getElementById('mainPct').textContent = (pct*100).toFixed(2)+'% of ' + fmt$(goalTarget);
   document.getElementById('targetDate').textContent = `ETA ~${D.etaYear||2033}`;
+  document.getElementById('monthsLeft').textContent =
+    `${(D.etaYear - new Date().getFullYear())} yrs · ${goalCagr*100}% CAGR target`;
 
   setTimeout(()=>{
     document.getElementById('mainArc').style.strokeDasharray=`${mainFill} ${circ}`;
-    document.getElementById('cagrTargetArc').style.strokeDasharray=`${Math.min(cagrFill,circ*0.3)} ${circ}`;
-    const monthlyFill = Math.min((D.totalVal/3000/120)*464.9, 464.9);
+    document.getElementById('cagrTargetArc').style.strokeDasharray=`${Math.min(cagrFill,circ*0.4)} ${circ}`;
     document.getElementById('monthlyArc').style.strokeDasharray=`${monthlyFill} 464.9`;
   },300);
 
@@ -962,7 +1012,7 @@ function renderAll() {
   },400);
 
   // BENCHMARK STRIP
-  document.getElementById('bm-target').textContent = '+18.0%';
+  document.getElementById('bm-target').textContent = '+' + (goalCagr*100).toFixed(1) + '%';
   const overallPnlPct = pnlPct;
   document.getElementById('bm-port').innerHTML = `<span style="color:${pnlColor(overallPnlPct)}">${fmtPct(overallPnlPct)}</span>`;
   document.getElementById('bm-port-fill').style.width = Math.min(Math.abs(overallPnlPct)/18*100,100)+'%';
@@ -997,7 +1047,7 @@ function renderAll() {
   buildWatchlist();
 
   // footer
-  document.getElementById('footer').innerHTML = `<span>Sijo Tom · Portfolio Intelligence · USD Base</span><span>${dateStr} · ${(D.holdings||FALLBACK.holdings).length} positions · $1M Mission @ 18% CAGR</span>`;
+  document.getElementById('footer').innerHTML = `<span>Sijo Tom · Portfolio Intelligence · USD Base</span><span>${dateStr} · ${(D.holdings||FALLBACK.holdings).length} positions · ${fmt$(goalTarget)} Mission @ ${(goalCagr*100).toFixed(0)}% CAGR</span>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1107,16 +1157,18 @@ function buildAnalyticsPanels(){
   const overallPct = totalCost>0?overallPnl/totalCost*100:0;
 
   // XIRR panel (estimated)
-  const portfolioDays = Math.round((new Date()-new Date('2023-01-15'))/86400000);
+  const xDates = (D.holdings||[]).map(h=>h.holdingSince).filter(Boolean).map(d=>new Date(d)).filter(d=>!isNaN(d));
+  const xStart = xDates.length ? new Date(Math.min(...xDates)) : new Date();
+  const portfolioDays = Math.round((new Date()-xStart)/86400000);
   const estimatedXirr = (Math.pow(1+overallPct/100, 365/portfolioDays)-1)*100;
-  const indiaXirrEst = 18.74;
+  const indiaXirrEst = D.indiaXirr || 0;
 
   document.getElementById('xirrGrid').innerHTML = `
     <div class="acard"><div class="alabel">Est. Portfolio CAGR</div><div class="aval" style="color:${pnlColor(estimatedXirr)}">${fmtPct(estimatedXirr)}</div><div class="asub">Since Jan 2023</div></div>
-    <div class="acard"><div class="alabel">India XIRR (Zerodha)</div><div class="aval" style="color:var(--india)">+18.74%</div><div class="asub">Pre-tax INR</div></div>
-    <div class="acard"><div class="alabel">India USD-Adj</div><div class="aval" style="color:var(--orange)">~+15.2%</div><div class="asub">After ~3.5% INR drag/yr</div></div>
+    <div class="acard"><div class="alabel">India XIRR (Zerodha)</div><div class="aval" style="color:var(--india)">${indiaXirrEst > 0 ? '+' + indiaXirrEst.toFixed(2) + '%' : '—'}</div><div class="asub">Pre-tax INR</div></div>
+    <div class="acard"><div class="alabel">India USD-Adj</div><div class="aval" style="color:var(--orange)">${indiaXirrEst > 0 ? '~+' + Math.max(0, indiaXirrEst - 3.5).toFixed(1) + '%' : '—'}</div><div class="asub">After ~3.5% INR drag/yr</div></div>
     <div class="acard"><div class="alabel">US Platform</div><div class="aval" style="color:${pnlColor(overallPct)}">${fmtPct(overallPct)}</div><div class="asub">Wio USD total</div></div>
-    <div class="acard"><div class="alabel">18% CAGR Target</div><div class="aval" style="color:var(--gold)">+18.0%</div><div class="asub">Annual benchmark</div></div>`;
+    <div class="acard"><div class="alabel">${(goalCagr*100).toFixed(0)}% CAGR Target</div><div class="aval" style="color:var(--gold)">+${(goalCagr*100).toFixed(1)}%</div><div class="asub">Annual benchmark</div></div>`;
   document.getElementById('xirrNote').innerHTML = `<strong>Note:</strong> XIRR requires actual cash-flow dates — computed precisely in the Google Sheets Transactions tab. Values shown are TWR estimates. India XIRR 18.74% pre-tax per workbook. INR drag ~3.5%/yr reduces USD-adj to ~15.2%. Harvestable India losses: ₹1,81,499 → tax saving ₹22,677.`;
 
   // P&L breakdown
