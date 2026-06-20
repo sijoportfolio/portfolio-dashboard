@@ -35,7 +35,7 @@ const MANIFEST = {
   name: "Portfolio Intelligence — Sijo Tom",
   short_name: "Portfolio",
   description: "Personal investment portfolio dashboard — Sijo Tom",
-  start_url: "./",
+  start_url: "/portfolio-dashboard/",
   display: "standalone",
   background_color: "#06070a",
   theme_color: "#06070a",
@@ -55,7 +55,7 @@ document.write('<link rel="manifest" href="' + manifestURL + '">');
      so users see the update notification banner.
 ═══════════════════════════════════════════════ -->
 <script>
-const DASHBOARD_VERSION = '3.5.0';
+const DASHBOARD_VERSION = '3.7.0';
 const DASHBOARD_DATE    = '2026-06-18';
 </script>
 
@@ -530,7 +530,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="sh">
     <div class="stripe" style="background:var(--gold)"></div>
     <div class="sname">Position Health — Live</div>
-    <div class="sr" id="l2SubTitle">vs CAGR target · analyst targets from Transactions</div>
+    <div class="sr" id="l2SubTitle">vs CAGR target · Last review: <span id="lastReviewDate">—</span></div>
   </div>
   <div id="healthLiveGrid" class="hb-grid"></div>
 </div>
@@ -675,15 +675,50 @@ async function fetchFromAppsScript() {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
     throw new Error('APPS_SCRIPT_URL not configured — see setup instructions below');
   }
-  const r = await fetch(APPS_SCRIPT_URL, {
-    method: 'GET',
-    cache: 'no-store',
-    redirect: 'follow',
+
+  // Strategy 1: Direct fetch (works if CORS headers present)
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'GET',
+      cache: 'no-store',
+      redirect: 'follow',
+      mode: 'cors',
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    if (data.error) throw new Error(data.message || 'Apps Script error');
+    console.log('✅ Direct fetch succeeded');
+    return data;
+  } catch(e1) {
+    console.warn('⚠ Direct fetch failed:', e1.message, '— trying JSONP...');
+  }
+
+  // Strategy 2: JSONP (bypasses CORS entirely — works from any origin)
+  return new Promise((resolve, reject) => {
+    const cbName = 'portfolioCb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      reject(new Error('JSONP timeout — Apps Script not responding'));
+    }, 15000);
+
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      document.body.removeChild(script);
+      if (data.error) reject(new Error(data.message || 'Apps Script error'));
+      else { console.log('✅ JSONP fetch succeeded'); resolve(data); }
+    };
+
+    script.src = APPS_SCRIPT_URL + '?callback=' + cbName;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      reject(new Error('JSONP script load failed'));
+    };
+    document.body.appendChild(script);
   });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const data = await r.json();
-  if (data.error) throw new Error(data.message || 'Apps Script error');
-  return data;
 }
 
 async function loadFromSheets() {
@@ -866,7 +901,7 @@ function renderAll() {
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('mastheadSub').textContent = `Sijo Tom · Global Consolidated · USD Base · ${dateStr}`;
-  document.getElementById('lastReviewDate').textContent = D.lastReview||'—';
+  const lrEl = document.getElementById('lastReviewDate'); if(lrEl) lrEl.textContent = D.lastReview||'—';
 
   // METRICS
   const pnlPct = D.totalCost>0 ? D.pnl/D.totalCost*100 : 0;  // pnlPct = overall portfolio
@@ -1364,44 +1399,8 @@ function buildHealthLive() {
 // Fetches from Watchlist sheet — shows research cards + buy zone alerts
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadWatchlist() {
-  try {
-    const rows = await fetchSheet(SHEETS.watchlist);
-    // Find header row (row with "Ticker")
-    let headerIdx = -1;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i][1] && rows[i][1].toLowerCase() === 'ticker') { headerIdx = i; break; }
-    }
-    if (headerIdx < 0) { WATCHLIST = []; return; }
-
-    WATCHLIST = [];
-    for (let i = headerIdx + 1; i < rows.length; i++) {
-      const r = rows[i];
-      if (!r[1] || r[1].trim() === '') continue; // skip empty rows
-      WATCHLIST.push({
-        date:      r[0] || '',
-        ticker:    r[1] || '',
-        company:   r[2] || r[1],
-        entryLow:  num(r[3]),
-        entryHigh: num(r[4]),
-        qty:       num(r[5]),
-        currency:  r[6] || 'USD',
-        platform:  r[7] || '',
-        notes:     r[8] || '',
-        analystTarget: num(r[9]),
-        livePrice: num(r[10]),
-        upsidePct: num(r[11]),
-        sector:    r[12] || '',
-        region:    r[13] || '',
-        inBuyZone: r[14] || '',   // col O — formula result
-        pctFromLow: num(r[15]),   // col P
-        w52Low:    num(r[16]),    // col Q
-        w52High:   num(r[17]),    // col R
-      });
-    }
-  } catch(e) {
-    console.warn('Watchlist fetch failed:', e.message);
-    WATCHLIST = [];
-  }
+  // Watchlist loaded via Apps Script in loadFromSheets — no-op here
+  return;
 }
 
 function buildWatchlist() {
