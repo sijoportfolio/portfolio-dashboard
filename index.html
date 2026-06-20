@@ -34,7 +34,7 @@
 const MANIFEST = {
   name: "Portfolio Intelligence — Sijo Tom",
   short_name: "Portfolio",
-  description: "Personal investment dashboard — $1M mission at 18% CAGR",
+  description: "Personal investment portfolio dashboard — Sijo Tom",
   start_url: "./",
   display: "standalone",
   background_color: "#06070a",
@@ -55,7 +55,7 @@ document.write('<link rel="manifest" href="' + manifestURL + '">');
      so users see the update notification banner.
 ═══════════════════════════════════════════════ -->
 <script>
-const DASHBOARD_VERSION = '3.0.0';
+const DASHBOARD_VERSION = '3.5.0';
 const DASHBOARD_DATE    = '2026-06-18';
 </script>
 
@@ -330,6 +330,19 @@ tbody tr:last-child td{border-bottom:none}
   <div class="spinner"></div>
   <span>Loading live data from Google Sheets (Portfolio_Sijo_Tom_v5)…</span>
 </div>
+<div id="setupBanner" style="display:none;background:linear-gradient(135deg,#0a0d14,#0f1118);border:1px solid var(--gold-dim);border-radius:8px;padding:14px 18px;margin-bottom:14px;font-size:8.5px;color:var(--muted2);line-height:2">
+  <div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:8px">⚙ One-time setup required — connect Google Sheets</div>
+  <strong style="color:var(--gold)">Step 1</strong> — Open your Google Sheet → Extensions → Apps Script → paste <code>portfolio_api.gs</code><br>
+  <strong style="color:var(--gold)">Step 2</strong> — Deploy → New deployment → Web app → Execute as: Me → Access: Anyone → Deploy<br>
+  <strong style="color:var(--gold)">Step 3</strong> — Copy the Web App URL → paste it in <code>index.html</code> as <code>APPS_SCRIPT_URL</code> → commit to GitHub<br>
+  <strong style="color:var(--gold)">Step 4</strong> — Run <code>setupTrigger()</code> once in Apps Script to start 30-min auto-refresh<br><br>
+  <span style="color:var(--muted)">Until then the dashboard shows snapshot data from Jun 2026.</span>
+  <button onclick="document.getElementById('setupBanner').style.display='none'" 
+    style="float:right;background:none;border:1px solid var(--gold-dim);border-radius:4px;padding:2px 10px;color:var(--gold);cursor:pointer;font-size:8px;font-family:inherit">
+    Dismiss
+  </button>
+</div>
+
 <div id="errorBanner"></div>
 
 <div class="nav-tabs">
@@ -358,7 +371,7 @@ tbody tr:last-child td{border-bottom:none}
 <!-- RINGS SECTION -->
 <div class="rings-section">
   <div class="main-ring-row">
-    <!-- MAIN $1M RING -->
+    <!-- MAIN GOAL RING -->
     <div class="ring-wrap">
       <svg class="ring-svg" width="220" height="220" viewBox="0 0 220 220">
         <defs>
@@ -491,7 +504,7 @@ tbody tr:last-child td{border-bottom:none}
 <div id="panel-charges" class="apanel">
   <div class="ptitle">Broker Fee Summary</div>
   <div class="ag" id="feesGrid"></div>
-  <div class="pnote">Wio USD: 0.2%+VAT capped $5.1975 buy/sell · Wio Commodity: 0.15%+VAT min $1.05 · Wio AED Crypto: 0.525% no cap · Zerodha: Zero delivery, 0.1% STT sell-side</div>
+  <div class="pnote">Wio USD: 0.2%+VAT capped $5.1975 buy/sell · Wio Commodity: 0.15%+VAT min $1.05 · Wio AED Crypto: 0.525% no cap · India Equities (Zerodha): Zero delivery brokerage, 0.1% STT sell-side</div>
 </div>
 
 <!-- HOLDINGS SECTIONS -->
@@ -563,12 +576,13 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4LPTab9bIOcrB
 // Contains the live snapshot from Portfolio_Sijo_Tom_v5.xlsx
 // ─────────────────────────────────────────────────────────────────────────────
 const FALLBACK = {
-  totalVal:0, totalCost:0, pnl:0,
-  usVal:0, uaeVal:0, indiaVal:0, cryptoVal:0,
-  usdInr:95, usdAed:3.67,
+  // Snapshot — Jun 2026. Shown until Apps Script is connected.
+  totalVal:85202, totalCost:86610, pnl:-1408,
+  usVal:54347, uaeVal:7139, indiaVal:17468, cryptoVal:6248,
+  usdInr:94.45, usdAed:3.6725,
   goalTarget:1000000, goalCagr:0.18, monthlyTarget:3000, sp500Cagr:0.105,
-  progress:0, etaYear:2036, indiaXirr:0,
-  lastReview:'—',
+  progress:0.0852, etaYear:2033, indiaXirr:18.74,
+  lastReview:'16 Jun 2026',
   holdings: [
     // US positions
     {ticker:'NVDA',name:'NVIDIA Corporation',platform:'Wio USD',assetType:'Equity',sector:'AI/Semiconductor',region:'US',qty:34,avgCostUsd:211.30,ltpUsd:207.41,valueUsd:7051.94,pnlUsd:-132.29,pnlPct:-0.0184,holdingSince:'2026-05-18',daysHeld:30,analysisPct:-0.204,isHedge:false,notes:'13 pending at $208',action:'Hold+Add',ac:'b-add',cc:'hc-blue'},
@@ -600,8 +614,8 @@ const FALLBACK = {
     {ticker:'NIVABUPA',name:'Niva Bupa Health',platform:'Zerodha',assetType:'Equity',sector:'Health Insurance',region:'India',qty:1150,avgCostUsd:0.884,ltpUsd:0.898,valueUsd:1033.23,pnlUsd:16.39,pnlPct:0.0161,holdingSince:'2024-11-01',daysHeld:593,analysisPct:null,isHedge:false,notes:'Near breakeven · 593d LTCG',action:'Hold',ac:'b-hold',cc:'hc-green'},
     {ticker:'HDFCBANK',name:'HDFC Bank',platform:'Zerodha',assetType:'Equity',sector:'Banking',region:'India',qty:256,avgCostUsd:8.22,ltpUsd:8.36,valueUsd:2139.74,pnlUsd:35.29,pnlPct:0.0168,holdingSince:'2026-06-16',daysHeld:1,analysisPct:0.393,isHedge:false,notes:'New · STCG (< 1yr) · PT ₹1,100',action:'Hold — STCG',ac:'b-hold',cc:'hc-blue'},
   ],
-  taxData: { totalPnlInr:0, taxLiabilityInr:0, harvestSavingInr:0 },
-  concentration: { us:0, india:0, uae:0, latam:0, global:0 },
+  taxData: { totalPnlInr:-111592, taxLiabilityInr:8456, harvestSavingInr:22677 },
+  concentration: { us:0.638, india:0.205, uae:0.084, latam:0.000, global:0.073 },
   milestones: [
     {label:'🌱 Seed',target:25000,status:'✅ Done'},
     {label:'🌿 Growing',target:50000,status:'✅ Done'},
@@ -658,7 +672,7 @@ function num(v) {
 // ═══════════════════════════════════════════════════════════════════════
 
 async function fetchFromAppsScript() {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx4LPTab9bIOcrBmmqm_JYIwDryh4lRxZyrAcJaOL1O9NllWk6UYdd_u759Ecoa6l6x/exec') {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
     throw new Error('APPS_SCRIPT_URL not configured — see setup instructions below');
   }
   const r = await fetch(APPS_SCRIPT_URL, {
@@ -709,14 +723,14 @@ async function loadFromSheets() {
     progress:      totals.progress        || 0,
     etaYear,
     lastReview:    settings.lastReview    || '—',
-    indiaXirr:     tax.indiaXirr          || 0,
+    indiaXirr:     tax.indiaXirr ? (tax.indiaXirr > 1 ? tax.indiaXirr : tax.indiaXirr * 100) : 0,
     holdings,
     taxData: {
       totalPnlInr:     tax.totalPnlInr     || 0,
       taxLiabilityInr: tax.taxLiabilityInr || 0,
       harvestSavingInr:tax.harvestSavingInr|| 0,
     },
-    refreshedAt: data.meta?.refreshedAt || '—',
+    refreshedAt: (data.meta && data.meta.refreshedAt) || '—',
     fromSheets: true,
   };
 }
@@ -746,24 +760,30 @@ async function init() {
     document.getElementById('loadingBanner').classList.add('hidden');
     const eb = document.getElementById('errorBanner');
     eb.style.display='block';
-    const is403 = e.message.includes('APPS_SCRIPT_URL not configured');
-    eb.innerHTML = is403 ? `
-      <strong>⚠ Apps Script Web App URL not configured yet</strong><br><br>
-      <strong>Setup steps:</strong><br>
-      1. Open your Google Sheet → Extensions → Apps Script<br>
-      2. Paste the <code>portfolio_api.gs</code> code<br>
-      3. Click <strong>Deploy → New deployment → Web app</strong><br>
-      4. Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong><br>
-      5. Click Deploy → copy the Web App URL<br>
-      6. In <code>index.html</code> replace <code>https://script.google.com/macros/s/AKfycbx4LPTab9bIOcrBmmqm_JYIwDryh4lRxZyrAcJaOL1O9NllWk6UYdd_u759Ecoa6l6x/exec</code> with that URL<br>
-      7. Commit to GitHub<br><br>
-      <span style="color:var(--muted)">Error: ${e.message}</span>
-    ` : `
-      <strong>⚠ Could not load live data</strong> — ${e.message}<br><br>
-      Check: Apps Script deployed as Web App with access set to Anyone
-    `;
-    document.getElementById('lastUpdated').textContent = `⚠ 403 Forbidden — Google Sheets not public. See instructions above.`;
-    document.getElementById('livePillText').textContent = `Sheet Error`;
+    const notConfigured = e.message.includes('APPS_SCRIPT_URL not configured');
+    const urlIssue = e.message.includes('Failed to fetch') || e.message.includes('NetworkError') || e.message.includes('CORS');
+    let errHTML = '';
+    if (notConfigured) {
+      errHTML = `<strong>⚠ One-time setup needed — Apps Script Web App not configured</strong><br><br>
+        1. Open Google Sheet → <strong>Extensions → Apps Script</strong><br>
+        2. Paste <code>portfolio_api.gs</code> → Save<br>
+        3. <strong>Deploy → New deployment → Web app</strong><br>
+        4. Execute as: <strong>Me</strong> · Access: <strong>Anyone</strong><br>
+        5. Copy the URL → paste into <code>index.html</code> replacing <code>PASTE_YOUR_WEB_APP_URL_HERE</code><br>
+        6. Commit to GitHub · Done!<br><br>
+        <em style="color:var(--muted)">Showing Jun 2026 snapshot data until setup is complete.</em>`;
+    } else if (urlIssue) {
+      errHTML = `<strong>⚠ Apps Script URL unreachable</strong> — ${e.message}<br><br>
+        Check: <strong>Deploy → Manage deployments</strong> → confirm Web App is active and access is set to <strong>Anyone</strong><br>
+        Also check: did you authorize the script when prompted?<br><br>
+        <em style="color:var(--muted)">Showing Jun 2026 snapshot data.</em>`;
+    } else {
+      errHTML = `<strong>⚠ Live data unavailable</strong> — ${e.message}<br>
+        <em style="color:var(--muted)">Showing Jun 2026 snapshot data.</em>`;
+    }
+    eb.innerHTML = errHTML;
+    document.getElementById('lastUpdated').textContent = `📋 Snapshot Jun 2026 — ${e.message.slice(0,60)}`;
+    document.getElementById('livePillText').textContent = `Snapshot`;
   }
   renderAll();
 }
@@ -831,6 +851,18 @@ function spReturn(isoDate, days){
 // ─────────────────────────────────────────────────────────────────────────────
 function renderAll() {
   const D = LIVE;
+  // If live totals are zero but holdings exist, derive totals from holdings
+  if (D.totalVal === 0 && D.holdings && D.holdings.length > 0) {
+    const hs = D.holdings;
+    D.usVal     = hs.filter(h=>h.platform==='Wio USD').reduce((s,h)=>s+h.valueUsd,0);
+    D.uaeVal    = hs.filter(h=>h.platform==='Wio AED'&&h.assetType!=='Crypto').reduce((s,h)=>s+h.valueUsd,0);
+    D.cryptoVal = hs.filter(h=>h.assetType==='Crypto').reduce((s,h)=>s+h.valueUsd,0);
+    D.indiaVal  = hs.filter(h=>h.platform==='Zerodha').reduce((s,h)=>s+h.valueUsd,0);
+    D.totalVal  = D.usVal+D.uaeVal+D.cryptoVal+D.indiaVal;
+    D.totalCost = hs.reduce((s,h)=>s+(h.totalCostUsd||h.avgCostUsd*h.qty||0),0);
+    D.pnl       = hs.reduce((s,h)=>s+h.pnlUsd,0);
+    D.progress  = D.totalVal/(D.goalTarget||1000000);
+  }
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('mastheadSub').textContent = `Sijo Tom · Global Consolidated · USD Base · ${dateStr}`;
@@ -858,7 +890,7 @@ function renderAll() {
   const pct = D.totalVal / gTarget;
   const circ = 578.1;
   const mainFill = Math.min(pct, 1) * circ;
-  // Pro-rata CAGR arc: how far along 18% annual should we be from portfolio start
+  // Pro-rata CAGR arc: how far along target CAGR annual should we be from portfolio start
   const allDates = (D.holdings||[]).map(h=>h.holdingSince).filter(Boolean).map(d=>new Date(d)).filter(d=>!isNaN(d));
   const portfolioStart = allDates.length ? new Date(Math.min(...allDates)) : new Date();
   const portfolioStartDays = Math.round((new Date()-portfolioStart)/86400000);
@@ -908,7 +940,7 @@ function renderAll() {
   document.getElementById('bm-target').textContent = '+' + (gCagr*100).toFixed(1) + '%';
   const overallPnlPct = D.totalCost>0 ? D.pnl/D.totalCost*100 : 0;
   document.getElementById('bm-port').innerHTML = `<span style="color:${pnlColor(overallPnlPct)}">${fmtPct(overallPnlPct)}</span>`;
-  document.getElementById('bm-port-fill').style.width = Math.min(Math.abs(overallPnlPct)/18*100,100)+'%';
+  document.getElementById('bm-port-fill').style.width = Math.min(Math.abs(overallPnlPct)/((LIVE&&LIVE.goalCagr||0.18)*100)*100,100)+'%';
   document.getElementById('bm-port-fill').style.background = overallPnlPct>=0?'var(--green)':'var(--red)';
 
   // Calc platform P&L %
@@ -924,13 +956,13 @@ function renderAll() {
   const indiaPnlPct = indiaCost>0 ? indiaPnlAmt/indiaCost*100 : 0;
 
   document.getElementById('bm-us').innerHTML = `<span style="color:${pnlColor(usPnlPct)}">${fmtPct(usPnlPct)}</span>`;
-  document.getElementById('bm-us-fill').style.width = Math.min(Math.abs(usPnlPct)/18*100,100)+'%';
+  document.getElementById('bm-us-fill').style.width = Math.min(Math.abs(usPnlPct)/((LIVE&&LIVE.goalCagr||0.18)*100)*100,100)+'%';
   document.getElementById('bm-us-fill').style.background = usPnlPct>=0?'var(--green)':'var(--red)';
   document.getElementById('bm-uae').innerHTML = `<span style="color:${pnlColor(uaePnlPct)}">${fmtPct(uaePnlPct)}</span>`;
-  document.getElementById('bm-uae-fill').style.width = Math.min(Math.abs(uaePnlPct)/18*100,100)+'%';
+  document.getElementById('bm-uae-fill').style.width = Math.min(Math.abs(uaePnlPct)/((LIVE&&LIVE.goalCagr||0.18)*100)*100,100)+'%';
   document.getElementById('bm-uae-fill').style.background = uaePnlPct>=0?'var(--green)':'var(--red)';
   document.getElementById('bm-india').innerHTML = `<span style="color:${pnlColor(indiaPnlPct)}">${fmtPct(indiaPnlPct)}</span>`;
-  document.getElementById('bm-india-fill').style.width = Math.min(Math.abs(indiaPnlPct)/18*100,100)+'%';
+  document.getElementById('bm-india-fill').style.width = Math.min(Math.abs(indiaPnlPct)/((LIVE&&LIVE.goalCagr||0.18)*100)*100,100)+'%';
   document.getElementById('bm-india-fill').style.background = indiaPnlPct>=0?'var(--green)':'var(--red)';
 
   buildPositionRings();
@@ -1040,7 +1072,7 @@ function buildPositionRings(){
         <div class="pr-stat"><div class="pr-stat-label">Target</div><div class="pr-stat-val" style="color:var(--gold)">${prTarget.toFixed(1)}%</div></div>
         <div class="pr-stat"><div class="pr-stat-label">Actual</div><div class="pr-stat-val" style="color:${actualRet>=0?'var(--green)':'var(--red)'}">${actualRet>=0?'+':''}${actualRet.toFixed(1)}%</div></div>
       </div>
-      <div class="pr-period-badge">${isHedge?'Hedge — diff benchmark':'Pro-rata 18% target: '+prTarget.toFixed(1)+'%'}</div>
+      <div class="pr-period-badge">${isHedge?'Hedge — diff benchmark':`Pro-rata ${((LIVE&&LIVE.goalCagr||0.18)*100).toFixed(0)}% target: ${prTarget.toFixed(1)}%`}</div>
     </div>`;
 
     setTimeout(()=>{
@@ -1076,7 +1108,7 @@ function buildAnalyticsPanels(){
 
   document.getElementById('xirrGrid').innerHTML = `
     <div class="acard"><div class="alabel">Est. Portfolio CAGR</div><div class="aval" style="color:${pnlColor(estimatedXirr)}">${fmtPct(estimatedXirr)}</div><div class="asub" id="xirrStartDate">Since —</div></div>
-    <div class="acard"><div class="alabel">India XIRR (Zerodha)</div><div class="aval" style="color:var(--india)">${indiaXirrEst > 0 ? '+' + indiaXirrEst.toFixed(2) + '%' : '—'}</div><div class="asub">Pre-tax INR</div></div>
+    <div class="acard"><div class="alabel">India XIRR (Zerodha INR)</div><div class="aval" style="color:var(--india)">${indiaXirrEst > 0 ? '+' + indiaXirrEst.toFixed(2) + '%' : '—'}</div><div class="asub">Pre-tax INR</div></div>
     <div class="acard"><div class="alabel">India USD-Adj</div><div class="aval" style="color:var(--orange)">${indiaXirrEst > 0 ? '~+' + Math.max(0, indiaXirrEst - 3.5).toFixed(1) + '%' : '—'}</div><div class="asub">After ~3.5% INR drag/yr</div></div>
     <div class="acard"><div class="alabel">US Platform</div><div class="aval" style="color:${pnlColor(overallPct)}">${fmtPct(overallPct)}</div><div class="asub">Wio USD total</div></div>
     <div class="acard"><div class="alabel">${(goalCagr*100).toFixed(0)}% CAGR Target</div><div class="aval" style="color:var(--gold)">+${(goalCagr*100).toFixed(1)}%</div><div class="asub">Annual benchmark</div></div>`;
@@ -1094,7 +1126,7 @@ function buildAnalyticsPanels(){
     <div class="acard"><div class="alabel">Total P&amp;L</div><div class="aval" style="color:${pnlColor(overallPnl)}">${fmt$(overallPnl,0)}</div><div class="asub">${fmtPct(overallPct)} overall</div></div>
     <div class="acard"><div class="alabel">🇺🇸 US Equities</div><div class="aval" style="color:${pnlColor(usP)}">${fmt$(usP,0)}</div><div class="asub">${usH.length} positions</div></div>
     <div class="acard"><div class="alabel">🇦🇪 UAE Equities</div><div class="aval" style="color:${pnlColor(uaeP)}">${fmt$(uaeP,0)}</div><div class="asub">${uaeH.length} positions</div></div>
-    <div class="acard"><div class="alabel">🇮🇳 Zerodha</div><div class="aval" style="color:${pnlColor(indiaP)}">${fmt$(indiaP,0)}</div><div class="asub">${indiaH.length} positions</div></div>`;
+    <div class="acard"><div class="alabel">🇮🇳 India Equities</div><div class="aval" style="color:${pnlColor(indiaP)}">${fmt$(indiaP,0)}</div><div class="asub">${indiaH.length} positions</div></div>`;
 
   // TAX
   const tax = D.taxData||FALLBACK.taxData;
@@ -1125,7 +1157,7 @@ function buildHoldingsSections(){
   document.getElementById('us-sr').textContent = `${usd.length} positions · ${fmt$(usd.reduce((s,h)=>s+h.valueUsd,0))}`;
   document.getElementById('uae-sr').textContent = `${uae.length} positions`;
   document.getElementById('crypto-sr').textContent = `${crypto.length} assets`;
-  document.getElementById('india-sr').textContent = `${india.length} positions · Zerodha`;
+  document.getElementById('india-sr').textContent = `${india.length} positions`;
 
   const cagr4Holdings = (LIVE&&LIVE.goalCagr)||0.18;
   buildHoldings('us-holdings',     usd,    cagr4Holdings);
@@ -1178,11 +1210,11 @@ function buildHoldings(id, data, gCagrLocal){
 
     let graphHtml;
     if(isHedge){
-      graphHtml=`<div class="goal-graph"><div class="gg-label"><span>Hedge — not benchmarked vs 18% CAGR</span><span style="color:var(--teal)">Serves USD debasement role</span></div><div class="gg-track" style="background:#0a1a1a"><div style="position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;font-size:7px;color:var(--teal)">Gold/Silver macro hedge — different benchmark</div></div></div>`;
+      graphHtml=`<div class="goal-graph"><div class="gg-label"><span>Hedge — macro hedge · different benchmark</span><span style="color:var(--teal)">Serves USD debasement role</span></div><div class="gg-track" style="background:#0a1a1a"><div style="position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;font-size:7px;color:var(--teal)">Gold/Silver macro hedge — different benchmark</div></div></div>`;
     } else {
       const statusTxt=vs>=0?`+${vs.toFixed(1)}% ahead of pro-rata target`:actualPct>=0?`${vs.toFixed(1)}% below ${prTarget.toFixed(1)}% target`:`${actualPct.toFixed(1)}% — behind (target: ${prTarget.toFixed(1)}%)`;
       graphHtml=`<div class="goal-graph">
-        <div class="gg-label"><span>Return vs pro-rata 18% (${Math.round(days)}d)</span><span style="color:${barColor}">${statusTxt}${inrNote}</span></div>
+        <div class="gg-label"><span>Return vs pro-rata ${(gCagrLocal*100).toFixed(0)}% (${Math.round(days)}d)</span><span style="color:${barColor}">${statusTxt}${inrNote}</span></div>
         <div class="gg-track">
           ${actualPct>=0?`<div class="gg-actual" style="width:${Math.min(actualPct/maxVal*100,100)}%;background:${barColor}22;border-right:2px solid ${barColor}"><span class="gg-actual-label" style="color:${barColor}">${actualPct>=0?'+':''}${actualPct.toFixed(1)}%</span></div>`
           :`<div style="position:absolute;top:0;right:0;bottom:0;width:${Math.min(Math.abs(actualPct)/maxVal*100,50)}%;background:#e0555520;border-left:2px solid var(--red);display:flex;align-items:center;padding-left:3px"><span style="font-size:7px;color:var(--red)">${actualPct.toFixed(1)}%</span></div>`}
@@ -1190,7 +1222,7 @@ function buildHoldings(id, data, gCagrLocal){
           <div class="gg-sp500-line" style="left:${Math.min(bmPct,95)}%"></div>
         </div>
         <div class="gg-bm-labels">
-          <span style="color:var(--gold)">▪ Pro-rata 18% = ${prTarget.toFixed(1)}%</span>
+          <span style="color:var(--gold)">▪ Pro-rata ${(gCagrLocal*100).toFixed(0)}% = ${prTarget.toFixed(1)}%</span>
           <span style="color:var(--blue)">▪ ${bmLabel}: ${bmRet>=0?'+':''}${bmRet.toFixed(1)}% same period</span>
           ${isIndia?`<span style="color:var(--orange)">▪ INR drag ~${(3.5*days/365).toFixed(1)}%</span>`:''}
         </div>
@@ -1315,7 +1347,7 @@ function buildHealthLive() {
       <div class="hb-body">
         <div class="hb-dims">${dimBars}</div>
         <div class="hb-note">
-          <strong>Pro-rata 18% target (${Math.round(days)}d):</strong> ${prTarget.toFixed(1)}% · 
+          <strong>Pro-rata ${((LIVE&&LIVE.goalCagr||0.18)*100).toFixed(0)}% target (${Math.round(days)}d):</strong> ${prTarget.toFixed(1)}% · 
           <strong>Actual:</strong> <span style="color:${actualPct >= 0 ? 'var(--green)' : 'var(--red)'}">${(actualPct >= 0 ? '+' : '') + actualPct.toFixed(1)}%</span> · 
           <strong>vs target:</strong> <span style="color:${vs >= 0 ? 'var(--green)' : 'var(--red)'}">${(vs >= 0 ? '+' : '') + vs.toFixed(1)}%</span><br>
           <strong>Analyst target upside:</strong> <span style="color:${targetColor}">${targetUpside}</span> · 
