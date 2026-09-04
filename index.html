@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portfolio Dashboard</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sijo Portfolio">
+<meta name="theme-color" content="#0B1F3A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -67,11 +72,11 @@
   .track-fill{position:absolute;top:0;left:0;height:6px;border-radius:3px;background:linear-gradient(90deg, var(--blue), #7BB3F5);}
   .milestone{position:absolute;top:12px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:2px solid var(--border);transform:translateX(-50%);}
   .milestone.passed{border-color:var(--gold);background:var(--gold);}
-  .milestone-flagpole{position:absolute;top:-6px;width:1px;height:18px;background:var(--border);transform:translateX(-50%);}
-  .milestone-flagpole.passed{background:var(--gold-dim);}
-  .milestone-flag{position:absolute;top:-6px;width:7px;height:6px;transform:translateX(1px);
-    background:repeating-conic-gradient(var(--text-faint) 0 25%, var(--bg) 0 50%) 0 0/4px 4px;clip-path:polygon(0 0,100% 20%,0 40%);}
-  .milestone-flag.passed{background:repeating-conic-gradient(var(--gold-bright) 0 25%, var(--bg) 0 50%) 0 0/4px 4px;}
+  .milestone-flagpole{position:absolute;top:-8px;width:1.5px;height:20px;background:var(--border);transform:translateX(-50%);}
+  .milestone-flagpole.passed{background:var(--text-dim);}
+  .milestone-flag{position:absolute;top:-8px;width:11px;height:8px;transform:translateX(1px);
+    clip-path:polygon(0 0,100% 25%,0 50%);opacity:.4;}
+  .milestone-flag.passed{opacity:1;box-shadow:0 0 4px currentColor;}
   .milestone-label{position:absolute;top:24px;font-size:8px;color:var(--text-faint);transform:translateX(-50%);white-space:nowrap;}
   .runner-marker{position:absolute;top:-9px;width:22px;height:22px;border-radius:50%;background:var(--blue);border:3px solid var(--bg);
     box-shadow:0 0 0 2px var(--blue),0 0 10px rgba(79,143,232,.5);transform:translateX(-50%);display:flex;align-items:center;justify-content:center;}
@@ -134,7 +139,7 @@
   .region-svg path{cursor:pointer;transition:opacity .15s ease, transform .15s ease;transform-origin:center;}
   .region-svg path.dim{opacity:.22;}
   .region-svg path.selected{transform:scale(1.04);stroke:var(--text);stroke-width:1.5;}
-  .rl-row.selected .rl-val{font-weight:700;color:var(--text);}
+  .rl-row.selected .rl-val{font-weight:800;font-size:11.5px;color:var(--gold-bright);}
   .region-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
   .region-center .v{font-family:var(--serif);font-size:14px;font-weight:600;}
   .region-center .k{font-size:7.5px;color:var(--text-faint);}
@@ -152,7 +157,7 @@
   .donut-svg path{cursor:pointer;transition:opacity .15s ease, transform .15s ease;transform-origin:center;}
   .donut-svg path.dim{opacity:.22;}
   .donut-svg path.selected{transform:scale(1.045);stroke:var(--text);stroke-width:1.5;}
-  .legend-row.selected .legend-val{font-weight:700;color:var(--text);}
+  .legend-row.selected .legend-val{font-weight:800;font-size:10.5px;color:var(--gold-bright);}
   .donut-center{position:relative;}
   .donut-center-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
   .donut-center-label .v{font-family:var(--serif);font-size:11px;font-weight:600;}
@@ -197,8 +202,7 @@
   .panel{border-top:1px solid var(--border-soft);padding:12px 14px;display:none;background:var(--surface-2);}
   .card.expanded .panel{display:block;}
   .meta-line{font-size:9.5px;font-family:var(--mono);color:var(--text-faint);margin-bottom:10px;line-height:1.6;}
-  .txn-history-toggle{font-size:9.5px;color:var(--blue);cursor:pointer;margin-top:8px;}
-  .txn-history-toggle:hover{text-decoration:underline;}
+  .txn-history-label{font-size:9.5px;color:var(--text-faint);margin-top:8px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
   .lot-row{display:grid;grid-template-columns:1.1fr .7fr .9fr .8fr 1fr;gap:6px;padding:5px 0;border-bottom:1px solid var(--border-soft);
     font-family:var(--mono);font-size:9.5px;align-items:center;}
   .lot-row:last-child{border-bottom:none;}
@@ -228,10 +232,117 @@
   .closed-section-body{display:none;padding-top:10px;}
   .closed-section-card.expanded .closed-section-body{display:block;}
   .hint{font-size:10px;color:var(--text-faint);margin-top:18px;line-height:1.6;}
+
+  /* ---- Add Transaction modal ---- */
+  .fab-stack{position:fixed;bottom:24px;right:20px;display:flex;flex-direction:column;align-items:center;gap:12px;z-index:800;}
+  .fab-sub{width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);
+    color:var(--gold-bright);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);opacity:0;transform:translateY(10px) scale(.7);
+    transition:opacity .18s ease, transform .18s ease;pointer-events:none;}
+  .fab-stack.expanded .fab-sub{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  .fab-main-wrap{position:relative;}
+  .fab-main{width:56px;height:56px;border-radius:50%;background:var(--gold);color:#08131F;border:none;
+    font-size:26px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4);
+    display:flex;align-items:center;justify-content:center;}
+  .fab-chevron{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:20px;height:20px;
+    border-radius:50%;background:var(--surface);border:1px solid var(--gold);color:var(--gold-bright);
+    font-size:9px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;
+    animation:chevron-hint 2.2s ease-in-out infinite;}
+  .fab-stack.expanded .fab-chevron{transform:translateX(-50%) rotate(180deg);animation:none;}
+  @keyframes chevron-hint{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-3px);}}
+
+  .tab-switcher{max-width:640px;margin:0 auto;padding:14px 16px 0;display:flex;gap:8px;}
+  .tab-btn{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--text-faint);background:none;
+    border:1px solid var(--border);border-radius:7px;padding:8px 14px;cursor:pointer;}
+  .tab-btn.active{color:var(--gold-bright);border-color:var(--gold);background:rgba(201,162,39,.08);}
+
+  .alert-banner{position:fixed;top:16px;left:16px;right:16px;max-width:390px;margin:0 auto;z-index:950;
+    background:var(--surface);border:1px solid var(--gold);border-radius:12px;padding:14px 16px;
+    box-shadow:0 8px 28px rgba(0,0,0,.5);display:flex;gap:12px;align-items:flex-start;
+    transform:translateY(-140%);opacity:0;transition:transform .3s cubic-bezier(.2,.9,.3,1.3), opacity .25s ease;
+    pointer-events:none;}
+  .alert-banner.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+  .alert-icon{width:32px;height:32px;border-radius:50%;background:rgba(201,162,39,.15);color:var(--gold-bright);
+    flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .alert-body{flex:1;min-width:0;}
+  .alert-title{font-size:11.5px;font-weight:600;color:var(--gold-bright);margin-bottom:2px;}
+  .alert-text{font-size:10.5px;color:var(--text-dim);line-height:1.5;}
+  .alert-close{background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;flex:none;}
+
+  .wl-row{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--surface);
+    border:1px solid var(--border-soft);border-radius:9px;margin-bottom:8px;}
+  .wl-left{flex:1;min-width:0;}
+  .wl-ticker{font-weight:600;font-size:13px;}
+  .wl-meta{font-size:9.5px;color:var(--text-faint);margin-top:2px;}
+  .wl-right{text-align:right;flex:none;}
+  .wl-current{font-size:12px;font-weight:600;}
+  .wl-distance{font-size:9.5px;margin-top:2px;}
+  .wl-distance.close{color:var(--gold-bright);}
+  .wl-distance.far{color:var(--text-faint);}
+  .wl-badge{font-size:8px;padding:2px 6px;border-radius:3px;margin-top:4px;display:inline-block;}
+  .wl-badge.active{background:rgba(79,143,232,.12);color:var(--blue);}
+  .wl-badge.triggered{background:rgba(53,196,140,.15);color:var(--green);}
+  .wl-dismiss{background:none;border:none;color:var(--text-faint);font-size:9px;cursor:pointer;margin-top:4px;text-decoration:underline;}
+  .wl-dir-toggle{display:flex;gap:8px;}
+  .wl-dir-btn{flex:1;font-family:var(--mono);font-size:10.5px;padding:9px;border-radius:7px;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--text-faint);cursor:pointer;}
+  .wl-dir-btn.selected{border-color:var(--gold);color:var(--gold-bright);background:rgba(201,162,39,.08);}
+  .is-family .wl-dismiss, .is-family #fab-stack .fab-sub{display:none !important;}
+  .txn-modal-overlay.show{display:flex;}
+  .txn-modal{background:var(--surface);border:1px solid var(--border-soft);border-radius:16px 16px 0 0;width:100%;max-width:480px;
+    max-height:88vh;overflow-y:auto;padding:20px 18px 24px;}
+  @media (min-width:520px){.txn-modal-overlay{align-items:center;} .txn-modal{border-radius:14px;max-height:80vh;}}
+  .txn-modal-title{font-family:var(--serif);font-size:17px;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;}
+  .txn-modal-close{background:none;border:none;color:var(--text-faint);font-size:20px;cursor:pointer;}
+  .txn-field{margin-bottom:12px;}
+  .txn-label{font-size:9.5px;color:var(--text-faint);letter-spacing:.05em;margin-bottom:4px;display:block;}
+  .txn-input, .txn-select{width:100%;font-family:var(--mono);font-size:12px;background:var(--surface-2);color:var(--text);
+    border:1px solid var(--border);border-radius:7px;padding:9px 10px;}
+  .txn-input:focus, .txn-select:focus{border-color:var(--blue);outline:none;}
+  .txn-asset-wrap{position:relative;}
+  .txn-preview{font-size:10.5px;color:var(--text-dim);background:var(--surface-2);border-radius:7px;padding:8px 10px;margin-bottom:12px;}
+  .txn-preview b{color:var(--gold-bright);}
+  .txn-warning{font-size:10.5px;color:var(--orange);background:rgba(226,136,61,.1);border:1px solid rgba(226,136,61,.3);
+    border-radius:7px;padding:8px 10px;margin-bottom:10px;line-height:1.5;}
+  .txn-error{font-size:10.5px;color:var(--red);background:rgba(226,89,106,.1);border:1px solid rgba(226,89,106,.3);
+    border-radius:7px;padding:8px 10px;margin-bottom:10px;}
+  .txn-confirm-row{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--text-dim);margin-bottom:12px;}
+  .txn-submit-btn{width:100%;font-family:var(--mono);font-size:12px;font-weight:600;color:#08131F;background:var(--gold);
+    border:none;border-radius:8px;padding:12px;cursor:pointer;}
+  .txn-submit-btn:disabled{opacity:.5;cursor:default;}
+  .txn-new-ticker-fields{border-top:1px solid var(--border-soft);margin-top:4px;padding-top:10px;}
+
+  /* ---- Access key gate ---- */
+  .lock-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;}
+  .lock-screen.show{display:flex;}
+  .lock-card{max-width:320px;width:100%;text-align:center;}
+  .lock-title{font-family:var(--serif);font-size:20px;margin-bottom:6px;}
+  .lock-sub{font-size:11px;color:var(--text-faint);margin-bottom:20px;line-height:1.6;}
+  .lock-input{width:100%;font-family:var(--mono);font-size:16px;text-align:center;letter-spacing:.1em;background:var(--surface);
+    color:var(--text);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;}
+  .lock-input:focus{border-color:var(--gold);outline:none;}
+  .lock-submit{width:100%;font-family:var(--mono);font-size:12px;font-weight:600;color:#08131F;background:var(--gold);
+    border:none;border-radius:8px;padding:13px;cursor:pointer;}
+  .lock-error{font-size:10.5px;color:var(--red);margin-top:10px;min-height:14px;}
+  .is-family #refresh-btn, .is-family #fab-stack, .is-family .price-edit-row{display:none !important;}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="lock-screen" id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-title">Sijo Portfolio</div>
+    <div class="lock-sub">Enter your access key to continue.</div>
+    <input type="password" class="lock-input" id="lock-key-input" placeholder="Access key" autocomplete="off"
+      onkeydown="if(event.key==='Enter') submitAccessKey()">
+    <button class="lock-submit" onclick="submitAccessKey()">Unlock</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+</div>
+<div class="tab-switcher" id="tab-switcher" style="display:none;">
+  <button class="tab-btn active" id="tab-btn-portfolio" onclick="switchTab('portfolio')">PORTFOLIO</button>
+  <button class="tab-btn" id="tab-btn-watchlist" onclick="switchTab('watchlist')">WATCHLIST</button>
+</div>
+<div class="wrap" id="main-wrap" style="display:none;">
   <p class="page-title">PORTFOLIO OVERVIEW</p>
   <div class="refresh-row">
     <p class="page-sub" id="asof-line">Loading...</p>
@@ -240,17 +351,69 @@
   <div id="app">
     <div class="loading"><div class="spinner"></div>Fetching live holdings...</div>
   </div>
+  <div id="watchlist-view" style="display:none;"></div>
+</div>
+<div class="fab-stack" id="fab-stack">
+  <div class="fab-sub" onclick="openWatchlistAddModal()" tabindex="0" title="Add to watchlist">👁</div>
+  <div class="fab-main-wrap">
+    <button class="fab-chevron" onclick="event.stopPropagation(); toggleFab();" title="More options">▲</button>
+    <button class="fab-main" onclick="openTxnModal()">+</button>
+  </div>
+</div>
+<div class="txn-modal-overlay" id="txn-modal-overlay" onclick="if(event.target===this) closeTxnModal()">
+  <div class="txn-modal">
+    <div class="txn-modal-title">Add Transaction<button class="txn-modal-close" onclick="closeTxnModal()">&times;</button></div>
+    <div id="txn-modal-body"></div>
+  </div>
+</div>
+<div class="txn-modal-overlay" id="wl-add-modal-overlay" onclick="if(event.target===this) closeWatchlistAddModal()">
+  <div class="txn-modal">
+    <div class="txn-modal-title">Add to Watchlist<button class="txn-modal-close" onclick="closeWatchlistAddModal()">&times;</button></div>
+    <div id="wl-add-modal-body"></div>
+  </div>
+</div>
+<div class="alert-banner" id="alert-banner">
+  <div class="alert-icon">🎯</div>
+  <div class="alert-body">
+    <div class="alert-title" id="alert-title">Watchlist target hit</div>
+    <div class="alert-text" id="alert-text"></div>
+  </div>
+  <button class="alert-close" onclick="hideAlertBanner()">&times;</button>
 </div>
 <script>
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxXmRugzGUz47znt34cT4CR13ZtwOau8ZhFe8YO9KT3ittvuuWFWlh-4sHgZbnDlpqRTw/exec';
 let HOLDINGS = [], ACCOUNTS = [], TARGETS = [], TRANSACTIONS = [], filterChain = [], valuesHidden = false;
 let CONFIG = {};
+let RETURNS = null;
 // Master toggle for the totals ring + every pie + the holdings list beneath -
 // default EXCLUDES cash and closed-position realized gains from headline
 // figures, since that's the "what do I actually hold right now" view. Toggling
 // on blends cash balances and historical realized P/L back in everywhere.
 let excludeCashAndClosed = true;
+let openSortBy = 'positionSize';
+function tickerCompare(a,b){ return String(a.asset_id||'').localeCompare(String(b.asset_id||'')); }
+// Shared by both open-positions and closed-positions sort dropdowns, so the two
+// always offer identical options and behave identically for the same choice.
+function sortComparator(sortBy){
+  const capOrder = {Mega:0,Large:1,Medium:2,Small:3,Micro:4,NA:5};
+  return function(a,b){
+    switch(sortBy){
+      case 'broker': { const ba=accountBroker(a.account_id), bb=accountBroker(b.account_id); return ba===bb ? tickerCompare(a,b) : ba.localeCompare(bb); }
+      case 'currency': { return a.currency===b.currency ? tickerCompare(a,b) : String(a.currency||'').localeCompare(String(b.currency||'')); }
+      case 'ticker': return tickerCompare(a,b);
+      case 'assetType': { const at=String(a.classification||''), bt=String(b.classification||''); return at===bt ? tickerCompare(a,b) : at.localeCompare(bt); }
+      case 'companySize': { const av=capOrder[a.market_cap_segment]!==undefined?capOrder[a.market_cap_segment]:9, bv=capOrder[b.market_cap_segment]!==undefined?capOrder[b.market_cap_segment]:9; return av===bv?tickerCompare(a,b):av-bv; }
+      case 'date': { const ad=closedDateFor(a), bd=closedDateFor(b); return (bd?bd.getTime():0)-(ad?ad.getTime():0); }
+      case 'positionSize': default: { const av=(a.market_value_estimated!==undefined?a.market_value_estimated:a.market_value_base)||0, bv=(b.market_value_estimated!==undefined?b.market_value_estimated:b.market_value_base)||0; return bv-av; }
+    }
+  };
+}
+function sortOptionsHtml(current){
+  const opts = [['positionSize','Position size'],['broker','Broker'],['currency','Currency'],['ticker','Ticker'],['assetType','Asset type'],['companySize','Company size'],['date','Date']];
+  return opts.map(function(o){ return '<option value="' + o[0] + '"' + (current===o[0]?' selected':'') + '>' + o[1] + '</option>'; }).join('');
+}
 function toggleExcludeCashClosed(){ excludeCashAndClosed = !excludeCashAndClosed; renderAll(); }
+function setOpenSort(v){ openSortBy = v; renderTickerCards(); }
 let FULLSCREEN_CELEBRATION_SHOWN = false;
 function isoDateStr(d){ return d.toISOString().slice(0,10); }
 function defaultClosedFilter(){
@@ -299,8 +462,6 @@ function fmtIndian(v, maxFrac){
 function fmtMoney(v, ccy){
   if(v === null || v === undefined) return '-';
   const sym = ccy === 'INR' ? 'Rs ' : ccy === 'AED' ? 'AED ' : ccy === 'USD' ? '$' : '';
-  // INR uses the Indian numbering system (lakh/crore - last 3 digits, then groups
-  // of 2, e.g. 12,34,567) rather than the Western 3-digit grouping.
   const numStr = ccy === 'INR' ? fmtIndian(v, 2) : Math.abs(v).toLocaleString(undefined, {maximumFractionDigits:2});
   return sym + numStr + (v<0 && ccy!=='INR' ? ' (neg)':'');
 }
@@ -310,31 +471,19 @@ function renderGoalAndPace(){
   const target = activeTarget();
   const includeCash = !excludeCashAndClosed;
   const includeClosedGain = !excludeCashAndClosed;
-  // "Positions" count always means current open non-cash holdings regardless of
-  // the toggle - that's a simple inventory count, not a value/gain rollup, so it
-  // shouldn't flicker between two different meanings as the toggle flips.
   const nonCash = HOLDINGS.filter(h => !String(h.asset_id).startsWith('CASH-') && h.quantity > 0);
-  // Toggle-respecting base set for VALUE and GAIN: cash rows included only when
-  // the toggle is off. Market value already comes out to ~0 for fully-closed
-  // positions on its own (quantity 0), so the toggle only needs to separately
-  // gate whether REALIZED gain (closed/partial-close history) counts toward the
-  // headline gain figure - a partial close's still-open portion always counts.
-  const baseData = HOLDINGS.filter(h => includeCash || !String(h.asset_id).startsWith('CASH-'));
+  const baseData = fullyFiltered(HOLDINGS.filter(h => includeCash || !String(h.asset_id).startsWith('CASH-')));
   const knownValue = baseData.reduce((s,h) => s + (h.market_value_estimated!==undefined ? (h.market_value_estimated||0) : (h.market_value_base||0)), 0);
   const totalGainBase = baseData.reduce((s,h) => s + (h.unrealized_gain_base||0) + (includeClosedGain ? (h.realized_gain_base||0) : 0), 0);
   const dayGainBase = baseData.reduce((s,h) => s + (h.day_gain_base||0), 0);
-  // % return ties out exactly with the two dollar figures shown alongside it -
-  // cost basis derived as value-minus-gain rather than a separate aggregation,
-  // so the percentage can never silently disagree with the totals next to it.
   const costBasisImplied = knownValue - totalGainBase;
   const totalGainPct = costBasisImplied > 0 ? (totalGainBase/costBasisImplied*100) : null;
-  // Simple annualized version of the same total-return % - NOT a true XIRR (that
-  // needs cash-flow-weighted timing across every individual contribution, which
-  // is what CALCULATE_RETURNS will eventually do). This is a rough
-  // "if this % return had compounded evenly since day one" figure, honestly
-  // labeled as such rather than presented as a real money-weighted return.
-  let annualizedPct = null;
-  if(totalGainPct!==null && CONFIG.portfolio_inception){
+  let xirrPct = null, twrPct = null, annualizedPct = null;
+  if(RETURNS && RETURNS.periods && RETURNS.periods.ITD){
+    xirrPct = RETURNS.periods.ITD.xirr!==null && RETURNS.periods.ITD.xirr!==undefined ? RETURNS.periods.ITD.xirr*100 : null;
+    twrPct = RETURNS.periods.ITD.twr!==null && RETURNS.periods.ITD.twr!==undefined ? RETURNS.periods.ITD.twr*100 : null;
+  }
+  if(xirrPct===null && twrPct===null && totalGainPct!==null && CONFIG.portfolio_inception){
     const daysSinceInception = (new Date() - new Date(CONFIG.portfolio_inception)) / (1000*60*60*24);
     if(daysSinceInception > 30 && (1+totalGainPct/100) > 0){
       annualizedPct = (Math.pow(1+totalGainPct/100, 365.25/daysSinceInception) - 1) * 100;
@@ -359,12 +508,14 @@ function renderGoalAndPace(){
         '<div class="ring-wrap"><svg width="140" height="140" viewBox="0 0 140 140" style="transform:rotate(-90deg)">' +
           '<circle cx="70" cy="70" r="60" fill="none" stroke="#1E1C24" stroke-width="7"/>' +
           '<circle cx="70" cy="70" r="60" fill="none" stroke="#4F8FE8" stroke-width="7" stroke-dasharray="' + (Math.min(pct,100)/100*2*Math.PI*60).toFixed(1) + ' 10000" stroke-linecap="round"/>' +
-        '</svg><div class="ring-center"><div class="rc-eyebrow">PORTFOLIO</div><div class="rc-value">' + maskable(fmtUsd(knownValue)) + '</div>' +
+        '</svg><div class="ring-center"><div class="rc-eyebrow">' + (filterChain.length ? filterChain.map(f=>f.value).join(' + ') : 'PORTFOLIO') + '</div><div class="rc-value">' + maskable(fmtUsd(knownValue)) + '</div>' +
         (totalGainPct!==null ? '<div class="rc-return ' + (totalGainPct>=0?'up':'down') + '">' + (totalGainPct>=0?'+':'') + totalGainPct.toFixed(1) + '% all-time</div>' : '') +
         '<div class="rc-pct">' + (goalAmount ? pct.toFixed(1)+'% of '+maskable(fmtUsd(goalAmount)) : 'no active target') + '</div></div></div>' +
         '<div class="goal-detail"><div class="gd-row"><span class="k">Positions</span><span class="v">' + nonCash.length + '</span></div>' +
         '<div class="gd-row"><span class="k">At cost (no live price)</span><span class="v ' + (estimatedPositions.length?'loss':'') + '">' + estimatedPositions.length + '</span></div>' +
         '<div class="gd-row"><span class="k">Total Gain</span><span class="change ' + (totalGainBase>=0?'up':'down') + '">' + (totalGainBase>=0?'+':'-') + maskable(fmtUsd(Math.abs(totalGainBase))) + (totalGainPct!==null ? ' (' + (totalGainPct>=0?'+':'') + totalGainPct.toFixed(1) + '%)' : '') + '</span></div>' +
+        (xirrPct!==null ? '<div class="gd-row"><span class="k">XIRR (since inception)</span><span class="change ' + (xirrPct>=0?'up':'down') + '">' + (xirrPct>=0?'+':'') + xirrPct.toFixed(1) + '%/yr</span></div>' : '') +
+        (twrPct!==null ? '<div class="gd-row"><span class="k">TWR (since inception)</span><span class="change ' + (twrPct>=0?'up':'down') + '">' + (twrPct>=0?'+':'') + twrPct.toFixed(1) + '%/yr</span></div>' : '') +
         (annualizedPct!==null ? '<div class="gd-row"><span class="k">Annualized (approx.)</span><span class="change ' + (annualizedPct>=0?'up':'down') + '">' + (annualizedPct>=0?'+':'') + annualizedPct.toFixed(1) + '%/yr</span></div>' : '') +
         '<div class="gd-row"><span class="k">Today\'s Gain</span><span class="change ' + (dayGainBase>=0?'up':'down') + '">' + (dayGainBase>=0?'+':'-') + maskable(fmtUsd(Math.abs(dayGainBase))) + '</span></div></div>' +
       '</div>' +
@@ -376,13 +527,6 @@ function renderGoalAndPace(){
       (estimatedPositions.length ? '<p class="hint" style="margin-top:10px;">At-cost positions (' + estimatedPositions.map(function(p){return p.asset_id;}).join(', ') + ') use purchase price, not a live value.</p>' : '') +
     '</div>';
 
-  // Milestones are at real 12.5/25/50/100% of goal - visually those bunch together
-  // (12.5->25 is a 12.5-wide gap, 50->100 is a 50-wide gap) since raw % literally
-  // sets track position. Map real % to an EQUALLY-SPACED visual position instead
-  // (0/12.5/25/50/100 -> 0/25/50/75/100), piecewise-linear within each segment, so
-  // the posts sit evenly apart while their labels keep showing the true percentage.
-  // The fill bar and runner marker use the same mapping so they stay visually
-  // aligned with the posts along the same (nonlinear) track scale.
   function milestoneVisualPct(realPct){
     const stops = [{r:0,v:0},{r:12.5,v:25},{r:25,v:50},{r:50,v:75},{r:100,v:100}];
     const clamped = Math.max(0, Math.min(100, realPct));
@@ -396,11 +540,6 @@ function renderGoalAndPace(){
     return 100;
   }
   const visualPct = milestoneVisualPct(pct);
-  // Celebration is proximity-based, not a hard crossing-trigger: if the current
-  // value sits within $2,000 of ANY milestone's dollar amount (checked once per
-  // load), a short confetti burst plays around the runner marker itself - not a
-  // separate element. Deliberately a band, not a point, since price moves day to
-  // day and a point-trigger would flicker on/off across refreshes near the line.
   const NEAR_MILESTONE_BAND_USD = 2000;
   const nearMilestone = goalAmount && milestonePcts.some(function(m){
     return Math.abs(knownValue - goalAmount*m/100) <= NEAR_MILESTONE_BAND_USD;
@@ -411,10 +550,6 @@ function renderGoalAndPace(){
     const dx = Math.round(Math.cos(angle)*20), dy = Math.round(Math.sin(angle)*20-14);
     return '<div class="celebrate-burst" style="background:' + c + ';--dx:' + dx + 'px;--dy:' + dy + 'px;animation-delay:' + (i*0.12) + 's;"></div>';
   }).join('') : '';
-  // Full-screen flash is a ONE-TIME, ~1s event per session (not per render) -
-  // the small burst around the runner marker above is the ongoing/repeating
-  // decoration; this is the bigger "you hit a milestone" moment, guarded so it
-  // doesn't re-fire on every 5-min poll or filter click while still in the band.
   if(nearMilestone && !FULLSCREEN_CELEBRATION_SHOWN){
     FULLSCREEN_CELEBRATION_SHOWN = true;
     triggerFullscreenCelebration();
@@ -422,7 +557,7 @@ function renderGoalAndPace(){
   document.getElementById('pace-section').innerHTML =
     '<div class="pace-card"><div class="pace-title">PROGRESS TO GOAL - milestones at 12.5/25/50/100% of goal_amount_usd, evenly spaced for readability</div>' +
     '<div class="track-wrap"><div class="track"><div class="track-fill" style="width:' + visualPct + '%"></div></div>' +
-    milestonePcts.map(function(m){ const p = pct>=m?'passed':''; return '<div class="milestone-flagpole ' + p + '" style="left:' + milestoneVisualPct(m) + '%"></div><div class="milestone-flag ' + p + '" style="left:' + milestoneVisualPct(m) + '%"></div><div class="milestone ' + p + '" style="left:' + milestoneVisualPct(m) + '%"></div><div class="milestone-label" style="left:' + milestoneVisualPct(m) + '%">' + m + '%</div>'; }).join('') +
+    milestonePcts.map(function(m,mi){ const p = pct>=m?'passed':''; const flagColor = ['#2DBFAE','#4F8FE8','#B98FE0','#DFC15A'][mi]; return '<div class="milestone-flagpole ' + p + '" style="left:' + milestoneVisualPct(m) + '%"></div><div class="milestone-flag ' + p + '" style="left:' + milestoneVisualPct(m) + '%;background:' + flagColor + ';color:' + flagColor + ';"></div><div class="milestone ' + p + '" style="left:' + milestoneVisualPct(m) + '%"></div><div class="milestone-label" style="left:' + milestoneVisualPct(m) + '%">' + m + '%</div>'; }).join('') +
     '<div class="finish-flag"></div>' +
     '<div class="runner-marker" style="left:' + visualPct + '%"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z"/></svg>' + burstHtml + '</div>' +
     '</div></div>';
@@ -458,9 +593,6 @@ function togglePoolDetail(key){
   const el = document.getElementById('pool-detail-' + key);
   if(el) el.classList.toggle('expanded');
 }
-// Brief, self-removing full-screen flash for the "you hit a milestone" moment -
-// bigger and louder than the small ongoing runner-marker burst, but still short
-// per the project's established "settles quickly" tone, not a persistent overlay.
 function triggerFullscreenCelebration(){
   const colors = ['#DFC15A','#4F8FE8','#35C48C','#D67AB1','#B98FE0','#E2883D'];
   const pieces = [];
@@ -484,22 +616,6 @@ function renderTrajectoryChart(currentValue, target){
   const plannedMonthly = Number(target.monthly_contribution_usd);
   const targetCagr = Number(target.target_cagr)/100;
 
-  // Real contribution pace, blended into the ETA projection instead of treating the
-  // trajectory and CONTRIBUTION PACE chart as two disconnected things. Uses a
-  // TRAILING window (last 12 months, or the full history if the target is younger
-  // than that) rather than averaging since the target's effective_date - the plan
-  // stepped up across four tiers ($500/1000/2000/3000 per mo), so a since-inception
-  // average would badly dilute the current, more realistic pace with years of the
-  // older lower amounts. 12 months (widened from an initial 6) balances staying
-  // responsive to real step-ups against not over-reacting to any single unusually
-  // light or heavy month.
-  // NOTE: a real trailing window will also pick up one-time capital (e.g. a loan)
-  // the same as ongoing contributions - worth knowing if a lump sum lands inside
-  // this window, since it can temporarily inflate this figure beyond what's
-  // actually sustainable month to month.
-  // The return RATE still uses target_cagr for both lines - a real trailing return
-  // (XIRR) is CALCULATE_RETURNS, a separate not-yet-built piece (bucket D) - only
-  // the contribution side of the projection is upgraded here.
   const startDate = new Date(target.effective_date);
   const today = new Date();
   const paceWindowMonths = 12;
@@ -512,9 +628,12 @@ function renderTrajectoryChart(currentValue, target){
   const paceWindowLabel = effectivePaceStart > startDate ? ('last ' + paceWindowMonths + 'mo') : 'since ' + startDate.toLocaleDateString(undefined,{month:'short',year:'numeric'});
 
   function project(monthlyAmt, months){
-    const r = targetCagr/12; let v = currentValue; const series=[v];
-    for(let i=1;i<=months;i++){ v = v*(1+r)+monthlyAmt; series.push(v); if(v>=goalAmount) return {series:series, hitMonth:i}; }
-    return {series:series, hitMonth:null};
+    const r = targetCagr/12; let v = currentValue; const series=[v]; let hitMonth = null;
+    for(let i=1;i<=months;i++){
+      v = v*(1+r)+monthlyAmt; series.push(v);
+      if(hitMonth===null && v>=goalAmount) hitMonth = i;
+    }
+    return {series:series, hitMonth:hitMonth};
   }
   function etaLabel(hitMonth){
     if(hitMonth===null || hitMonth===undefined) return 'beyond 20yr window';
@@ -525,12 +644,6 @@ function renderTrajectoryChart(currentValue, target){
   const blueProj = project(actualMonthlyPace, 240);
   const monthsMax = Math.max(goldProj.hitMonth||240, blueProj.hitMonth||240);
 
-  // Chart now spans from real portfolio inception (config.portfolio_inception,
-  // falling back to the target's effective_date if that's missing) through the
-  // projection horizon, on one continuous date-based axis. The pre-today segment
-  // is real cumulative CAPITAL DEPLOYED (cost basis from actual buys) - a true
-  // historical market-value line needs the snapshot backfill, which isn't built
-  // yet, so this is deliberately labeled for what it is rather than faked.
   const inceptionDate = CONFIG.portfolio_inception ? new Date(CONFIG.portfolio_inception) : startDate;
   const monthsFromInceptionToToday = Math.max(0, (today-inceptionDate)/(1000*60*60*24*30));
   const totalSpanMonths = monthsFromInceptionToToday + monthsMax;
@@ -545,10 +658,8 @@ function renderTrajectoryChart(currentValue, target){
   const deployedPoints = deployedBuys.map(function(t){ deployedCum += Number(t.base_currency_amount); return {m: (new Date(t.date)-inceptionDate)/(1000*60*60*24*30), v: deployedCum}; });
   const deployedPath = deployedPoints.length ? ('M'+toX(0)+' '+toY(0)+' '+deployedPoints.map(function(p){ return 'L'+toX(p.m)+' '+toY(p.v); }).join(' ')+' L'+toX(monthsFromInceptionToToday)+' '+toY(deployedCum)) : '';
 
-  const goldPath = goldProj.series.slice(0,(goldProj.hitMonth||monthsMax)+1).map(function(v,i){ return (i===0?'M':'L')+toX(monthsFromInceptionToToday+i)+' '+toY(v); }).join(' ');
-  const bluePath = blueProj.series.slice(0,(blueProj.hitMonth||monthsMax)+1).map(function(v,i){ return (i===0?'M':'L')+toX(monthsFromInceptionToToday+i)+' '+toY(v); }).join(' ');
-  // Tick density adapts to the FULL span (history + projection) so a long
-  // inception-to-goal horizon doesn't crowd, and a short one doesn't look empty.
+  const goldPath = goldProj.series.slice(0, (goldProj.hitMonth||monthsMax)+1).map(function(v,i){ return (i===0?'M':'L')+toX(monthsFromInceptionToToday+i)+' '+toY(v); }).join(' ');
+  const bluePath = blueProj.series.slice(0, (blueProj.hitMonth||monthsMax)+1).map(function(v,i){ return (i===0?'M':'L')+toX(monthsFromInceptionToToday+i)+' '+toY(v); }).join(' ');
   const yearTicks = [];
   const tickStepYears = totalSpanMonths <= 120 ? 1 : 2;
   for(let yr=inceptionDate.getFullYear(); yr<=today.getFullYear()+Math.ceil(monthsMax/12); yr+=tickStepYears){
@@ -584,17 +695,18 @@ function renderTrajectoryChart(currentValue, target){
       const dateAtM = new Date(inceptionDate); dateAtM.setDate(dateAtM.getDate() + Math.round(mFromInception*30));
       const dateLabel = dateAtM.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
       if(mFromInception <= monthsFromInceptionToToday){
-        // Historical side - nearest real capital-deployed point at/before this x.
         let cum = 0;
         deployedPoints.forEach(function(p){ if(p.m<=mFromInception) cum = p.v; });
         return {x:toX(mFromInception), y:toY(cum), dateLabel:dateLabel, lines:[{color:'#5B6774',label:'Deployed',val:fmtUsd(cum)}]};
       }
       const monthsFromToday = Math.round(mFromInception - monthsFromInceptionToToday);
-      const gv = goldProj.series[Math.min(monthsFromToday, goldProj.series.length-1)];
-      const bv = blueProj.series[Math.min(monthsFromToday, blueProj.series.length-1)];
-      return {x:toX(mFromInception), y:toY(bv), dateLabel:dateLabel, lines:[
-        {color:'#C9A227',label:'Planned',val:fmtUsd(Math.round(gv))},
-        {color:'#4F8FE8',label:'Actual pace',val:fmtUsd(Math.round(bv))}
+      const goldDone = goldProj.hitMonth!==null && monthsFromToday > goldProj.hitMonth;
+      const blueDone = blueProj.hitMonth!==null && monthsFromToday > blueProj.hitMonth;
+      const gv = goldProj.series[Math.min(monthsFromToday, goldProj.hitMonth!==null?goldProj.hitMonth:goldProj.series.length-1)];
+      const bv = blueProj.series[Math.min(monthsFromToday, blueProj.hitMonth!==null?blueProj.hitMonth:blueProj.series.length-1)];
+      return {x:toX(mFromInception), y:toY(blueDone?goalAmount:bv), dateLabel:dateLabel, lines:[
+        {color:'#C9A227',label:'Planned',val:goldDone?'Goal reached':fmtUsd(Math.round(gv))},
+        {color:'#4F8FE8',label:'Actual pace',val:blueDone?'Goal reached':fmtUsd(Math.round(bv))}
       ]};
     }
   });
@@ -602,13 +714,6 @@ function renderTrajectoryChart(currentValue, target){
 
 function renderContributionChart(target){
   if(!TARGETS.length || !TRANSACTIONS.length){ document.getElementById('contribution-section').innerHTML=''; return; }
-  // Contribution-plan start is NOT the same thing as portfolio_inception - that's
-  // the earliest transaction across EVERY broker (Zerodha's 2021 history), while
-  // the monthly contribution plan only exists for the goal-tracking side and
-  // began later. Using portfolio_inception here was the actual bug behind last
-  // round's "staggered" report - fixed by anchoring to the earliest targets row
-  // instead, and reading every row as a real step function rather than a single
-  // flat rate applied across the whole history.
   const sortedTargets = TARGETS.slice().sort(function(a,b){ return new Date(a.effective_date)-new Date(b.effective_date); });
   const startDate = new Date(sortedTargets[0].effective_date);
   const today = new Date();
@@ -636,8 +741,6 @@ function renderContributionChart(target){
   const toY = function(v){ return H-padBottom - (v/maxV)*(H-pad-padBottom); };
   const actualPath = actualPoints.length ? ('M'+toX(startDate)+' '+toY(0)+' '+actualPoints.map(function(p){ return 'L'+toX(p.date)+' '+toY(p.value); }).join(' ')) : '';
   const plannedPath = plannedPoints.length ? ('M'+toX(startDate)+' '+toY(0)+' '+plannedPoints.map(function(p){ return 'L'+toX(p.date)+' '+toY(p.value); }).join(' ')) : '';
-  // Tick step adapts to how long the target's been active: monthly when young,
-  // widening to quarterly then yearly so labels never crowd together.
   const tickStepMonths = monthsElapsed<=8 ? 1 : monthsElapsed<=20 ? 3 : monthsElapsed<=48 ? 6 : 12;
   const dateTicks = [];
   for(let m=0; ; m+=tickStepMonths){
@@ -646,9 +749,7 @@ function renderContributionChart(target){
     dateTicks.push(d);
   }
   const tickFmt = tickStepMonths>=12 ? {year:'numeric'} : {month:'short',year:'2-digit'};
-  if(dateTicks.length && dateTicks[dateTicks.length-1].toLocaleDateString(undefined,tickFmt) === today.toLocaleDateString(undefined,tickFmt)){
-    dateTicks[dateTicks.length-1] = today; // same label either way - just snap the last tick to the real edge instead of showing it twice
-  } else {
+  if(!dateTicks.length || dateTicks[dateTicks.length-1].toLocaleDateString(undefined,tickFmt) !== today.toLocaleDateString(undefined,tickFmt)){
     dateTicks.push(today);
   }
   document.getElementById('contribution-section').innerHTML =
@@ -683,11 +784,6 @@ function renderContributionChart(target){
 }
 
 function polarToCartesian(cx,cy,r,angleDeg){ const a=(angleDeg-90)*Math.PI/180; return {x:cx+r*Math.cos(a), y:cy+r*Math.sin(a)}; }
-// Shared crosshair for both line charts. Creates real SVG line/circle elements
-// once per chart (found by id on repeat calls, not recreated), and a single
-// floating tooltip reused across both charts. Works for mouse AND touch, since
-// touchmove gives the same "find nearest point, show it" behavior phones need -
-// there's no hover state on a phone, so this has to work via direct contact.
 function attachChartCrosshair(svgId, cfg){
   const svg = document.getElementById(svgId);
   if(!svg) return;
@@ -782,7 +878,7 @@ function renderRegionRing(allData){
   const r = computeRendered('region', allData);
   const selected = r.rendered.find(function(s){ return s.isSelected; });
   const centerVal = selected ? selected.value : r.total;
-  const centerLbl = selected ? (selected.label + ' - ' + Math.round(selected.pct*100) + '%') : (filterChain.length?'Subset':'Total');
+  const centerLbl = selected ? selected.label : (filterChain.length?'Subset':'Total');
   const paths = r.rendered.map(function(s){ return '<path d="' + arcPath(52,52,46,30,s.startAngle,s.endAngle) + '" fill="' + resolveColor(s.color) + '" class="' + (s.isSelected?'selected':'') + ' ' + (s.isDimmed?'dim':'') + '" onclick="onSliceClick(\'region\',\'' + s.label + '\')"></path>'; }).join('');
   const legend = r.rendered.map(function(s){ return '<div class="rl-row ' + (s.isDimmed?'dim':'') + (s.isSelected?' selected':'') + '" onclick="onSliceClick(\'region\',\'' + s.label + '\')"><span class="rl-sw" style="background:' + resolveColor(s.color) + '"></span><span class="rl-label">' + s.label + '</span><span class="rl-val">' + maskable(fmtUsd(s.value)) + ' - ' + Math.round(s.pct*100) + '%</span></div>'; }).join('');
   return '<div class="region-card"><div class="region-title">BY REGION</div><div class="region-body"><div class="region-ring"><svg class="region-svg" width="104" height="104" viewBox="0 0 104 104">' + paths + '</svg><div class="region-center" id="region-center"><div class="v">' + maskable(fmtUsd(centerVal)) + '</div><div class="k">' + centerLbl + '</div></div></div><div class="region-legend">' + legend + '</div></div></div>';
@@ -791,17 +887,11 @@ function renderDonut(dim, title, allData){
   const r = computeRendered(dim, allData);
   const centerId = 'donut-center-' + dim;
   const selected = r.rendered.find(function(s){ return s.isSelected; });
-  const selectedLocalStr = selected ? sliceLocalStr(dim, selected.label, allData) : '';
   const centerVal = selected ? selected.value : r.total;
-  const centerLbl = selected ? (selected.label + ' - ' + Math.round(selected.pct*100) + '%' + (selectedLocalStr?(' ('+maskable(selectedLocalStr)+')'):'')) : (filterChain.length?'Subset':'Total');
+  const centerLbl = selected ? selected.label : (filterChain.length?'Subset':'Total');
   const paths = r.rendered.map(function(s){
     return '<path d="' + arcPath(40,40,32,20,s.startAngle,s.endAngle) + '" fill="' + resolveColor(s.color) + '" class="' + (s.isSelected?'selected':'') + ' ' + (s.isDimmed?'dim':'') + '" onclick="onSliceClick(\'' + dim + '\',\'' + s.label + '\')"></path>';
   }).join('');
-  // For the currency breakdown, shows each slice's own-currency total directly.
-  // For broker, shows it too IF that broker only ever holds one currency (true
-  // for Zerodha/AngelOne today, and for any future single-currency broker
-  // automatically - a broker spanning multiple currencies like Wio shows
-  // nothing here rather than a misleading single figure).
   const legend = r.rendered.map(function(s){
     const localStr = sliceLocalStr(dim, s.label, allData);
     const localDisp = localStr ? ' (' + maskable(localStr) + ')' : '';
@@ -820,7 +910,7 @@ function sliceLocalStr(dim, label, allData){
     const rows = baseDataForLocal.filter(function(h){ return accountBroker(h.account_id)===label; });
     if(!rows.length) return '';
     const currencies = Array.from(new Set(rows.map(function(h){ return h.currency; })));
-    if(currencies.length!==1 || currencies[0]==='USD') return ''; // mixed-currency broker, or already USD - nothing extra to show
+    if(currencies.length!==1 || currencies[0]==='USD') return '';
     const localTotal = rows.reduce(function(sum,h){ return sum+(h.market_value_trade_ccy||0); },0);
     return fmtMoney(localTotal, currencies[0]);
   }
@@ -837,13 +927,11 @@ function removeCrumb(i){ filterChain.splice(i,1); renderAll(); }
 function clearFilter(){ filterChain=[]; renderAll(); }
 function renderFiltersAndRings(){
   const includeCash = !excludeCashAndClosed;
-  // Invested-only set (excludes cash always) - used for region/classification/market
-  // cap, where cash doesn't have a meaningful value (no classification, no cap).
   const investedData = HOLDINGS.filter(function(h){ return !String(h.asset_id).startsWith('CASH-') && h.quantity > 0; });
-  // Currency and broker exposure legitimately include cash sitting in that
-  // currency/account - now gated on the same master toggle as the totals ring,
-  // rather than being permanently on, so the whole page moves together.
-  const withCashData = HOLDINGS.filter(function(h){ return (includeCash && String(h.asset_id).startsWith('CASH-')) || h.quantity > 0; });
+  const withCashData = HOLDINGS.filter(function(h){
+    const isCash = String(h.asset_id).startsWith('CASH-');
+    return isCash ? includeCash : h.quantity > 0;
+  });
   const cashSuffix = includeCash ? ' (incl. cash)' : '';
   document.getElementById('region-ring-section').innerHTML = renderRegionRing(investedData);
   document.getElementById('donut-grid').innerHTML =
@@ -862,17 +950,9 @@ function renderFiltersAndRings(){
   }
 }
 function qClass(q){ if(q===''||q===null||q===undefined) return 'q-mid'; return q>=7.5?'q-high':q>=5.5?'q-mid':'q-low'; }
-// closedDate comes from CalcEngine's last_transaction_date (cheap, already part
-// of the routine holdings payload) instead of scanning full transaction detail -
-// the full per-position history is fetched lazily, only once a card is actually
-// expanded (see toggleClosedCard). Top-level (not nested) since both
-// renderTickerCards and renderClosedResultsOnly need it.
 function closedDateFor(h){
   return h.last_transaction_date ? new Date(h.last_transaction_date) : null;
 }
-// Built fresh from ACCOUNTS every time the filter shell renders (initial load /
-// 5-min poll) - never a hardcoded broker list, so a new broker added to the
-// accounts tab shows up here automatically with no code change.
 function brokerFilterOptions(){
   const brokers = Array.from(new Set(ACCOUNTS.map(function(a){ return a.broker; }).filter(Boolean))).sort();
   return '<option value="">All Brokers</option>' + brokers.map(function(b){
@@ -882,21 +962,14 @@ function brokerFilterOptions(){
 function renderTickerCards(){
   const allData = HOLDINGS.filter(function(h){ return !String(h.asset_id).startsWith('CASH-'); });
   const open = fullyFiltered(allData).filter(function(h){ return h.quantity > 0; });
-  // Was quantity===0 only, which silently dropped partially-closed positions
-  // (some sold, some still held) - CalcEngine already computes their realized
-  // gain correctly, this just widens what the section shows.
   const closed = allData.filter(function(h){ return h.quantity === 0 || Math.abs(h.realized_gain_base||0) > 1e-9; });
-  const sorted = open.slice().sort(function(a,b){ return ((b.market_value_estimated||b.market_value_base)||0) - ((a.market_value_estimated||a.market_value_base)||0); });
+  const sorted = open.slice().sort(sortComparator(openSortBy));
   const cardsHtml = sorted.map(function(h,i){
     const dayDir = h.day_gain_pct==null ? 'flat' : h.day_gain_pct>0 ? 'up' : h.day_gain_pct<0 ? 'down' : 'flat';
     const dayStr = h.day_gain_pct==null ? '-' : (h.day_gain_pct>0?'+':'') + h.day_gain_pct.toFixed(2) + '%';
     const totDir = h.total_gain_pct==null ? 'flat' : h.total_gain_pct>0 ? 'up' : h.total_gain_pct<0 ? 'down' : 'flat';
     const totStr = h.total_gain_pct==null ? '-' : (h.total_gain_pct>0?'+':'') + h.total_gain_pct.toFixed(1) + '%';
     const stale = h.price_stale_days!=null && h.price_stale_days > 10;
-    // LTP and Total invested are shown in the BUY currency (h.currency), never
-    // market_value_base's USD, so they line up with what the brokerage platform
-    // itself shows - h.latest_price_trade_ccy/h.cost_basis_trade_ccy handle the
-    // conversion server-side, same fields the AED-value fix relies on.
     const ltpStr = h.latest_price_trade_ccy!==null && h.latest_price_trade_ccy!==undefined
       ? fmtMoney(h.latest_price_trade_ccy, h.currency) : '-';
     const totalInvestedStr = h.cost_basis_trade_ccy!==null && h.cost_basis_trade_ccy!==undefined
@@ -928,25 +1001,15 @@ function renderTickerCards(){
       (h.lots||[]).map(function(l){ return '<div class="lot-row"><span>' + l.lot_id + '<br><span style="color:var(--text-faint)">' + l.date + '</span></span><span>' + l.qty + '</span><span>' + l.cost_per_unit + '</span>' +
         '<span>' + (l.term?('<span class="lot-term ' + l.term.toLowerCase() + '">' + l.term + '</span>'):'-') + '</span>' +
         '<span class="lot-gl ' + (l.unrealized_gain_base>=0?'up':'down') + '">' + (l.harvest_candidate?'[H] ':'') + (l.unrealized_gain_base!==null?fmtUsd(l.unrealized_gain_base):'-') + '</span></div>'; }).join('') +
-      // Full buy/sell history, including any past sells on this same ticker - a
-      // partially-closed position's story lives here too now, not only in the
-      // separate Sold Positions section, for one holistic per-ticker view.
-      '<div class="txn-history-toggle" onclick="event.stopPropagation();toggleOpenCardHistory(' + i + ',\'' + h.account_id + '\',\'' + h.asset_id + '\')">Transaction history ' + (Math.abs(h.realized_gain_base||0)>1e-9 ? '(includes past sells)' : '') + ' &#9662;</div>' +
-      '<div class="closed-detail-panel" id="th-detail-' + i + '" data-history-key="' + h.account_id + '::' + h.asset_id + '"></div>' +
+      (Math.abs(h.realized_gain_base||0)>1e-9 ?
+        '<div class="txn-history-label">Transaction history (includes past sells)</div>' +
+        renderTxnRows(TRANSACTIONS.filter(function(t){ return t.asset_id===h.asset_id && t.account_id===h.account_id; }))
+        : '') +
       '</div></div>';
   }).join('');
   const closedTotalAll = closed.reduce(function(s,h){ return s+(h.realized_gain_base||0); },0);
 
   document.getElementById('cards-section').innerHTML = cardsHtml || '<p class="hint">No positions match the current filter.</p>';
-  // Collapsed by default - only "TOTAL SOLD POSITIONS" + aggregate P/L show until
-  // clicked. The filter-bar INPUTS render exactly once here (this function only
-  // runs on data reload / the 5-min poll, never on a keystroke) - the actual
-  // results list lives in its own #closed-results container that
-  // renderClosedResultsOnly() rebuilds on every filter/sort change instead. This
-  // is the real fix for the mobile "kicked out while typing" bug: recreating an
-  // <input> mid-typing dismisses the on-screen keyboard on phones even when
-  // focus/cursor are correctly restored in code - so the fix is to stop
-  // recreating the input at all, not to restore it faster.
   const closedSummaryTotal = closedTotalAll;
   const closedCount = closed.length;
   document.getElementById('closed-section').innerHTML =
@@ -972,18 +1035,13 @@ function renderTickerCards(){
       '<button class="refresh-btn" onclick="setClosedRangePreset(\'ly\')">Last Year</button>' +
       '<button class="refresh-btn" onclick="setClosedRangePreset(\'inception\')">Since Inception</button>' +
       '<span class="hint" style="align-self:center;margin-left:8px;">Sort:</span>' +
-      '<button class="refresh-btn" id="closed-sort-date-btn" onclick="setClosedSort(\'date\')">Date</button>' +
-      '<button class="refresh-btn" id="closed-sort-broker-btn" onclick="setClosedSort(\'broker\')">Broker</button>' +
+      '<select id="closed-filter-sort" onchange="setClosedSort(this.value)" class="price-edit-input" style="font-size:9px;">' + sortOptionsHtml(closedFilter.sortBy) + '</select>' +
       '</div>'
     ) : '') +
     '<div id="closed-results"></div>' +
     '</div></div>';
   renderClosedResultsOnly();
 }
-// Rebuilds ONLY the results list (total line + individual closed/partial-close
-// cards) - never touches the filter-bar <input> elements, so typing, the 5-min
-// auto-poll, and every preset/sort click can all fire freely without ever
-// interrupting a field the user is actively using.
 function renderClosedResultsOnly(){
   const resultsEl = document.getElementById('closed-results');
   if(!resultsEl) return;
@@ -998,23 +1056,12 @@ function renderClosedResultsOnly(){
     if(fromDate && cd && cd < fromDate) return false;
     if(toDate && cd && cd > toDate) return false;
     return true;
-  }).sort(function(a,b){
-    if(closedFilter.sortBy === 'broker'){
-      const ba = accountBroker(a.account_id), bb = accountBroker(b.account_id);
-      return ba===bb ? (b.realized_gain_base||0)-(a.realized_gain_base||0) : ba.localeCompare(bb);
-    }
-    const da = closedDateFor(a), db = closedDateFor(b);
-    return (db?db.getTime():0) - (da?da.getTime():0);
-  });
+  }).sort(sortComparator(closedFilter.sortBy));
   CLOSED_LIST_CACHE = closedFilteredList;
   const closedTotal = closedFilteredList.reduce(function(s,h){ return s+(h.realized_gain_base||0); },0);
   const filtersActive = !!(closedFilter.ticker || closedFilter.broker || closedFilter.from || closedFilter.to);
   const clearBtn = document.getElementById('closed-filter-clear-btn');
   if(clearBtn) clearBtn.style.display = filtersActive ? '' : 'none';
-  const dateBtn = document.getElementById('closed-sort-date-btn');
-  const brokerBtn = document.getElementById('closed-sort-broker-btn');
-  if(dateBtn) dateBtn.className = 'refresh-btn' + (closedFilter.sortBy==='date' ? ' active-sort' : '');
-  if(brokerBtn) brokerBtn.className = 'refresh-btn' + (closedFilter.sortBy==='broker' ? ' active-sort' : '');
   const closedHtml = closedFilteredList.length ? closedFilteredList.map(function(h, ci){
     const localRealized = (h.currency!=='USD' && h.realized_gain_trade_ccy!==null && h.realized_gain_trade_ccy!==undefined)
       ? ' (' + maskable(fmtMoney(h.realized_gain_trade_ccy, h.currency)) + ')' : '';
@@ -1024,7 +1071,9 @@ function renderClosedResultsOnly(){
       '<div class="closed-row" onclick="toggleClosedCard(' + ci + ')" style="cursor:pointer;">' +
       '<span>' + h.asset_id + ' - ' + (h.asset_name||'') + ' (' + h.account_id + ')' + partialBadge + '</span>' +
       '<b>Realized: ' + fmtUsd(h.realized_gain_base) + localRealized + '</b></div>' +
-      '<div class="closed-detail-panel" id="cc-detail-' + ci + '"><p class="hint">Click to load transaction history...</p></div></div>';
+      '<div class="closed-detail-panel" id="cc-detail-' + ci + '">' +
+      renderTxnRows(TRANSACTIONS.filter(function(t){ return t.asset_id===h.asset_id && t.account_id===h.account_id; })) +
+      '</div></div>';
   }).join('') : '<p class="hint">No closed positions match the current filter.</p>';
   const closedTotalHtml = closed.length ? '<div class="closed-row" style="border-color:var(--border);"><span style="font-weight:600;">Total realized P/L - ' + closedFilteredList.length + ' of ' + closed.length + ' closed position(s)</span><b class="change ' + (closedTotal>=0?'up':'down') + '">' + (closedTotal>=0?'+':'-') + maskable(fmtUsd(Math.abs(closedTotal))) + '</b></div>' : '';
   resultsEl.innerHTML = closedTotalHtml + closedHtml;
@@ -1050,11 +1099,8 @@ function syncClosedFilterInputs(){
   const b = document.getElementById('closed-filter-broker'); if(b) b.value = closedFilter.broker;
   const f = document.getElementById('closed-filter-from'); if(f) f.value = closedFilter.from;
   const to = document.getElementById('closed-filter-to'); if(to) to.value = closedFilter.to;
+  const s = document.getElementById('closed-filter-sort'); if(s) s.value = closedFilter.sortBy;
 }
-// Lines up matching tickers under the filter input as each letter is typed -
-// built from the actual closed/partial-close list (not a hardcoded symbol set),
-// so it always reflects whatever's really in the ledger. Prefix match, since
-// that's the natural feel for a typeahead.
 function updateTickerSuggestions(prefix){
   const el = document.getElementById('closed-ticker-suggest');
   if(!el) return;
@@ -1083,44 +1129,19 @@ document.addEventListener('click', function(e){
   hideTickerSuggestions();
 });
 let CLOSED_LIST_CACHE = [];
-let CLOSED_TXN_CACHE = {};
-// The whole closed-section and cards-section get torn down and rebuilt on every
-// keystroke (setClosedFilter) and every 5-min auto-poll - a DOM class alone
-// (.expanded) doesn't survive that, which is what made an already-loaded history
-// panel look like it "failed to load": it loaded fine, then silently collapsed
-// the moment anything else re-rendered. These track expand state by stable key
-// (account::asset) instead, restored after every render.
 let EXPANDED_CLOSED_KEY = null;
-let EXPANDED_OPEN_HISTORY_KEYS = new Set();
-async function toggleClosedCard(i){
+function toggleClosedCard(i){
   const card=document.getElementById('cc-'+i);
   if(!card) return;
   const h = CLOSED_LIST_CACHE[i];
-  const key = h ? (h.account_id + '::' + h.asset_id) : null;
   const was=card.classList.contains('expanded');
   document.querySelectorAll('.closed-card').forEach(function(c){ c.classList.remove('expanded'); });
-  if(was){ EXPANDED_CLOSED_KEY = null; return; }
-  card.classList.add('expanded');
-  EXPANDED_CLOSED_KEY = key;
-  if(!h) return;
-  const cacheKey = h.account_id + '::' + h.asset_id;
-  const detailEl = document.getElementById('cc-detail-' + i);
-  if(CLOSED_TXN_CACHE[cacheKey]){
-    detailEl.innerHTML = renderTxnRows(CLOSED_TXN_CACHE[cacheKey]);
-    return;
-  }
-  detailEl.innerHTML = '<p class="hint">Loading...</p>';
-  try{
-    const json = await loadData('position_transactions', { asset_id: h.asset_id, account_id: h.account_id });
-    const txns = (json.transactions || []).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
-    CLOSED_TXN_CACHE[cacheKey] = txns;
-    detailEl.innerHTML = renderTxnRows(txns);
-  } catch(err){
-    detailEl.innerHTML = '<p class="hint">Could not load transaction history: ' + err.message + '</p>';
-  }
+  EXPANDED_CLOSED_KEY = was ? null : (h ? (h.account_id + '::' + h.asset_id) : null);
+  if(!was) card.classList.add('expanded');
 }
 function renderTxnRows(txns){
-  const rows = txns.map(function(t){
+  const sorted = txns.slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+  const rows = sorted.map(function(t){
     return '<div class="lot-row"><span>' + t.date + '</span><span>' + t.action + '</span>' +
       '<span>' + (t.quantity!==undefined&&t.quantity!==null?t.quantity:'-') + '</span>' +
       '<span>' + (t.price!==undefined&&t.price!==null?fmtMoney(Number(t.price), t.trade_currency):'-') + '</span>' +
@@ -1135,49 +1156,16 @@ function toggleCard(i){
   document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('expanded'); });
   if(!was) card.classList.add('expanded');
 }
-async function toggleOpenCardHistory(i, accountId, assetId){
-  const detailEl = document.getElementById('th-detail-' + i);
-  if(!detailEl) return;
-  const key = accountId + '::' + assetId;
-  const wasOpen = detailEl.classList.contains('expanded');
-  detailEl.classList.toggle('expanded');
-  if(wasOpen){ EXPANDED_OPEN_HISTORY_KEYS.delete(key); return; }
-  EXPANDED_OPEN_HISTORY_KEYS.add(key);
-  const cacheKey = accountId + '::' + assetId;
-  if(CLOSED_TXN_CACHE[cacheKey]){ detailEl.innerHTML = renderTxnRows(CLOSED_TXN_CACHE[cacheKey]); return; }
-  detailEl.innerHTML = '<p class="hint">Loading...</p>';
-  try{
-    const json = await loadData('position_transactions', { asset_id: assetId, account_id: accountId });
-    const txns = (json.transactions || []).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
-    CLOSED_TXN_CACHE[cacheKey] = txns;
-    detailEl.innerHTML = renderTxnRows(txns);
-  } catch(err){
-    detailEl.innerHTML = '<p class="hint">Could not load transaction history: ' + err.message + '</p>';
-  }
-}
 function restoreExpandedHistoryPanels(){
-  // Runs after every renderTickerCards() rebuild - re-applies expand state and
-  // any already-cached transaction content by key, so an open history panel
-  // survives a filter keystroke or the 5-min auto-poll instead of silently
-  // collapsing without any visible error.
   if(EXPANDED_CLOSED_KEY){
     const idx = CLOSED_LIST_CACHE.findIndex(function(h){ return (h.account_id+'::'+h.asset_id) === EXPANDED_CLOSED_KEY; });
     if(idx>=0){
       const card = document.getElementById('cc-'+idx);
-      const detailEl = document.getElementById('cc-detail-'+idx);
       if(card) card.classList.add('expanded');
-      if(detailEl && CLOSED_TXN_CACHE[EXPANDED_CLOSED_KEY]) detailEl.innerHTML = renderTxnRows(CLOSED_TXN_CACHE[EXPANDED_CLOSED_KEY]);
     } else {
-      EXPANDED_CLOSED_KEY = null; // no longer in the filtered/sorted list - nothing to restore
+      EXPANDED_CLOSED_KEY = null;
     }
   }
-  EXPANDED_OPEN_HISTORY_KEYS.forEach(function(key){
-    const el = document.querySelector('[data-history-key="' + key + '"]');
-    if(el){
-      el.classList.add('expanded');
-      if(CLOSED_TXN_CACHE[key]) el.innerHTML = renderTxnRows(CLOSED_TXN_CACHE[key]);
-    }
-  });
 }
 function renderAll(){ renderGoalAndPace(); renderFiltersAndRings(); renderTickerCards(); }
 function buildAppShell(){
@@ -1188,18 +1176,20 @@ function buildAppShell(){
     '<div class="filter-bar" id="filter-bar"><span class="filter-empty" id="filter-text">No filter active</span>' +
     '<button class="filter-clear" id="filter-clear-btn" style="display:none;" onclick="clearFilter()">Clear all</button></div>' +
     '<div id="region-ring-section"></div><div class="donut-grid" id="donut-grid"></div>' +
-    '<p class="section-title">HOLDINGS</p><div id="cards-section"></div><div id="closed-section"></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;">' +
+    '<p class="section-title" style="margin:0;">HOLDINGS</p>' +
+    '<select id="open-sort-select" onchange="setOpenSort(this.value)" class="price-edit-input" style="font-size:9px;">' + sortOptionsHtml(openSortBy) + '</select>' +
+    '</div><div id="cards-section"></div><div id="closed-section"></div>' +
     '<p class="hint">Live from your Sheet. Auto-refreshes every 5 min. Refresh button triggers a real price fetch (up to a minute).</p>';
 }
 function attachLots(lots){ HOLDINGS.forEach(function(h){ h.lots = lots.filter(function(l){ return l.account_id===h.account_id && l.asset_id===h.asset_id; }); }); }
 function sleep(ms){ return new Promise(function(resolve){ setTimeout(resolve, ms); }); }
 function freshFetch(url){ return fetch(url + (url.indexOf('?')>=0 ? '&' : '?') + '_ts=' + Date.now(), { cache: 'no-store' }); }
+let ACCESS_KEY = localStorage.getItem('portfolio_access_key') || '';
+let ACCESS_LEVEL = null;
 async function loadData(action, extraParams){
-  let url = WEB_APP_URL + '?action=' + action;
+  let url = WEB_APP_URL + '?action=' + action + '&key=' + encodeURIComponent(ACCESS_KEY);
   if (extraParams) Object.keys(extraParams).forEach(function(k){ url += '&' + k + '=' + encodeURIComponent(extraParams[k]); });
-  // Apps Script Web Apps occasionally return a transient failure (404/5xx) that
-  // succeeds a moment later - one retry after a short delay before giving up and
-  // showing the error screen, rather than treating every blip as a hard failure.
   let lastErr;
   for(let attempt=1; attempt<=2; attempt++){
     try{
@@ -1207,6 +1197,10 @@ async function loadData(action, extraParams){
       if(!res.ok) throw new Error('HTTP ' + res.status + ' on action=' + action);
       const json = await res.json();
       if(json.error) throw new Error(json.error);
+      if(json.accessLevel){
+        ACCESS_LEVEL = json.accessLevel;
+        document.body.classList.toggle('is-family', ACCESS_LEVEL==='family');
+      }
       return json;
     } catch(err){
       lastErr = err;
@@ -1241,7 +1235,7 @@ async function submitResumeAutoFetch(cardKey){
 }
 let loadInProgress = false;
 async function fullLoad(triggerRefresh){
-  if(loadInProgress) return; // avoid overlapping calls (auto-poll vs. manual click) piling up executions
+  if(loadInProgress) return;
   loadInProgress = true;
   const holdingsAction = triggerRefresh ? 'refresh' : 'holdings';
   const asofEl = document.getElementById('asof-line');
@@ -1252,9 +1246,13 @@ async function fullLoad(triggerRefresh){
     const hJson = await loadData(holdingsAction);
     HOLDINGS = hJson.holdingsSummary || [];
     attachLots(hJson.holdingsLots || []);
-    const results = await Promise.all([loadData('accounts'), loadData('targets'), loadData('transactions'), loadData('config')]);
+    const results = await Promise.all([loadData('accounts'), loadData('targets'), loadData('transactions'), loadData('config'), loadData('returns').catch(function(){ return null; }), loadData('get_watchlist').catch(function(){ return null; })]);
     ACCOUNTS = results[0].accounts || []; TARGETS = results[1].targets || []; TRANSACTIONS = results[2].transactions || [];
     CONFIG = results[3].config || {};
+    RETURNS = (results[4] && !results[4].error) ? results[4] : null;
+    WATCHLIST = (results[5] && results[5].watchlist) ? results[5].watchlist : [];
+    checkWatchlistAlerts(WATCHLIST);
+    if(ACTIVE_TAB==='watchlist') renderWatchlistView();
     asofEl.textContent = 'Live as of ' + new Date(hJson.asOfDate).toLocaleString() +
       (hJson.warnings && hJson.warnings.length ? ' - ' + hJson.warnings.length + ' warning(s)' : '') +
       (hJson.refreshedPrices ? ' - prices just refreshed' : '');
@@ -1267,8 +1265,404 @@ async function fullLoad(triggerRefresh){
     loadInProgress = false;
   }
 }
-setInterval(function(){ fullLoad(false); }, 5*60*1000);
-fullLoad(false);
+setInterval(function(){ if(ACCESS_LEVEL) fullLoad(false); }, 5*60*1000);
+
+// ---- Access key gate ----
+// "Block everything until unlocked" - the lock screen is the ONLY thing
+// visible until a valid key is confirmed; #main-wrap starts at display:none
+// in the HTML itself, never revealed until submitAccessKey/initGate succeeds.
+function showLockedUI(locked){
+  document.getElementById('lock-screen').classList.toggle('show', locked);
+  document.getElementById('main-wrap').style.display = locked ? 'none' : 'block';
+  document.getElementById('tab-switcher').style.display = locked ? 'none' : 'flex';
+}
+async function initGate(){
+  if(ACCESS_KEY){
+    try{
+      await loadData('config'); // lightweight call just to validate the stored key
+      showLockedUI(false);
+      fullLoad(false);
+      return;
+    } catch(err){
+      localStorage.removeItem('portfolio_access_key');
+      ACCESS_KEY = '';
+    }
+  }
+  showLockedUI(true);
+  document.getElementById('lock-key-input').focus();
+}
+async function submitAccessKey(){
+  const input = document.getElementById('lock-key-input');
+  const errEl = document.getElementById('lock-error');
+  const key = input.value.trim();
+  if(!key) return;
+  ACCESS_KEY = key;
+  try{
+    await loadData('config');
+    localStorage.setItem('portfolio_access_key', key);
+    errEl.textContent = '';
+    showLockedUI(false);
+    fullLoad(false);
+  } catch(err){
+    ACCESS_KEY = '';
+    errEl.textContent = 'Incorrect key - try again.';
+  }
+}
+initGate();
+
+// ---- Tab switcher (Portfolio / Watchlist) ----
+let ACTIVE_TAB = 'portfolio';
+let WATCHLIST = [];
+function switchTab(tab){
+  ACTIVE_TAB = tab;
+  document.getElementById('tab-btn-portfolio').classList.toggle('active', tab==='portfolio');
+  document.getElementById('tab-btn-watchlist').classList.toggle('active', tab==='watchlist');
+  document.getElementById('app').style.display = tab==='portfolio' ? 'block' : 'none';
+  document.getElementById('watchlist-view').style.display = tab==='watchlist' ? 'block' : 'none';
+  if(tab==='watchlist') loadWatchlist();
+}
+async function loadWatchlist(){
+  const el = document.getElementById('watchlist-view');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading watchlist...</div>';
+  try{
+    const r = await loadData('get_watchlist');
+    WATCHLIST = r.watchlist || [];
+    renderWatchlistView();
+  } catch(err){
+    el.innerHTML = '<div class="error-box">Could not load watchlist<br><br>' + err.message + '</div>';
+  }
+}
+function renderWatchlistView(){
+  const el = document.getElementById('watchlist-view');
+  if(!WATCHLIST.length){
+    el.innerHTML = '<p class="hint" style="margin-top:20px;">Nothing on your watchlist yet. Use the + button to add a ticker.</p>';
+    return;
+  }
+  const active = WATCHLIST.filter(w=>w.status==='ACTIVE');
+  const triggered = WATCHLIST.filter(w=>w.status==='TRIGGERED');
+  function row(w){
+    const dirLabel = w.direction==='BUY_BELOW' ? 'Buy below' : 'Sell above';
+    const curStr = w.current_price!==null ? fmtMoney(w.current_price, w.price_currency) : 'No price yet';
+    const distStr = w.status==='TRIGGERED' ? 'Target hit'
+      : (w.distance_pct!==null ? Math.abs(w.distance_pct).toFixed(1) + '% away' : '-');
+    const distClass = w.status==='TRIGGERED' || (w.distance_pct!==null && Math.abs(w.distance_pct)<=2) ? 'close' : 'far';
+    return '<div class="wl-row"><div class="wl-left"><div class="wl-ticker">' + w.asset_id + '</div>' +
+      '<div class="wl-meta">' + dirLabel + ' ' + fmtMoney(w.target_price, w.target_currency) + (w.notes?(' &middot; ' + w.notes):'') + '</div>' +
+      '<span class="wl-badge ' + w.status.toLowerCase() + '">' + w.status + '</span></div>' +
+      '<div class="wl-right"><div class="wl-current">' + maskable(curStr) + '</div>' +
+      '<div class="wl-distance ' + distClass + '">' + distStr + '</div>' +
+      '<button class="wl-dismiss" onclick="dismissWatchlistItem(\'' + w.watchlist_id + '\')">Dismiss</button></div></div>';
+  }
+  let html = '<p class="section-title" style="margin-top:18px;">WATCHLIST</p>';
+  if(triggered.length){
+    html += triggered.map(row).join('');
+  }
+  html += active.map(row).join('');
+  el.innerHTML = html;
+}
+async function dismissWatchlistItem(id){
+  try{
+    await loadData('dismiss_watchlist_item', { watchlist_id: id });
+    await loadWatchlist();
+  } catch(err){
+    alert('Could not dismiss: ' + err.message);
+  }
+}
+
+// ---- Alert banner ----
+function checkWatchlistAlerts(list){
+  const triggered = list.filter(w=>w.status==='TRIGGERED');
+  if(!triggered.length) return;
+  const first = triggered[0];
+  const more = triggered.length>1 ? (' (+' + (triggered.length-1) + ' more)') : '';
+  document.getElementById('alert-title').textContent = triggered.length>1 ? 'Watchlist targets hit' : 'Watchlist target hit';
+  document.getElementById('alert-text').innerHTML = '<b>' + first.asset_id + '</b> ' +
+    (first.direction==='BUY_BELOW' ? 'dropped to ' : 'rose to ') + maskable(fmtMoney(first.current_price, first.price_currency)) +
+    ' - past your ' + maskable(fmtMoney(first.target_price, first.target_currency)) + ' target.' + more;
+  document.getElementById('alert-banner').classList.add('show');
+}
+function hideAlertBanner(){
+  document.getElementById('alert-banner').classList.remove('show');
+}
+
+// ---- Add to Watchlist modal (reuses the txn-modal shell, separate state from the transaction form) ----
+let WL_ADD_STATE = {};
+let WL_ALL_ASSETS_CACHE = null;
+function openWatchlistAddModal(){
+  WL_ADD_STATE = { asset_id:'', direction:'BUY_BELOW', target_price:'', notes:'' };
+  document.getElementById('wl-add-modal-overlay').classList.add('show');
+  document.getElementById('fab-stack').classList.remove('expanded');
+  renderWatchlistAddModal();
+  if(TXN_ALL_ASSETS===null){
+    loadData('get_all_assets_for_form').then(function(r){ TXN_ALL_ASSETS = r.assets||[]; }).catch(function(){ TXN_ALL_ASSETS = []; });
+  }
+}
+function closeWatchlistAddModal(){
+  document.getElementById('wl-add-modal-overlay').classList.remove('show');
+}
+function onWlAssetInput(val){
+  WL_ADD_STATE.asset_id = val.toUpperCase();
+  const box = document.getElementById('wl-asset-suggest');
+  if(!box) return;
+  if(!val){ box.classList.remove('show'); box.innerHTML=''; return; }
+  const list = TXN_ALL_ASSETS || [];
+  const needle = val.toUpperCase();
+  const matches = list.filter(function(a){ return a.asset_id.toUpperCase().indexOf(needle)===0; }).slice(0,8);
+  let html = matches.map(function(a){
+    return '<div class="ticker-suggest-row" onmousedown="selectWlAsset(\'' + a.asset_id.replace(/'/g,"\\'") + '\')">' + a.asset_id + ' - ' + (a.asset_name||'') + '</div>';
+  }).join('');
+  if(!matches.length && val.length>=2){
+    html = '<div class="ticker-suggest-row" onmousedown="selectWlAsset(\'' + needle.replace(/'/g,"\\'") + '\')">+ New ticker: ' + needle + '</div>';
+  }
+  box.innerHTML = html;
+  box.classList.toggle('show', !!html);
+}
+function selectWlAsset(assetId){
+  WL_ADD_STATE.asset_id = assetId;
+  const box = document.getElementById('wl-asset-suggest'); if(box){ box.classList.remove('show'); box.innerHTML=''; }
+  const input = document.getElementById('wl-asset-input'); if(input) input.value = assetId;
+}
+function selectWlDir(btn, dir){
+  WL_ADD_STATE.direction = dir;
+  btn.parentElement.querySelectorAll('.wl-dir-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function renderWatchlistAddModal(){
+  const el = document.getElementById('wl-add-modal-body');
+  el.innerHTML =
+    '<div class="txn-field"><label class="txn-label">TICKER</label><div class="txn-asset-wrap">' +
+    '<input type="text" class="txn-input" id="wl-asset-input" placeholder="Type a ticker..." oninput="onWlAssetInput(this.value)" autocomplete="off">' +
+    '<div class="ticker-suggest" id="wl-asset-suggest"></div></div></div>' +
+    '<div class="txn-field"><label class="txn-label">DIRECTION</label><div class="wl-dir-toggle">' +
+    '<button type="button" class="wl-dir-btn selected" onclick="selectWlDir(this,\'BUY_BELOW\')">&darr; Buy below</button>' +
+    '<button type="button" class="wl-dir-btn" onclick="selectWlDir(this,\'SELL_ABOVE\')">&uarr; Sell above</button>' +
+    '</div></div>' +
+    '<div class="txn-field"><label class="txn-label">TARGET PRICE</label><input type="number" step="any" class="txn-input" id="wl-target-input" oninput="WL_ADD_STATE.target_price=this.value"></div>' +
+    '<div class="txn-field"><label class="txn-label">NOTES (optional)</label><input class="txn-input" id="wl-notes-input" oninput="WL_ADD_STATE.notes=this.value"></div>' +
+    '<div id="wl-add-error"></div>' +
+    '<button class="txn-submit-btn" onclick="submitWatchlistAdd()">Save to watchlist</button>';
+}
+async function submitWatchlistAdd(){
+  if(!WL_ADD_STATE.asset_id || !WL_ADD_STATE.target_price){
+    document.getElementById('wl-add-error').innerHTML = '<div class="txn-error">Ticker and target price are both required.</div>';
+    return;
+  }
+  try{
+    const r = await loadData('add_watchlist_item', {
+      asset_id: WL_ADD_STATE.asset_id, direction: WL_ADD_STATE.direction,
+      target_price: WL_ADD_STATE.target_price, notes: WL_ADD_STATE.notes || '',
+    });
+    if(!r.success){
+      document.getElementById('wl-add-error').innerHTML = '<div class="txn-error">' + (r.error||'Unknown error') + '</div>';
+      return;
+    }
+    closeWatchlistAddModal();
+    if(ACTIVE_TAB==='watchlist') loadWatchlist();
+  } catch(err){
+    document.getElementById('wl-add-error').innerHTML = '<div class="txn-error">' + err.message + '</div>';
+  }
+}
+
+// Cursor-jump-bug note: quantity/price/amount typing NEVER triggers a full
+// modal re-render - only #txn-preview-area / #txn-warning-area / the submit
+// button's disabled state get rewritten (see updateTxnComputedArea). Same
+// "stable input, isolated results div" pattern already proven bug-free on
+// the closed-positions ticker filter elsewhere in this file.
+let TXN_ALL_ASSETS = null;
+let TXN_STATE = {};
+let TXN_SELL_CONFIRMED = false;
+
+function toggleFab(){
+  document.getElementById('fab-stack').classList.toggle('expanded');
+}
+function openTxnModal(){
+  TXN_STATE = { action:'BUY', account_id:'', asset_id:'', date: isoDateStr(new Date()), quantity:'', price:'', gross_amount:'', notes:'', newTicker:false };
+  TXN_SELL_CONFIRMED = false;
+  document.getElementById('txn-modal-overlay').classList.add('show');
+  renderTxnModalBody();
+  if(TXN_ALL_ASSETS===null){
+    loadData('get_all_assets_for_form').then(function(r){ TXN_ALL_ASSETS = r.assets||[]; }).catch(function(){ TXN_ALL_ASSETS = []; });
+  }
+}
+function closeTxnModal(){
+  document.getElementById('txn-modal-overlay').classList.remove('show');
+}
+function txnAccountOptions(){
+  return '<option value="">Select account...</option>' + ACCOUNTS.map(function(a){
+    return '<option value="' + a.account_id + '"' + (TXN_STATE.account_id===a.account_id?' selected':'') + '>' + a.account_id + ' (' + a.broker + ', ' + a.currency + ')</option>';
+  }).join('');
+}
+async function refreshComputedChecks(){
+  await Promise.all([refreshTxnPreview(), checkTxnSellWarning()]);
+  updateTxnComputedArea();
+}
+function setTxnField(key, value){
+  TXN_STATE[key] = value;
+  if(key==='action' || key==='account_id'){
+    TXN_STATE.asset_id=''; TXN_STATE.heldAssets=null; TXN_STATE.sellWarning=null; TXN_SELL_CONFIRMED=false;
+    if(key==='account_id' && (TXN_STATE.action==='SELL' || TXN_STATE.action==='DIVIDEND') && value){
+      loadData('get_held_assets_for_account', {account_id:value}).then(function(r){
+        TXN_STATE.heldAssets = r.assets||[]; renderTxnModalBody();
+      });
+      return;
+    }
+  }
+  renderTxnModalBody();
+  refreshComputedChecks();
+}
+function txnAssetSelectHtml(){
+  if(TXN_STATE.action==='DEPOSIT' || TXN_STATE.action==='WITHDRAWAL') return '';
+  if(TXN_STATE.action==='SELL' || TXN_STATE.action==='DIVIDEND'){
+    const held = TXN_STATE.heldAssets;
+    if(!TXN_STATE.account_id) return '<p class="hint">Pick an account first.</p>';
+    if(held===null || held===undefined) return '<p class="hint">Loading held positions...</p>';
+    if(!held.length) return '<p class="hint">No open positions in this account.</p>';
+    return '<select class="txn-select" onchange="setTxnField(\'asset_id\', this.value)">' +
+      '<option value="">Select ticker...</option>' +
+      held.map(function(a){ return '<option value="' + a.asset_id + '"' + (TXN_STATE.asset_id===a.asset_id?' selected':'') + '>' + a.asset_id + ' (' + a.quantity + ' held)</option>'; }).join('') +
+      '</select>';
+  }
+  return '<div class="txn-asset-wrap">' +
+    '<input type="text" class="txn-input" id="txn-asset-input" placeholder="Type a ticker..." value="' + (TXN_STATE.asset_id||'') + '" ' +
+    'oninput="onTxnAssetInput(this.value)" autocomplete="off">' +
+    '<div class="ticker-suggest" id="txn-asset-suggest"></div></div>';
+}
+function onTxnAssetInput(val){
+  TXN_STATE.asset_id = val.toUpperCase();
+  const box = document.getElementById('txn-asset-suggest');
+  if(!box) return;
+  if(!val){ box.classList.remove('show'); box.innerHTML=''; return; }
+  const list = TXN_ALL_ASSETS || [];
+  const needle = val.toUpperCase();
+  const matches = list.filter(function(a){ return a.asset_id.toUpperCase().indexOf(needle)===0; }).slice(0,8);
+  let html = matches.map(function(a){
+    return '<div class="ticker-suggest-row" onmousedown="selectTxnAsset(\'' + a.asset_id.replace(/'/g,"\\'") + '\')">' + a.asset_id + ' - ' + (a.asset_name||'') + '</div>';
+  }).join('');
+  if(!matches.length && val.length>=2){
+    html = '<div class="ticker-suggest-row" onmousedown="selectTxnAsset(\'' + needle.replace(/'/g,"\\'") + '\', true)">+ New ticker: ' + needle + '</div>';
+  }
+  box.innerHTML = html;
+  box.classList.toggle('show', !!html);
+}
+function selectTxnAsset(assetId, isNew){
+  TXN_STATE.asset_id = assetId;
+  TXN_STATE.newTicker = !!isNew;
+  const box = document.getElementById('txn-asset-suggest'); if(box){ box.classList.remove('show'); box.innerHTML=''; }
+  renderTxnModalBody();
+  refreshComputedChecks();
+}
+function recomputeTxnGrossAmount(){
+  if(TXN_STATE.action==='BUY' || TXN_STATE.action==='SELL'){
+    const q = Number(TXN_STATE.quantity)||0, p = Number(TXN_STATE.price)||0;
+    TXN_STATE.gross_amount = (q*p) ? (q*p).toFixed(2) : '';
+  }
+}
+async function refreshTxnPreview(){
+  const account = ACCOUNTS.find(function(a){ return a.account_id===TXN_STATE.account_id; });
+  if(!account || !TXN_STATE.gross_amount){ TXN_STATE.preview=null; return; }
+  const tradeCcy = account.currency;
+  const baseCcy = (CONFIG && CONFIG.base_currency) || 'USD';
+  if(tradeCcy===baseCcy){ TXN_STATE.preview = { base: Number(TXN_STATE.gross_amount), sameCcy:true }; return; }
+  try{
+    const r = await loadData('get_fx_rate_for_form', {from_currency:tradeCcy, to_currency:baseCcy, date:TXN_STATE.date});
+    TXN_STATE.preview = r.rate ? { base: Number(TXN_STATE.gross_amount)/r.rate, isFallback:r.isFallback, sameCcy:false } : null;
+  } catch(e){ TXN_STATE.preview = null; }
+}
+async function checkTxnSellWarning(){
+  TXN_STATE.sellWarning = null;
+  if(TXN_STATE.action!=='SELL' || !TXN_STATE.account_id || !TXN_STATE.asset_id || !TXN_STATE.quantity) { return; }
+  try{
+    const r = await loadData('get_current_quantity', {account_id:TXN_STATE.account_id, asset_id:TXN_STATE.asset_id});
+    if(Number(TXN_STATE.quantity) > Number(r.quantity) + 1e-6){
+      TXN_STATE.sellWarning = 'Selling ' + TXN_STATE.quantity + ' but only ' + r.quantity + ' on record in ' + TXN_STATE.account_id + '. Fine for a short sale/options assignment - otherwise double-check.';
+    }
+  } catch(e){ /* non-fatal - server re-checks on submit regardless */ }
+}
+async function onTxnNumberChange(){
+  recomputeTxnGrossAmount();
+  await refreshComputedChecks();
+}
+function txnPreviewHtml(){
+  if(!TXN_STATE.preview || TXN_STATE.preview.sameCcy) return '';
+  return '<div class="txn-preview">&asymp; ' + fmtUsd(TXN_STATE.preview.base) + ' <b>' + ((CONFIG&&CONFIG.base_currency)||'USD') + '</b>' +
+    (TXN_STATE.preview.isFallback?' (nearest available FX rate, not same-day)':'') + '</div>';
+}
+function txnWarningHtml(){
+  if(!TXN_STATE.sellWarning) return '';
+  return '<div class="txn-warning">' + TXN_STATE.sellWarning + '</div>' +
+    '<div class="txn-confirm-row"><input type="checkbox" id="txn-confirm-cb" ' + (TXN_SELL_CONFIRMED?'checked':'') + ' onchange="TXN_SELL_CONFIRMED=this.checked; updateTxnComputedArea();"> <label for="txn-confirm-cb">Yes, proceed anyway</label></div>';
+}
+function updateTxnComputedArea(){
+  const pv = document.getElementById('txn-preview-area'); if(pv) pv.innerHTML = txnPreviewHtml();
+  const wn = document.getElementById('txn-warning-area'); if(wn) wn.innerHTML = txnWarningHtml();
+  const btn = document.getElementById('txn-submit-btn'); if(btn) btn.disabled = !txnCanSubmit();
+}
+function txnCanSubmit(){
+  if(!TXN_STATE.account_id) return false;
+  if((TXN_STATE.action==='BUY'||TXN_STATE.action==='SELL'||TXN_STATE.action==='DIVIDEND') && !TXN_STATE.asset_id) return false;
+  if((TXN_STATE.action==='BUY'||TXN_STATE.action==='SELL') && (!TXN_STATE.quantity || !TXN_STATE.price)) return false;
+  if(!TXN_STATE.gross_amount) return false;
+  if(TXN_STATE.sellWarning && !TXN_SELL_CONFIRMED) return false;
+  return true;
+}
+async function submitTxn(){
+  const btn = document.getElementById('txn-submit-btn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Saving...'; }
+  const params = {
+    action: TXN_STATE.action, account_id: TXN_STATE.account_id, asset_id: TXN_STATE.asset_id||'',
+    date: TXN_STATE.date, quantity: TXN_STATE.quantity||'', price: TXN_STATE.price||'',
+    gross_amount: TXN_STATE.gross_amount, notes: TXN_STATE.notes||'',
+    confirmSellWarning: TXN_SELL_CONFIRMED ? 'true' : 'false',
+  };
+  if(TXN_STATE.newTicker){
+    params.asset_name = TXN_STATE.asset_name || TXN_STATE.asset_id;
+    params.asset_class = TXN_STATE.asset_class || 'Equity';
+    params.exchange = TXN_STATE.exchange || '';
+  }
+  try{
+    const r = await loadData('create_transaction', params);
+    if(r.needsConfirmation){ TXN_STATE.sellWarning = r.warning; renderTxnModalBody(); return; }
+    if(!r.success){ TXN_STATE.submitError = r.error||'Unknown error'; renderTxnModalBody(); return; }
+    closeTxnModal();
+    await fullLoad(false);
+  } catch(err){
+    TXN_STATE.submitError = err.message; renderTxnModalBody();
+  }
+}
+function renderTxnModalBody(){
+  const el = document.getElementById('txn-modal-body');
+  if(!el) return;
+  const showQtyPrice = TXN_STATE.action==='BUY' || TXN_STATE.action==='SELL';
+  const showAmountOnly = TXN_STATE.action==='DEPOSIT' || TXN_STATE.action==='WITHDRAWAL' || TXN_STATE.action==='DIVIDEND';
+  el.innerHTML =
+    '<div class="txn-field"><label class="txn-label">ACTION</label>' +
+    '<select class="txn-select" onchange="setTxnField(\'action\', this.value)">' +
+    ['BUY','SELL','DIVIDEND','DEPOSIT','WITHDRAWAL'].map(function(a){ return '<option value="' + a + '"' + (TXN_STATE.action===a?' selected':'') + '>' + a + '</option>'; }).join('') +
+    '</select></div>' +
+    '<div class="txn-field"><label class="txn-label">ACCOUNT</label>' +
+    '<select class="txn-select" onchange="setTxnField(\'account_id\', this.value)">' + txnAccountOptions() + '</select></div>' +
+    ((TXN_STATE.action!=='DEPOSIT' && TXN_STATE.action!=='WITHDRAWAL') ? ('<div class="txn-field"><label class="txn-label">TICKER</label>' + txnAssetSelectHtml() + '</div>') : '') +
+    (TXN_STATE.newTicker ? (
+      '<div class="txn-new-ticker-fields">' +
+      '<div class="txn-field"><label class="txn-label">NAME</label><input class="txn-input" value="' + (TXN_STATE.asset_name||'') + '" oninput="TXN_STATE.asset_name=this.value"></div>' +
+      '<div class="txn-field"><label class="txn-label">ASSET CLASS</label><input class="txn-input" value="' + (TXN_STATE.asset_class||'Equity') + '" oninput="TXN_STATE.asset_class=this.value"></div>' +
+      '<div class="txn-field"><label class="txn-label">EXCHANGE</label><input class="txn-input" value="' + (TXN_STATE.exchange||'') + '" oninput="TXN_STATE.exchange=this.value"></div>' +
+      '</div>'
+    ) : '') +
+    '<div class="txn-field"><label class="txn-label">DATE</label><input type="date" class="txn-input" value="' + TXN_STATE.date + '" onchange="setTxnField(\'date\', this.value)"></div>' +
+    (showQtyPrice ? (
+      '<div class="txn-field"><label class="txn-label">QUANTITY</label><input type="number" step="any" class="txn-input" value="' + TXN_STATE.quantity + '" oninput="TXN_STATE.quantity=this.value; onTxnNumberChange();"></div>' +
+      '<div class="txn-field"><label class="txn-label">PRICE (per unit)</label><input type="number" step="any" class="txn-input" value="' + TXN_STATE.price + '" oninput="TXN_STATE.price=this.value; onTxnNumberChange();"></div>'
+    ) : '') +
+    (showAmountOnly ? (
+      '<div class="txn-field"><label class="txn-label">AMOUNT</label><input type="number" step="any" class="txn-input" value="' + TXN_STATE.gross_amount + '" oninput="TXN_STATE.gross_amount=this.value; onTxnNumberChange();"></div>'
+    ) : '') +
+    '<div id="txn-preview-area">' + txnPreviewHtml() + '</div>' +
+    '<div id="txn-warning-area">' + txnWarningHtml() + '</div>' +
+    '<div class="txn-field"><label class="txn-label">NOTES (optional)</label><input class="txn-input" value="' + (TXN_STATE.notes||'') + '" oninput="TXN_STATE.notes=this.value"></div>' +
+    (TXN_STATE.submitError ? ('<div class="txn-error">' + TXN_STATE.submitError + '</div>') : '') +
+    '<button class="txn-submit-btn" id="txn-submit-btn" ' + (txnCanSubmit()?'':'disabled') + ' onclick="submitTxn()">Save transaction</button>';
+}
 </script>
 </body>
 </html>
